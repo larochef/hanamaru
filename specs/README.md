@@ -21,10 +21,10 @@ principles and the shared vocabulary that every other file relies on.
 |---|--------|--------|
 | [00](00-overview.md) | Overview, principles, vocabulary, roadmap | reference |
 | [01](01-application-architecture.md) | Application architecture and stack | skeleton built |
-| [02](02-reference-data.md) | Reference data (kana, kanji, dictionary, sentences) | planned |
+| [02](02-reference-data.md) | Reference data (kana, kanji, dictionary, sentences) | KanjiVG imported |
 | [03](03-learner-model.md) | Learner model and spaced repetition | planned |
 | [04](04-placement.md) | Placement tests | planned |
-| [05](05-writing.md) | Writing with the stylus, stroke order | planned |
+| [05](05-writing.md) | Writing with the stylus, stroke order | demonstration built |
 | [06](06-curriculum-and-lessons.md) | Curriculum and lessons | planned |
 | [07](07-text-generation.md) | Generated texts and progressive kanji | planned |
 | [08](08-vocabulary-practice.md) | Vocabulary practice | planned |

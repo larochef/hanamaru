@@ -8,24 +8,203 @@ textarea {
   font-family: "Klee One", sans-serif;
 }
 
-body {
-  margin: 0;
-  background: #faf8f3;
-  color: #2b2b2b;
+:root {
+  --paper: #faf8f3;
+  --ink: #2b2b2b;
+  --faint: #e4dfd3;
+  --muted: #7a746a;
+  --accent: #c0392b;
 }
 
-.home {
-  max-width: 40rem;
-  margin: 4rem auto;
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+a {
+  color: inherit;
+}
+
+.layout {
+  max-width: 56rem;
+  margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-.home h1 {
-  font-size: 2.5rem;
-  font-weight: 600;
-  margin: 0 0 1.5rem;
+.layout [hidden] {
+  display: none !important;
 }
 
-.server-status.is-failed {
-  color: #b3261e;
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+
+.top-bar .title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.notice p {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: #fff4d6;
+}
+
+.is-failed {
+  color: var(--accent);
+}
+
+.notice p.is-failed {
+  background: #fde8e6;
+}
+
+.credits {
+  margin: 3rem 0 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* the chart: five columns, as kana are taught */
+.kana-group h3 {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.kana-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  max-width: 30rem;
+}
+
+.kana-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+
+a.kana-cell {
+  background: #fff;
+  border: 1px solid var(--faint);
+}
+
+a.kana-cell:hover {
+  border-color: var(--ink);
+}
+
+.kana-cell .kana {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.kana-cell .romaji {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* one character */
+.character-page .back {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.character-heading {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.character-model {
+  font-size: 6rem;
+  line-height: 1;
+}
+
+.character-heading div {
+  display: flex;
+  flex-direction: column;
+}
+
+.character-reading {
+  font-size: 2rem;
+}
+
+.character-script {
+  color: var(--muted);
+}
+
+.demonstration {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.demonstration-box {
+  width: min(70vh, 100%);
+  max-width: 28rem;
+  background: #fff;
+  border: 1px solid var(--faint);
+}
+
+.demonstration-box .guide line {
+  stroke: var(--faint);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 2;
+}
+
+.demonstration-box path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.demonstration-box .model path {
+  stroke: var(--faint);
+}
+
+/* each stroke drawn from its start to its end, one after the other */
+.demonstration-box .drawn path {
+  stroke: var(--ink);
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: draw-stroke 0.8s ease-in-out forwards;
+}
+
+.demonstration-box .numbers text {
+  font-size: 8px;
+  fill: var(--accent);
+  opacity: 0;
+  animation: show-number 0.2s forwards;
+}
+
+@keyframes draw-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes show-number {
+  to {
+    opacity: 1;
+  }
+}
+
+.replay {
+  font-size: 1rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.5rem;
+  background: #fff;
+  cursor: pointer;
 }

@@ -1,10 +1,10 @@
 package hanamaru.frontend
 
 import hanamaru.frontend.api.ApiClient
-import hanamaru.frontend.appServices.StatusService
-import hanamaru.frontend.components.HomePage
+import hanamaru.frontend.appServices.*
+import hanamaru.frontend.components.*
 import hanamaru.frontend.i18n.Language
-import hanamaru.frontend.model.AppBus
+import hanamaru.frontend.model.*
 
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
@@ -21,6 +21,37 @@ object Application {
 
   private val apiClient = ApiClient(baseUri)
 
+  private val page: Signal[Page] =
+    bus.events.events
+      .collect { case AppEvent.PageShown(now) => now }
+      .startWith(Page.Chart)
+
+  // Every page stays mounted, the others hidden: what each shows follows the
+  // bus's events, which a page away would miss.
+  private lazy val shell: HtmlElement = div(
+    cls := "layout",
+    headerTag(
+      cls := "top-bar",
+      PageLink(
+        bus,
+        Page.Chart,
+        cls := "title",
+        span(lang := "ja", "花丸"),
+        " Hanamaru"
+      ),
+      LanguageChoice()
+    ),
+    ReferenceDataNotice(bus),
+    mainTag(
+      div(hidden <-- page.map(_ != Page.Chart), KanaChart(bus)),
+      div(
+        hidden <-- page.map(!_.isInstanceOf[Page.Character]),
+        CharacterPage(bus)
+      )
+    ),
+    Credits()
+  )
+
   private lazy val appContainer: dom.Element =
     dom.document.querySelector("#app")
 
@@ -28,6 +59,9 @@ object Application {
   def main(args: Array[String]): Unit = {
     dom.document.documentElement.setAttribute("lang", Language.current.code)
     StatusService(bus, apiClient)
-    render(appContainer, HomePage(bus).node)
+    WritingService(bus, apiClient)
+    val navigation = NavigationService(bus)
+    render(appContainer, shell)
+    navigation.showAddressed()
   }
 }

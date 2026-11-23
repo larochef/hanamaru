@@ -3,18 +3,27 @@ package hanamaru.frontend.appServices
 import hanamaru.frontend.api.ApiClient
 import hanamaru.frontend.model.*
 import hanamaru.frontend.utils.AppStreams
+import hanamaru.shared.ReferenceDataState
+
+import scala.scalajs.js.timers.setTimeout
 
 import com.raquo.laminar.api.L.*
 
 class StatusService(bus: AppBus, apiClient: ApiClient) {
+  private val pollMillis = 1000
 
   bus.commands.events
     .collect { case command @ AppCommand.CheckServer => command }
-    .foreach { command =>
-      AppStreams.runOnce(apiClient.status()) {
-        case Right(status) => bus.publish(AppEvent.ServerChecked(status))
-        case Left(reason)  =>
-          bus.publish(AppEvent.RequestFailed(command, reason))
-      }
-    }(using unsafeWindowOwner)
+    .foreach(check)(using unsafeWindowOwner)
+
+  private def check(command: AppCommand): Unit = {
+    AppStreams.runOnce(apiClient.status()) {
+      case Right(status) =>
+        bus.publish(AppEvent.ServerChecked(status))
+        if (status.referenceData == ReferenceDataState.Preparing) {
+          setTimeout(pollMillis)(check(command))
+        }
+      case Left(reason) => bus.publish(AppEvent.RequestFailed(command, reason))
+    }
+  }
 }

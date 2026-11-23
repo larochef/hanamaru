@@ -7,16 +7,13 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Using
 import scala.util.control.NonFatal
 
-import org.flywaydb.core.Flyway
-
-/** The learner's SQLite database, its schema brought up to date by Flyway when
-  * it opens, from the migrations in the resources' `db/migration`.
+/** The learner's SQLite database.
   *
   * One connection, one caller at a time: a single learner's data, whose
   * requests are short. Plain SQL with `?` parameters; a value is a String, an
   * Int, a Long, a Double, an Option of one, or null.
   */
-final class Database(connection: Connection) {
+final class Database(connection: Connection) extends AutoCloseable {
   private val lock = ReentrantLock()
 
   /** Runs `work` in one transaction: all of it is kept, or none. */
@@ -43,19 +40,12 @@ final class Database(connection: Connection) {
   /** Reads, in a transaction of its own. */
   def read[A](work: Database.Session => A): A = transaction(work)
 
-  def close(): Unit = connection.close()
+  override def close(): Unit = connection.close()
 }
 
 object Database {
-
   def open(file: Path): Database = {
     val url = s"jdbc:sqlite:$file"
-    Flyway
-      .configure()
-      .dataSource(url, null, null)
-      .locations("classpath:db/migration")
-      .load()
-      .migrate()
     val connection = DriverManager.getConnection(url)
     Using.resource(connection.createStatement()) { statement =>
       // readers do not wait for the writer, and references are kept

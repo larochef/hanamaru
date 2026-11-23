@@ -88,8 +88,13 @@ hiragana and katakana.
 
 1. **Skeleton** (done): Mill build, backend and frontend, SQLite, conventions
    ([`01`](01-application-architecture.md)).
-2. **Kana**: kana and their strokes imported, stylus writing, kana placement,
-   spaced repetition, a short session format.
+2. **Kana**, in five deliveries, writing first so the stroke matcher is tuned
+   on real stylus input early:
+   1. (done) the kana chart, KanjiVG imported, stroke order animated;
+   2. the stylus canvas and the stroke matcher: guided, then from memory;
+   3. the learner model in SQLite, with FSRS;
+   4. the kana placement test;
+   5. the Express session format.
 3. **LLM and vocabulary**: llama-server driven by the backend, the dictionary
    and a core word list, the vocabulary practice formats, words in generated
    sentences.

@@ -1,6 +1,6 @@
 # 05 — Writing with the stylus, stroke order
 
-**Status:** planned
+**Status:** demonstration built
 
 ## Intent
 
@@ -15,8 +15,10 @@ is every kyōiku kanji.
   recorded. The screen is vertical for now, so the writing area is large and the
   gestures forgiving. A flat tablet may come later and must need no redesign.
 - **Three steps per character**:
-  1. **Demonstration**: strokes animated one by one from KanjiVG, numbered,
-     with their direction shown.
+  1. **Demonstration** (built): strokes animated one by one from KanjiVG, each
+     drawn from its start to its end over the faint model, numbered as it is
+     drawn, on a box with the dashed cross of practice paper; it can be
+     replayed.
   2. **Guided**: the learner writes over a faint model.
   3. **From memory**: an empty box (with the meaning or reading as the prompt).
 - **Correction is deterministic, not by the AI.** Each drawn stroke is compared

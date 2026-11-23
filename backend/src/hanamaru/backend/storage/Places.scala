@@ -10,6 +10,9 @@ import java.nio.file.{Files, Path}
 final case class Places(data: Path, cache: Path) {
   def database: Path = data.resolve("learner.db")
 
+  /** The open datasets, as downloaded. */
+  def reference: Path = cache.resolve("reference")
+
   def created(): Places = {
     Files.createDirectories(data)
     Files.createDirectories(cache)

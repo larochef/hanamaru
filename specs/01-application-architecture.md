@@ -19,9 +19,10 @@ typography (`<ruby>` furigana, vertical text if ever wanted).
     with **jsoniter-scala** codecs, plus logic that must run in the browser
     (stroke matching, romaji → kana conversion)
 - **SQLite** for the learner's data, through plain JDBC with small helpers
-  (`Database` in the backend): one connection, one caller at a time, its schema
-  moved on by **Flyway** migrations, which go in the backend's resources under
-  `db/migration`.
+  (`Database` in the backend): one connection, one caller at a time. Its schema
+  will be moved on by **Flyway** migrations, in the backend's resources under
+  `db/migration`; Flyway is added with the first one, the learner model
+  ([`03`](03-learner-model.md)).
 - **Ports**: the backend listens on `localhost:4323` (`HANAMARU_PORT`), Vite's
   dev server on 5175, away from the usual defaults so that other local
   applications can run beside it. Only `localhost`: nothing else on the network
@@ -38,6 +39,8 @@ typography (`<ruby>` furigana, vertical text if ever wanted).
   is needed to show characters as they are handwritten. A Gothic or Mincho font
   can mislead on stroke shapes. **Klee One** (OFL) is bundled, with its
   Japanese subsets, from the `@fontsource/klee-one` npm package.
+- **No CSS framework**: the page's own stylesheet (`frontend/app.css`). The
+  screens are few, mostly a large writing canvas and cards.
 - **Nothing personal in the repository**: no paths to the learner's home, no
   biography. Local paths (model files, binaries) come from a configuration file
   outside the repository.
