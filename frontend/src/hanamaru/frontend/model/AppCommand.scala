@@ -56,4 +56,7 @@ object AppCommand {
 
   /** Keeps the learner's own word on an answer the code could not judge. */
   final case class SelfGradeVocabulary(grade: SelfGrade) extends AppCommand
+
+  /** Asks the tutor for a sentence with a word. */
+  final case class LoadSentence(word: Long) extends AppCommand
 }

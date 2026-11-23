@@ -80,6 +80,7 @@ class ServerNotice(bus: AppBus) extends ReactiveElement {
   private def notices(status: ServerStatus): List[HtmlElement] =
     referenceData("KanjiVG", status.strokes).toList ++
       referenceData("JMdict", status.dictionary).toList ++
+      referenceData("Sudachi", status.analyser).toList ++
       model(status.model).toList
 
   override lazy val node: HtmlElement = div(

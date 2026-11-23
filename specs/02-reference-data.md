@@ -50,6 +50,13 @@ the application's storage and queried by the backend.
   JMdict's own frequency ranks were the first choice and were dropped: they
   come from a newspaper corpus (食べる near the 12,000th word, 行く and 好き
   unranked, 安保 "security treaty" among the first 500).
+- **Sudachi's core dictionary** (Works Applications, Apache 2.0), the
+  analyser's ([`01`](01-application-architecture.md)), is pinned to release
+  `v20261015` and checked by its SHA-256 (77 MB to download, 202 MB
+  installed), downloaded and installed with the others on first start.
+- **Tatoeba** is not imported yet: the sentences words are practised in are
+  written by the tutor and checked by the code ([`08`](08-vocabulary-practice.md));
+  real sentences will come with reading texts.
 - Each dataset's licence (share-alike or attribution) is respected and credited
   in the page. KanjiVG is CC BY-SA 3.0 (© Ulrich Apel), as its files state.
 - **French in JMdict**, measured: 57% of its common words have French glosses,

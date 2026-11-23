@@ -1,6 +1,6 @@
 # 10 — LLM runtime and the AI tutor
 
-**Status:** runtime built; first role: judging meanings
+**Status:** runtime built; roles: judging meanings, writing sentences
 
 ## Intent
 
@@ -57,6 +57,9 @@ later conversation. The backend runs it and keeps it within the rules of
   given the word, its glosses numbered and the learner's answer, the tutor says
   whether it means the same as one of them, and which by number; the code
   checks the number, so the tutor only recognises right answers.
+- **Second role built: writing a sentence** for a word with only the words
+  the learner knows (`SentenceWriter`, [`07`](07-text-generation.md)), at
+  temperature 0.7 so that a sentence refused is not written again the same.
 - **The tutor's roles**, each a prompt of its own with what it may use (known
   words, current grammar point):
   - generate texts and exercises ([`07`](07-text-generation.md));

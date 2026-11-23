@@ -23,7 +23,8 @@ final class LlamaClient(server: LlamaServer, http: HttpClient) {
       system: String,
       user: String,
       schema: String,
-      maxTokens: Int = 512
+      maxTokens: Int = 512,
+      temperature: Double = 0
   ): Either[String, A] =
     server.uri.toRight("The tutor is not ready").flatMap { uri =>
       val request = ChatRequest(
@@ -33,7 +34,7 @@ final class LlamaClient(server: LlamaServer, http: HttpClient) {
           "json_schema",
           JsonSchema("answer", RawJson(schema.getBytes(StandardCharsets.UTF_8)))
         ),
-        temperature = 0,
+        temperature = temperature,
         max_tokens = maxTokens
       )
       try {

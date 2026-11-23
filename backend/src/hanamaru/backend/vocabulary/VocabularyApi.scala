@@ -10,6 +10,7 @@ import sttp.tapir.server.ServerEndpoint
 class VocabularyApi(practice: VocabularyPractice) {
 
   val endpoints: List[ServerEndpoint[Any, Identity]] = List(
+    VocabularyRoutes.sentence.handle(practice.sentence),
     VocabularyRoutes.series.handle(_ => practice.series(Instant.now())),
     VocabularyRoutes.answer.handle(answer =>
       practice.answered(answer, Instant.now())

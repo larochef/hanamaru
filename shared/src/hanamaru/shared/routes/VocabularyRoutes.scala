@@ -28,4 +28,14 @@ object VocabularyRoutes {
       .in("vocabulary" / "self-grades")
       .in(jsonBody[SelfGrade])
       .errorOut(Routes.refused)
+
+  /** A sentence for a word, written by the tutor with the words the learner
+    * knows and checked; none when none could be written.
+    */
+  val sentence: PublicEndpoint[Long, String, Option[WordSentence], Any] =
+    Routes.baseRoute.get
+      .in("vocabulary" / "sentence")
+      .in(query[Long]("word"))
+      .errorOut(Routes.refused)
+      .out(jsonBody[Option[WordSentence]])
 }

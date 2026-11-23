@@ -42,6 +42,15 @@ class Credits extends ReactiveElement {
         href := "https://creativecommons.org/licenses/by-sa/4.0/",
         "CC BY-SA 4.0"
       )
+    ),
+    p(
+      Tr("Japanese analysis: ", "Analyse du japonais : "),
+      a(href := "https://github.com/WorksApplications/Sudachi", "Sudachi"),
+      Tr(
+        " and its dictionary, Works Applications, ",
+        " et son dictionnaire, Works Applications, "
+      ),
+      a(href := "https://www.apache.org/licenses/LICENSE-2.0", "Apache 2.0")
     )
   )
 }

@@ -150,6 +150,8 @@ object backend extends BaseScala {
     // the learner's data: one SQLite file, its schema moved on by Flyway
     mvn"org.xerial:sqlite-jdbc:3.54.1.0",
     mvn"org.flywaydb:flyway-core:13.13.0",
+    // splits Japanese into words, with their readings and dictionary forms
+    mvn"com.worksap.nlp:sudachi:0.8.2",
   )
 
   def mainClass = Some("hanamaru.backend.Main")

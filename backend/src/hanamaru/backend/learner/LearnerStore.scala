@@ -129,6 +129,22 @@ final class LearnerStore(database: Database) {
     }
   }
 
+  /** A card's memory, once it has been reviewed. */
+  def memory(
+      itemKind: ItemKind,
+      key: String,
+      cardKind: CardKind
+  ): Option[Memory] =
+    database.read(
+      _.queryOne(
+        """SELECT card.* FROM card JOIN item ON item.id = card.item_id
+          |WHERE item.kind = ? AND item.key = ? AND card.kind = ?""".stripMargin,
+        itemKind.name,
+        key,
+        cardKind.name
+      )(memoryOf)
+    )
+
   /** The items of a kind that have a card due by `now`, the most overdue first,
     * at most `count` of them.
     */

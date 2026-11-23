@@ -28,6 +28,13 @@ class VocabularyService(bus: AppBus, apiClient: ApiClient) {
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
+    case command @ AppCommand.LoadSentence(word) =>
+      AppStreams.runOnce(apiClient.sentence(word)) {
+        case Right(sentence) =>
+          bus.publish(AppEvent.SentenceLoaded(word, sentence))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
     case _ => ()
   }(using unsafeWindowOwner)
 }

@@ -1,6 +1,6 @@
 # 07 — Generated texts and progressive kanji
 
-**Status:** planned
+**Status:** first piece built: single sentences checked and laid out in kana
 
 ## Intent
 
@@ -10,6 +10,19 @@ learned, without anyone writing them by hand.
 
 ## Decided
 
+- **Built first, for vocabulary** ([`08`](08-vocabulary-practice.md)): one
+  sentence for one word (`SentenceWriter`). The tutor is given the word, in its
+  dictionary form, and the words the learner has met; it writes one short
+  polite sentence and its French translation (a very short sentence rather
+  than an odd one). The analyser splits it, and the code checks every word
+  (`SentenceCheck`): the word asked, a word met, or grammar (particles,
+  auxiliaries, punctuation, affixes, numbers, and words that hold sentences
+  together: する, いる, ある, なる, これ, この, ここ…). Refused, the tutor is
+  asked again with the words it may not use, three times at most; otherwise no
+  sentence. Checked, it is laid out for a learner who reads kana only: each word
+  in kana, words spaced as in books for beginners, a word used as it stands in
+  the dictionary read as JMdict reads it first. With 40 words met, 9 sentences
+  in 10 were written and checked, in 1 to 3 s each.
 - **Pipeline**:
   1. The backend asks the model for a text built on a grammar point and a set
      of words, with constraints: length, level, the vocabulary allowed, the

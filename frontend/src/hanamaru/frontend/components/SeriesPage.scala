@@ -44,6 +44,11 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
   private val phase = Var[Phase](Phase.Asking)
   private val known = Var(Set.empty[Long])
 
+  // the sentences written for the stable words, fetched one after the other,
+  // the tutor answering one request at a time
+  private val sentences = Var(Map.empty[Long, WordSentence])
+  private val sentencesWanted = Var(List.empty[Long])
+
   // the word asked for itself is written with the stylus, or typed
   private val stylus = Var(true)
   private val tally = Var(Tally(0, 0, 0))
@@ -85,6 +90,10 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
   }
 
   private def started(words: List[SeriesWord]): Unit = {
+    val wanted = words.filter(_.inSentence).map(_.word.id)
+    sentences.set(Map.empty)
+    sentencesWanted.set(wanted.drop(1))
+    wanted.headOption.foreach(word => bus.send(AppCommand.LoadSentence(word)))
     queue.set(planned(words))
     known.set(Set.empty)
     tally.set(Tally(0, 0, 0))
@@ -208,9 +217,59 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
     )
   )
 
+  private def sentenceLoaded(
+      word: Long,
+      sentence: Option[WordSentence]
+  ): Unit = {
+    sentence.foreach(written =>
+      sentences.set(sentences.now() + (word -> written))
+    )
+    val rest = sentencesWanted.now()
+    sentencesWanted.set(rest.drop(1))
+    rest.headOption.foreach(next => bus.send(AppCommand.LoadSentence(next)))
+  }
+
+  /** A sentence in kana, its words spaced, the word asked blanked until
+    * `revealed`.
+    */
+  private def sentenceShown(
+      sentence: WordSentence,
+      revealed: Boolean
+  ): HtmlElement = p(
+    cls := "word-sentence",
+    lang := "ja",
+    sentence.parts.map(part =>
+      span(
+        cls("is-asked") := part.blank,
+        (if (part.spaceBefore) " " else "") +
+          (if (part.blank && !revealed) "＿＿＿" else part.text)
+      )
+    )
+  )
+
+  // the word asked for itself in a sentence, when one is ready
+  private def inSentence(word: DictionaryWord): Option[HtmlElement] =
+    sentences
+      .now()
+      .get(word.id)
+      .map(sentence =>
+        div(
+          cls := "series-sentence",
+          sentenceShown(sentence, revealed = false),
+          p(
+            cls := "in-english",
+            Tr(
+              "The missing word, in its dictionary form:",
+              "Le mot qui manque, sous sa forme du dictionnaire :"
+            )
+          )
+        )
+      )
+
   private def asked(task: Task.Ask): HtmlElement = {
     val shownAt = js.Date.now()
     val word = task.word.word
+    val sentence = sentences.now().get(word.id).map(_.japanese)
     def submit(typed: String): Unit =
       submitted.writer.onNext(
         VocabularyAnswer(
@@ -218,7 +277,9 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
           task.direction,
           typed,
           js.Date.now() - shownAt,
-          alreadyKnown = known.now().contains(word.id)
+          alreadyKnown = known.now().contains(word.id),
+          sentence =
+            sentence.filter(_ => task.direction == Direction.Production)
         )
       )
     task.direction match {
@@ -232,6 +293,7 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
             cls := "placement-prompt",
             Tr("Write from memory, in kana:", "Écris de mémoire, en kana :")
           ),
+          inSentence(word),
           div(
             cls := "series-meaning",
             meanings.headOption.fold("")(_.glosses.take(3).mkString(", "))
@@ -252,7 +314,8 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
                   reading,
                   js.Date.now() - shownAt,
                   alreadyKnown = known.now().contains(word.id),
-                  written = written
+                  written = written,
+                  sentence = sentence
                 )
               )
             )
@@ -271,6 +334,7 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
             cls := "placement-prompt",
             Tr("How do you say:", "Comment dit-on :")
           ),
+          inSentence(word),
           div(
             cls := "series-meaning",
             meanings.headOption.fold("")(_.glosses.take(3).mkString(", "))
@@ -368,6 +432,16 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
     verdictLine(verdict),
     wordShown(task.word.word),
     meaningsShown(task.word.word),
+    // asked in a sentence: the sentence whole, and in French
+    answer.sentence
+      .flatMap(_ => sentences.now().get(task.word.word.id))
+      .map(sentence =>
+        div(
+          cls := "series-sentence",
+          sentenceShown(sentence, revealed = true),
+          p(cls := "in-english", sentence.french)
+        )
+      ),
     // written with the stylus: each character corrected
     Option.when(answer.written.nonEmpty)(
       div(
@@ -468,6 +542,11 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
       )
     ),
     loaded.collect { case Right(words) => words } --> (started(_)),
+    bus.events.events.collect {
+      case AppEvent.SentenceLoaded(word, sentence) => word -> sentence
+      case AppEvent.RequestFailed(AppCommand.LoadSentence(word), _) =>
+        word -> None
+    } --> ((word, sentence) => sentenceLoaded(word, sentence)),
     submitted.events.flatMapSwitch(answer =>
       bus
         .request(AppCommand.AnswerVocabulary(answer)) {

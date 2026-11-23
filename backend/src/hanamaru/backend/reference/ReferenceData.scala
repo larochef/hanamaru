@@ -12,7 +12,8 @@ import com.typesafe.scalalogging.Logger
 
 /** The open datasets the application reads its facts from, downloaded into the
   * cache on first start, meanwhile the server serves: the strokes (KanjiVG)
-  * first, then the dictionary (JMdict), each usable as soon as it is ready.
+  * first, then the dictionary (JMdict), then the analyser's dictionary
+  * (Sudachi), each usable as soon as it is ready.
   */
 final class ReferenceData(directory: Path, download: Download) {
   private val logger = Logger("hanamaru.backend.reference")
@@ -21,12 +22,19 @@ final class ReferenceData(directory: Path, download: Download) {
     ReferenceDataState.Preparing
   @volatile private var dictionaryState: ReferenceDataState =
     ReferenceDataState.Preparing
+  @volatile private var analyserState: ReferenceDataState =
+    ReferenceDataState.Preparing
+  @volatile private var analysis: Option[Analyser] = None
   @volatile private var archive: Option[KanjiVgArchive] = None
   @volatile private var words: Option[Dictionary] = None
 
   def strokes: ReferenceDataState = strokesState
 
   def dictionaryData: ReferenceDataState = dictionaryState
+
+  def analyserData: ReferenceDataState = analyserState
+
+  def analyser: Option[Analyser] = analysis
 
   def kanjiVg: Option[KanjiVgArchive] = archive
 
@@ -46,6 +54,18 @@ final class ReferenceData(directory: Path, download: Download) {
       val opened = Dictionary(Database.connect(importedDictionary()))
       words = Some(opened)
       s"JMdict of ${opened.version.getOrElse("created", "?")} ready"
+    }
+    analyserState = prepared("Sudachi") {
+      val file = Analyser.dictionaryIn(directory)
+      if (!Files.exists(file)) {
+        logger.info(s"Downloading Sudachi's dictionary ${Analyser.version}")
+        val archive = directory.resolve(s"sudachi-${Analyser.version}-core.zip")
+        download.fetched(Analyser.uri, Some(Analyser.sha256), archive)
+        Analyser.installed(archive, file)
+        Files.delete(archive)
+      }
+      analysis = Some(Analyser(file))
+      s"Sudachi's dictionary ${Analyser.version} ready"
     }
   }
 

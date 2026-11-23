@@ -85,6 +85,9 @@ class ApiClient(baseUri: Uri) {
   def selfGradeVocabulary(grade: SelfGrade): EventStream[AppResult[Unit]] =
     call(VocabularyRoutes.selfGrade, grade)
 
+  def sentence(word: Long): EventStream[AppResult[Option[WordSentence]]] =
+    call(VocabularyRoutes.sentence, word)
+
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],
       input: I

@@ -20,16 +20,16 @@ principles and the shared vocabulary that every other file relies on.
 | # | Module | Status |
 |---|--------|--------|
 | [00](00-overview.md) | Overview, principles, vocabulary, roadmap | reference |
-| [01](01-application-architecture.md) | Application architecture and stack | skeleton built |
-| [02](02-reference-data.md) | Reference data (kana, kanji, dictionary, sentences) | KanjiVG, JMdict, JLPT lists imported |
+| [01](01-application-architecture.md) | Application architecture and stack | built |
+| [02](02-reference-data.md) | Reference data (kana, kanji, dictionary, sentences) | KanjiVG, JMdict, JLPT lists, Sudachi imported |
 | [03](03-learner-model.md) | Learner model and spaced repetition | built for kana |
 | [04](04-placement.md) | Placement tests | built for kana |
 | [05](05-writing.md) | Writing with the stylus, stroke order | built for kana; tolerances to tune |
 | [06](06-curriculum-and-lessons.md) | Curriculum and lessons | planned |
-| [07](07-text-generation.md) | Generated texts and progressive kanji | planned |
+| [07](07-text-generation.md) | Generated texts and progressive kanji | single sentences built |
 | [08](08-vocabulary-practice.md) | Vocabulary practice | rapid series built |
 | [09](09-sessions.md) | Sessions: time budget, context, formats | Express built for kana |
-| [10](10-llm-runtime.md) | LLM runtime and the AI tutor | runtime built; judges meanings |
+| [10](10-llm-runtime.md) | LLM runtime and the AI tutor | judges meanings, writes sentences |
 | [11](11-speech.md) | Speech: synthesis, recognition, conversation | planned |
 
 ## Build order

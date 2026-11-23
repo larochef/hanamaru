@@ -23,6 +23,7 @@ class StatusService(bus: AppBus, apiClient: ApiClient) {
         if (
           status.strokes == ReferenceDataState.Preparing ||
           status.dictionary == ReferenceDataState.Preparing ||
+          status.analyser == ReferenceDataState.Preparing ||
           status.model == ModelState.Starting
         ) {
           setTimeout(pollMillis)(check(command))

@@ -55,4 +55,8 @@ object AppEvent {
   ) extends AppEvent
 
   final case class SelfGradeKept(grade: SelfGrade) extends AppEvent
+
+  /** A sentence for a word, none when none could be written. */
+  final case class SentenceLoaded(word: Long, sentence: Option[WordSentence])
+      extends AppEvent
 }

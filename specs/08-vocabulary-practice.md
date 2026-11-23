@@ -56,6 +56,14 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
   ([`05`](05-writing.md)): right when every character is right, nearly
   (graded *hard*) when only strokes' order or direction are wrong, otherwise
   missed. The kanji form will be written the same way once kanji are learned.
+- **In a sentence, once stable**: a word whose production has passed its
+  first steps is asked for itself in a sentence written by the tutor and
+  checked by the code ([`07`](07-text-generation.md)), the word blanked, its
+  meaning given, typed or written in its dictionary form and graded as any
+  production. The series asks for the sentences when it starts, one after the
+  other; a word whose sentence is not ready, or could not be written, is asked
+  without one. Once answered, the sentence is shown whole, with its
+  translation.
 - **Meaning recall** is graded by code first: right when the answer is one of
   the word's glosses, French or English, whatever the accents, case, leading
   article, "to", "to be" or words in brackets. Otherwise the **tutor** is asked

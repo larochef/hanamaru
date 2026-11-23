@@ -20,7 +20,8 @@ final class VocabularyPractice(
     learner: LearnerStore,
     judge: MeaningJudge,
     attempts: WritingAttempts,
-    writing: WritingReview
+    writing: WritingReview,
+    sentences: SentenceWriter
 ) {
   private val largestSeries = 10
   private val mostNew = 5
@@ -38,9 +39,31 @@ final class VocabularyPractice(
         .flatMap(_.toLongOption)
       val met = learner.metKeys(ItemKind.Word).flatMap(_.toLongOption)
       val newCount = (largestSeries - due.size).min(mostNew).max(0)
-      words.words(due).map(SeriesWord(_, isNew = false)) ++
+      words
+        .words(due)
+        .map(word =>
+          SeriesWord(word, isNew = false, inSentence = stable(word.id))
+        ) ++
         words.nextWords(met, newCount).map(SeriesWord(_, isNew = true))
   }
+
+  // A word is asked in a sentence once its production has passed its first
+  // steps: context too early takes attention from the word itself.
+  private def stable(word: Long): Boolean =
+    learner
+      .memory(ItemKind.Word, word.toString, CardKind.Production)
+      .exists(_.phase == Phase.Review)
+
+  /** A sentence for a word, made of the words the learner has met. */
+  def sentence(word: Long): Either[String, Option[WordSentence]] =
+    dictionary.map { words =>
+      val met =
+        learner.metKeys(ItemKind.Word).flatMap(_.toLongOption).filter(_ != word)
+      words
+        .words(List(word))
+        .headOption
+        .flatMap(asked => sentences.written(asked, words.words(met.toList)))
+    }
 
   def answered(
       answer: VocabularyAnswer,

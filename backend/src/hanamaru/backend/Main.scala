@@ -46,12 +46,14 @@ object Main extends OxApp {
     )
     releaseAfterScope(model.stop())
     forkUnsupervised(model.run()).discard
+    val tutor = LlamaClient(model, http)
     val vocabulary = VocabularyPractice(
       () => reference.dictionary,
       learner,
-      MeaningJudge(LlamaClient(model, http)),
+      MeaningJudge(tutor),
       attempts,
-      writingReview
+      writingReview,
+      SentenceWriter(tutor, () => reference.analyser)
     )
     val server = NettySyncServer()
       // a restart does not have to wait for the previous run's port

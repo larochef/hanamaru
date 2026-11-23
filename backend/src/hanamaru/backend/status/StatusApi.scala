@@ -11,7 +11,12 @@ import sttp.tapir.server.ServerEndpoint
 class StatusApi(reference: ReferenceData, model: LlamaServer) {
 
   def status(): ServerStatus =
-    ServerStatus(reference.strokes, reference.dictionaryData, model.state)
+    ServerStatus(
+      reference.strokes,
+      reference.dictionaryData,
+      reference.analyserData,
+      model.state
+    )
 
   val endpoints: List[ServerEndpoint[Any, Identity]] = List(
     StatusRoutes.status.handleSuccess(_ => status())

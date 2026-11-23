@@ -741,3 +741,20 @@ button:disabled {
   width: 3rem;
   height: 3rem;
 }
+
+/* a word asked in a sentence */
+.word-sentence {
+  margin: 0;
+  font-size: 1.8rem;
+  white-space: pre-wrap;
+}
+
+.word-sentence .is-asked {
+  color: var(--accent);
+}
+
+.series-sentence {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}

@@ -18,13 +18,38 @@ enum Direction {
   case Meaning
 }
 
-/** A word of a series: new to the learner, or due for review. */
-final case class SeriesWord(word: DictionaryWord, isNew: Boolean)
+/** A word of a series: new to the learner, or due for review; asked for itself
+  * in a sentence once it is stable enough (`inSentence`).
+  */
+final case class SeriesWord(
+    word: DictionaryWord,
+    isNew: Boolean,
+    inSentence: Boolean = false
+)
+
+/** A piece of a sentence as shown: its text in kana, whether it is the word
+  * asked (blanked until answered), and whether a space comes before it.
+  */
+final case class SentencePart(
+    text: String,
+    blank: Boolean,
+    spaceBefore: Boolean
+)
+
+/** A sentence written for a word by the tutor and checked by the code: its
+  * pieces, as written, and in French.
+  */
+final case class WordSentence(
+    word: Long,
+    parts: List[SentencePart],
+    japanese: String,
+    french: String
+)
 
 /** An answer: the word, the way it was asked, what was typed (or, written with
   * the stylus, the characters written), how long it took, whether the learner
-  * said they already knew this new word, and, written with the stylus, each
-  * character as it was written, in order.
+  * said they already knew this new word, written with the stylus, each
+  * character as it was written, in order, and the sentence it was asked in.
   */
 final case class VocabularyAnswer(
     word: Long,
@@ -32,7 +57,8 @@ final case class VocabularyAnswer(
     typed: String,
     millis: Double,
     alreadyKnown: Boolean,
-    written: List[WritingAttempt] = Nil
+    written: List[WritingAttempt] = Nil,
+    sentence: Option[String] = None
 )
 
 /** How an answer was judged. */
@@ -72,6 +98,15 @@ final case class SelfGrade(
 
 object Direction {
   given Schema[Direction] = Schema.derived
+}
+
+object SentencePart {
+  given Schema[SentencePart] = Schema.derived
+}
+
+object WordSentence {
+  given JsonValueCodec[Option[WordSentence]] = JsonCodecMaker.make
+  given Schema[WordSentence] = Schema.derived
 }
 
 object SeriesWord {

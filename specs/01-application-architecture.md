@@ -1,6 +1,6 @@
 # 01 — Application architecture and stack
 
-**Status:** skeleton built
+**Status:** built
 
 ## Intent
 
@@ -28,8 +28,12 @@ typography (`<ruby>` furigana, vertical text if ever wanted).
   applications can run beside it. Only `localhost`: nothing else on the network
   reaches the learner's data.
 - **All the Japanese tooling stays on the JVM**: a morphological analyser
-  with a Java implementation (Sudachi or Kuromoji), XML reference data parsed in
-  Scala, FSRS implemented in Scala. No Python service.
+  with a Java implementation, **Sudachi** with its core dictionary ([`02`](02-reference-data.md)),
+  XML reference data parsed in Scala, FSRS implemented in Scala. No Python
+  service. Sudachi was chosen over Kuromoji, unchanged since 2016 with data
+  from 2007: on beginner sentences, its words in their dictionary form were all
+  found in JMdict, and its readings were right but for context (私 read
+  わたくし, 明日 あす), which the layout corrects with JMdict's usual reading.
 - Models run as **separate server processes** (llama-server, speech servers),
   launched and supervised by the backend and spoken to over HTTP
   ([`10`](10-llm-runtime.md), [`11`](11-speech.md)). No model runs on the GPU
@@ -63,8 +67,6 @@ audio, logs) and `~/.config/hanamaru` (the settings of this machine).
 
 ## Open
 
-- Sudachi or Kuromoji (with which dictionary), judged on readings and on how
-  well words are split for furigana.
 - Whether generated content (texts, exercises, audio) is kept and reused across
   repetitions of a lesson, and for how long.
 - Whether the backend should listen beyond `localhost`, once a flat tablet

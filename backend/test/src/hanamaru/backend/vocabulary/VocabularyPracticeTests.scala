@@ -42,7 +42,8 @@ object VocabularyPracticeTests extends TestSuite {
           learner,
           MeaningJudge(LlamaClient(tutor, http)),
           WritingAttempts(directory.resolve("attempts.jsonl")),
-          WritingReview(learner)
+          WritingReview(learner),
+          SentenceWriter(LlamaClient(tutor, http), () => None)
         ),
         learner
       )
