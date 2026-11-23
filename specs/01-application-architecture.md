@@ -39,6 +39,9 @@ typography (`<ruby>` furigana, vertical text if ever wanted).
   is needed to show characters as they are handwritten. A Gothic or Mincho font
   can mislead on stroke shapes. **Klee One** (OFL) is bundled, with its
   Japanese subsets, from the `@fontsource/klee-one` npm package.
+- **The logo** is a red *hanamaru* (a spiral in a ring of petals, as teachers
+  draw it), `frontend/public/assets/hanamaru.svg`: the page's icon and the mark
+  beside its name.
 - **No CSS framework**: the page's own stylesheet (`frontend/app.css`). The
   screens are few, mostly a large writing canvas and cards.
 - **Nothing personal in the repository**: no paths to the learner's home, no

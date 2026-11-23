@@ -2,6 +2,7 @@ package hanamaru.frontend.model
 
 import hanamaru.shared.placement.PlacementAnswer
 import hanamaru.shared.session.{SessionAnswer, SessionStart}
+import hanamaru.shared.vocabulary.{SelfGrade, VocabularyAnswer}
 import hanamaru.shared.writing.WritingAttempt
 
 sealed trait AppCommand
@@ -46,4 +47,13 @@ object AppCommand {
 
   /** Asks for the core vocabulary, `count` words from `from`. */
   final case class LoadCoreWords(from: Int, count: Int) extends AppCommand
+
+  /** Asks for the words of a rapid series. */
+  case object LoadSeries extends AppCommand
+
+  /** Has an answer judged and kept. */
+  final case class AnswerVocabulary(answer: VocabularyAnswer) extends AppCommand
+
+  /** Keeps the learner's own word on an answer the code could not judge. */
+  final case class SelfGradeVocabulary(grade: SelfGrade) extends AppCommand
 }

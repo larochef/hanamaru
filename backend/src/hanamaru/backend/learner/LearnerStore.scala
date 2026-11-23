@@ -9,6 +9,9 @@ import java.time.Instant
 /** What can be known, by kind, as the database names it. */
 enum ItemKind(val name: String) {
   case Kana extends ItemKind("kana")
+
+  /** A word of the dictionary, keyed by its JMdict number. */
+  case Word extends ItemKind("word")
 }
 
 /** A way of testing an item, as the database names it. */
@@ -19,6 +22,12 @@ enum CardKind(val name: String) {
 
   /** The character shown, its reading typed. */
   case Reading extends CardKind("reading")
+
+  /** A word's meaning given, the word typed in Japanese. */
+  case Production extends CardKind("production")
+
+  /** A word given, its meaning typed. */
+  case Meaning extends CardKind("meaning")
 }
 
 /** A kana's card as the session planner sees it: the kana, what the card tests,
@@ -119,6 +128,31 @@ final class LearnerStore(database: Database) {
       )
     }
   }
+
+  /** The items of a kind that have a card due by `now`, the most overdue first,
+    * at most `count` of them.
+    */
+  def dueKeys(itemKind: ItemKind, now: Long, count: Int): List[String] =
+    database.read(
+      _.query(
+        """SELECT item.key, min(card.due) AS due FROM item
+          |JOIN card ON card.item_id = item.id
+          |WHERE item.kind = ? AND card.due <= ?
+          |GROUP BY item.key ORDER BY due LIMIT ?""".stripMargin,
+        itemKind.name,
+        now,
+        count
+      )(_.string("key"))
+    )
+
+  /** The items of a kind the learner has met: with at least one card. */
+  def metKeys(itemKind: ItemKind): Set[String] = database.read(
+    _.query(
+      """SELECT DISTINCT item.key FROM item JOIN card ON card.item_id = item.id
+        |WHERE item.kind = ?""".stripMargin,
+      itemKind.name
+    )(_.string("key")).toSet
+  )
 
   /** Every card of every kana: what it tests, its phase, and when it is due. */
   def kanaCards(): List[KanaCard] = database.read(

@@ -5,6 +5,7 @@ import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.*
 import hanamaru.shared.placement.PlacementState
 import hanamaru.shared.session.SessionState
+import hanamaru.shared.vocabulary.*
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
 sealed trait AppEvent
@@ -45,4 +46,13 @@ object AppEvent {
 
   final case class CoreWordsLoaded(from: Int, words: List[DictionaryWord])
       extends AppEvent
+
+  final case class SeriesLoaded(words: List[SeriesWord]) extends AppEvent
+
+  final case class VocabularyJudged(
+      answer: VocabularyAnswer,
+      verdict: VocabularyVerdict
+  ) extends AppEvent
+
+  final case class SelfGradeKept(grade: SelfGrade) extends AppEvent
 }

@@ -72,7 +72,16 @@ class VocabularyPage(bus: AppBus) extends ReactiveElement {
 
   override lazy val node: HtmlElement = div(
     cls := "vocabulary-page",
-    h1(Tr("Vocabulary", "Vocabulaire")),
+    div(
+      cls := "review-bar",
+      h1(Tr("Vocabulary", "Vocabulaire")),
+      PageLink(
+        bus,
+        Page.Series,
+        cls := "button primary",
+        Tr("Rapid series", "Série rapide")
+      )
+    ),
     p(
       cls := "placement-prompt",
       Tr(

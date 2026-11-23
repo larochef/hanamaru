@@ -8,16 +8,19 @@ import scala.scalajs.js
 import com.raquo.laminar.api.L.*
 import org.scalajs.dom
 
-/** A character written with the stylus, stroke by stroke, each judged as it
-  * ends. Guided, over its faint model: a wrong stroke is said, erased, and
-  * drawn again. From memory, in an empty box: a wrong stroke ends the attempt,
-  * and the expected one is shown. Each attempt ended, or given up by starting
-  * again, comes out of `attempts`: what becomes of it is for the page to say.
+/** A character written with the stylus. Guided, over its faint model, each
+  * stroke is judged as it ends: a wrong one is said, erased, and drawn again.
+  * From memory, in an empty box, the learner writes the whole character as they
+  * think it goes, then says it is done, and only then is it corrected (shown
+  * here when `showCorrection`, else left to the page). Each attempt ended comes
+  * out of `attempts`: what becomes of it is for the page to say.
   */
 class WritingExercise(
     character: CharacterStrokes,
     step: WritingStep,
-    canStartAgain: Boolean
+    canStartAgain: Boolean,
+    showCorrection: Boolean = true,
+    doneLabel: Option[String] = None
 ) extends ReactiveElement {
   private val size = CharacterStrokes.boxSize
   private val guided = step == WritingStep.Guided
@@ -27,7 +30,9 @@ class WritingExercise(
   // a stroke shorter than this is a slip of the pen, not a stroke
   private val shortestStroke = 2.0
 
+  // guided: the strokes accepted; from memory: every stroke drawn
   private val accepted = Var(List.empty[List[DrawnPoint]])
+  private val corrected = Var(Option.empty[WritingAttempt])
   private val drawing = Var(Option.empty[List[DrawnPoint]])
   private val judged = Var(List.empty[JudgedStroke])
 
@@ -70,42 +75,54 @@ class WritingExercise(
   private def draws(event: dom.PointerEvent): Boolean =
     event.pointerType != "touch" && !ended.now()
 
+  // A Var set while an event is handled takes its value once the event is
+  // through: new values are worked out here before they are set.
   private def strokeEnded(points: List[DrawnPoint]): Unit = {
     val line = points.map(_.point)
-    if (StrokeMatcher.length(line) >= shortestStroke) {
+    if (StrokeMatcher.length(line) < shortestStroke) {
+      ()
+    } else if (!guided) {
+      accepted.set(accepted.now() :+ points)
+    } else {
       val expected = accepted.now().size
       val judgement = StrokeMatcher.judge(line, model, expected)
-      judged.update(_ :+ JudgedStroke(points, expected, judgement))
+      val judgedSoFar =
+        judged.now() :+ JudgedStroke(points, expected, judgement)
+      judged.set(judgedSoFar)
       if (judgement.verdict == StrokeVerdict.Accepted) {
-        accepted.update(_ :+ points)
+        val acceptedSoFar = accepted.now() :+ points
+        accepted.set(acceptedSoFar)
         refused.set(None)
-        if (accepted.now().size == model.size) {
-          end(completed = true)
+        if (acceptedSoFar.size == model.size) {
+          ended.set(true)
+          record(judgedSoFar, completed = true)
         }
       } else {
         refused.set(Some(expected -> judgement.verdict))
-        if (!guided) {
-          end(completed = false)
-        }
       }
     }
   }
 
-  private def end(completed: Boolean): Unit = {
-    ended.set(true)
-    record(completed)
-  }
-
-  private def record(completed: Boolean): Unit =
+  private def record(strokes: List[JudgedStroke], completed: Boolean): Unit =
     attemptsEnded.writer.onNext(
-      WritingAttempt(character.character, step, judged.now(), completed)
+      WritingAttempt(character.character, step, strokes, completed, model.size)
     )
 
+  // from memory: the character written as it stands, corrected
+  private def finish(): Unit = {
+    val attempt =
+      WritingCorrection.attempt(character.character, accepted.now(), model)
+    ended.set(true)
+    corrected.set(Some(attempt))
+    attemptsEnded.writer.onNext(attempt)
+  }
+
   private def restart(): Unit = {
-    if (!ended.now() && judged.now().nonEmpty) {
-      record(completed = false)
+    if (guided && !ended.now() && judged.now().nonEmpty) {
+      record(judged.now(), completed = false)
     }
     accepted.set(Nil)
+    corrected.set(None)
     drawing.set(None)
     judged.set(Nil)
     refused.set(None)
@@ -224,10 +241,38 @@ class WritingExercise(
       case _ => None
     }
 
+  private def freeControls: HtmlElement = div(
+    cls := "writing-controls",
+    button(
+      Tr("Erase the last stroke", "Effacer le dernier trait"),
+      disabled <-- accepted.signal
+        .combineWith(ended.signal)
+        .map((strokes, isEnded) => strokes.isEmpty || isEnded),
+      onClick --> (_ => accepted.update(_.dropRight(1)))
+    ),
+    button(
+      cls := "primary",
+      doneLabel.getOrElse(Tr("Done", "Terminé")),
+      disabled <-- accepted.signal
+        .combineWith(ended.signal)
+        .map((strokes, isEnded) => strokes.isEmpty || isEnded),
+      onClick --> (_ => finish())
+    )
+  )
+
   override lazy val node: HtmlElement = div(
     cls := "writing-exercise",
-    box,
-    child.maybe <-- message,
+    child <-- corrected.signal.map {
+      case Some(attempt) if showCorrection =>
+        CorrectionView(character, attempt).node
+      case _ => div(box)
+    },
+    Option.when(!guided)(
+      child.maybe <-- ended.signal.map(isEnded =>
+        Option.unless(isEnded)(freeControls)
+      )
+    ),
+    Option.when(guided)(child.maybe <-- message),
     Option.when(canStartAgain)(
       button(
         cls := "replay",

@@ -9,6 +9,7 @@ import hanamaru.shared.learner.*
 import hanamaru.shared.placement.{PlacementAnswer, PlacementState}
 import hanamaru.shared.routes.*
 import hanamaru.shared.session.*
+import hanamaru.shared.vocabulary.*
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
 import scala.util.{Failure, Success}
@@ -72,6 +73,17 @@ class ApiClient(baseUri: Uri) {
       count: Int
   ): EventStream[AppResult[List[DictionaryWord]]] =
     call(DictionaryRoutes.coreWords, (from, count))
+
+  def series(): EventStream[AppResult[List[SeriesWord]]] =
+    call(VocabularyRoutes.series, ())
+
+  def answerVocabulary(
+      answer: VocabularyAnswer
+  ): EventStream[AppResult[VocabularyVerdict]] =
+    call(VocabularyRoutes.answer, answer)
+
+  def selfGradeVocabulary(grade: SelfGrade): EventStream[AppResult[Unit]] =
+    call(VocabularyRoutes.selfGrade, grade)
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

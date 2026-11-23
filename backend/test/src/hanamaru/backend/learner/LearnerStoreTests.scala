@@ -101,10 +101,12 @@ object LearnerStoreTests extends TestSuite {
             .reviewed(attempt(WritingStep.Guided, true, accepted), start)
             .isEmpty
         )
+        // a character left with strokes missing is written wrong
         assert(
           review
             .reviewed(attempt(WritingStep.FromMemory, false, accepted), start)
-            .isEmpty
+            .map(_.grade)
+            .contains(Grade.Again)
         )
         val good =
           review.reviewed(

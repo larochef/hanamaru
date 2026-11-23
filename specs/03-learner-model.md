@@ -52,6 +52,8 @@ what it may use.
   was accepted and *again* when a wrong stroke stopped it. Guided writing is
   practice, and an attempt given up is no answer: neither is a review. The
   chart of kana shows each one's status and which are due.
+- **Words** are items keyed by their JMdict number, with a *production* and a
+  *meaning* card ([`08`](08-vocabulary-practice.md)).
 - **Prerequisites**: grammar points and words can name the points they rely on.
   Repeated failures on exercises tagged with a point lower that point's
   stability. When the tutor's diagnosis of a mistake names a missing

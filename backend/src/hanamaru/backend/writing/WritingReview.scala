@@ -39,14 +39,45 @@ final class WritingReview(learner: LearnerStore) {
       ReviewOutcome(grade, memory.due.toEpochMilli)
     }
 
-  private def gradeOf(attempt: WritingAttempt): Option[Grade] =
-    if (attempt.step != WritingStep.FromMemory) {
-      None
-    } else if (
-      attempt.strokes.exists(_.judgement.verdict != StrokeVerdict.Accepted)
-    ) {
-      Some(Grade.Again)
-    } else {
-      Option.when(attempt.completed)(Grade.Good)
+  /** A kana written within a word, as a review of its writing: one written
+    * wrong (or with strokes out of order) is always kept, so that it comes back
+    * to be practised; one written right only when its writing was due, not to
+    * crowd its schedule with the words it is in.
+    */
+  def writtenInWord(attempt: WritingAttempt, at: Instant): Unit =
+    for {
+      kana <- Kana.find(attempt.character)
+      grade <- gradeOf(attempt)
+      if grade != Grade.Good || writingDue(kana.character, at)
+    } {
+      learner.reviewed(
+        ItemKind.Kana,
+        kana.character,
+        CardKind.Writing,
+        grade,
+        writeToString(attempt),
+        at
+      )
     }
+
+  private def writingDue(character: String, at: Instant): Boolean =
+    learner
+      .kanaCards()
+      .exists(card =>
+        card.character == character && card.kind == CardKind.Writing &&
+          card.due <= at.toEpochMilli
+      )
+
+  /** Writing from memory, graded by how it went: right, good; right but for the
+    * order or direction of some strokes, hard; wrong, again. Guided writing is
+    * practice, not a review.
+    */
+  def gradeOf(attempt: WritingAttempt): Option[Grade] =
+    Option.when(attempt.step == WritingStep.FromMemory)(
+      WritingCorrection.outcome(attempt) match {
+        case WritingOutcome.Right       => Grade.Good
+        case WritingOutcome.StrokeOrder => Grade.Hard
+        case WritingOutcome.Wrong       => Grade.Again
+      }
+    )
 }

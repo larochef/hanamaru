@@ -115,6 +115,7 @@ object backend extends BaseScala {
     BuildCtx.workspaceRoot / "frontend" / "index.html",
     BuildCtx.workspaceRoot / "frontend" / "main.js",
     BuildCtx.workspaceRoot / "frontend" / "app.css",
+    BuildCtx.workspaceRoot / "frontend" / "public",
     BuildCtx.workspaceRoot / "package.json",
     BuildCtx.workspaceRoot / "vite.config.js",
   )

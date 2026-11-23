@@ -31,13 +31,16 @@ final case class JudgedStroke(
 )
 
 /** A character written once, at one step, every stroke drawn kept, whether
-  * accepted or not; `completed` when the character was written to its end.
+  * accepted or not; `completed` when the character was written to its end, with
+  * as many strokes as it has; `expectedStrokes`, how many it has (0 in attempts
+  * kept before it was recorded).
   */
 final case class WritingAttempt(
     character: String,
     step: WritingStep,
     strokes: List[JudgedStroke],
-    completed: Boolean
+    completed: Boolean,
+    expectedStrokes: Int = 0
 )
 
 object WritingAttempt {

@@ -27,9 +27,9 @@ principles and the shared vocabulary that every other file relies on.
 | [05](05-writing.md) | Writing with the stylus, stroke order | built for kana; tolerances to tune |
 | [06](06-curriculum-and-lessons.md) | Curriculum and lessons | planned |
 | [07](07-text-generation.md) | Generated texts and progressive kanji | planned |
-| [08](08-vocabulary-practice.md) | Vocabulary practice | formats chosen; to build |
+| [08](08-vocabulary-practice.md) | Vocabulary practice | rapid series built |
 | [09](09-sessions.md) | Sessions: time budget, context, formats | Express built for kana |
-| [10](10-llm-runtime.md) | LLM runtime and the AI tutor | runtime built |
+| [10](10-llm-runtime.md) | LLM runtime and the AI tutor | runtime built; judges meanings |
 | [11](11-speech.md) | Speech: synthesis, recognition, conversation | planned |
 
 ## Build order

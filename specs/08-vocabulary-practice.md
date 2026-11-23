@@ -1,6 +1,6 @@
 # 08 — Vocabulary practice
 
-**Status:** formats chosen; to build
+**Status:** rapid series built, with typed production and meaning recall
 
 ## Intent
 
@@ -32,6 +32,48 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
 - Words are learned in **frequency order**, mixed, not by theme: no
   interference between related words, and the most useful first. Scenes come
   with the grammar lessons.
+
+## Built
+
+- **Typing Japanese**: an answer field turns romaji into hiragana as it is
+  typed (`Romaji`, in `shared`), as input methods do: Hepburn and its usual
+  variants, a doubled consonant (or `tch`) for っ, `nn` or `n'` for ん, `x` or
+  `l` before a small kana, `-` for ー. Only the romaji at the field's end is
+  converted, so a kana is made once its letters are all there (`konnichiha`
+  gives こんにちは).
+- **A word has two cards**: *production* (its meaning given, the word typed)
+  and *meaning* (the word given, its meaning typed), each reviewed by FSRS.
+- **Production is graded by code**: right when the answer is any reading or
+  written form of the word, hiragana and katakana alike; *nearly* (graded
+  *hard*) when only a long vowel, a small っ, ー, ず/づ or じ/ぢ tell it apart;
+  *another word* (graded *hard*) when it is a word sharing a meaning with the
+  one asked; otherwise missed. The prompt shows the first French sense (up to
+  three glosses) and, small, the first English one, which makes up for
+  JMdict's French senses in a doubtful order.
+- **Production with the stylus** (the series' "Answer with the stylus", on by
+  default): the word written from memory in kana, as its first reading, one
+  character after the other, corrected at the end as writing from memory is
+  ([`05`](05-writing.md)): right when every character is right, nearly
+  (graded *hard*) when only strokes' order or direction are wrong, otherwise
+  missed. The kanji form will be written the same way once kanji are learned.
+- **Meaning recall** is graded by code first: right when the answer is one of
+  the word's glosses, French or English, whatever the accents, case, leading
+  article, "to", "to be" or words in brackets. Otherwise the **tutor** is asked
+  whether the answer means the same as one of the numbered glosses; it answers
+  with a number the code checks, so it can only recognise a right answer, never
+  condemn one. Failing both, the **learner says** whether it meant the same
+  (self-grading, the fallback for what cannot be checked). An empty answer
+  ("I don't know") is missed at once.
+- **After every answer the whole word is shown**: its reading, its written
+  form, its meanings, and what the tutor recognised.
+- **Rapid series** (the vocabulary page's button): up to 10 words, those due
+  first (the most overdue first), then new ones in the order they are learned,
+  at most 5 and fewer when many are due. The new words are shown first; every
+  word is asked for itself, then for its meaning, in a shuffled order; the new
+  ones are asked for themselves once more at the end. A word missed comes back
+  4 questions later, twice at most. A new word the learner says they already
+  know is not shown, nor asked a second time; answered right, it is graded
+  *easy* and *to confirm*, as in the placement test.
 
 ## Research (done)
 

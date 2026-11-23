@@ -1,6 +1,6 @@
 # 10 — LLM runtime and the AI tutor
 
-**Status:** runtime built; no role used yet
+**Status:** runtime built; first role: judging meanings
 
 ## Intent
 
@@ -49,6 +49,14 @@ later conversation. The backend runs it and keeps it within the rules of
 - **Structured output**: every request whose answer the backend reads uses a
   JSON schema (llama-server's grammar-constrained output), not free text to
   parse.
+- **Asking the model** (`LlamaClient`): a system and a user message, the
+  answer constrained by a JSON schema, temperature 0, read as a typed value; a
+  30 s timeout; no answer when the tutor is not ready, and the caller does
+  without it.
+- **First role built: judging a meaning** typed for a word (`MeaningJudge`):
+  given the word, its glosses numbered and the learner's answer, the tutor says
+  whether it means the same as one of them, and which by number; the code
+  checks the number, so the tutor only recognises right answers.
 - **The tutor's roles**, each a prompt of its own with what it may use (known
   words, current grammar point):
   - generate texts and exercises ([`07`](07-text-generation.md));

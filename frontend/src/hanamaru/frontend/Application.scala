@@ -36,6 +36,7 @@ object Application {
         bus,
         Page.Chart,
         cls := "title",
+        img(cls := "logo", src := "/assets/hanamaru.svg", alt := ""),
         span(lang := "ja", "花丸"),
         " Hanamaru"
       ),
@@ -57,7 +58,8 @@ object Application {
       div(hidden <-- page.map(_ != Page.Placement), PlacementPage(bus)),
       div(hidden <-- page.map(_ != Page.Review), ReviewPage(bus)),
       div(hidden <-- page.map(_ != Page.Session), SessionPage(bus)),
-      div(hidden <-- page.map(_ != Page.Vocabulary), VocabularyPage(bus))
+      div(hidden <-- page.map(_ != Page.Vocabulary), VocabularyPage(bus)),
+      div(hidden <-- page.map(_ != Page.Series), SeriesPage(bus))
     ),
     Credits()
   )
@@ -74,6 +76,7 @@ object Application {
     PlacementService(bus, apiClient)
     SessionService(bus, apiClient)
     DictionaryService(bus, apiClient)
+    VocabularyService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)
     navigation.showAddressed()

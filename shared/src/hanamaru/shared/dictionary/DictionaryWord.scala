@@ -13,10 +13,10 @@ final case class Meaning(
     glosses: List[String]
 )
 
-/** A word of the core vocabulary: its JMdict number, the JLPT level of the list
-  * it is learned from (5, the first words, to 1), its written forms and
-  * readings in JMdict's order, whether it is usually written in kana, and its
-  * senses.
+/** A word of the dictionary: its JMdict number, the JLPT level of the list it
+  * is learned from (5, the first words, to 1; 0 when it is in none), its
+  * written forms and readings in JMdict's order, whether it is usually written
+  * in kana, and its senses.
   */
 final case class DictionaryWord(
     id: Long,

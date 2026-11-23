@@ -38,8 +38,15 @@ final class LlamaServer(
   @volatile private var current: ModelState = ModelState.Starting
   @volatile private var process: Option[Process] = None
   @volatile private var stopping = false
+  @volatile private var served: Option[URI] = None
 
   def state: ModelState = current
+
+  /** Where the model answers, once it is ready. */
+  def uri: Option[URI] = served.filter(_ => current == ModelState.Ready)
+
+  /** The name requests give the model. */
+  def modelName: String = alias
 
   private def log: Path = logs.resolve("llama-server.log")
 
@@ -145,10 +152,12 @@ final class LlamaServer(
     process = Some(running)
     val uri = URI.create(s"http://127.0.0.1:$port")
     if (awaitReady(running, uri)) {
+      served = Some(uri)
       current = ModelState.Ready
       val seconds = (System.nanoTime() - started) / 1e9
       logger.info(f"Tutor model ready in $seconds%.1f s: ${model.getFileName}")
       running.waitFor()
+      served = None
       Right(())
     } else {
       running.destroyForcibly()

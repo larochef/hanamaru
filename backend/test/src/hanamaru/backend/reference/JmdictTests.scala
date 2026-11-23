@@ -4,65 +4,18 @@ import hanamaru.backend.storage.Database
 import hanamaru.shared.dictionary.Meaning
 
 import java.io.ByteArrayInputStream
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.util.zip.GZIPOutputStream
-import scala.util.Using
 
 import utest.*
 
 object JmdictTests extends TestSuite {
-
-  // Laid out as JMdict is, with invented entries: a DTD whose entities are
-  // codes, senses in several languages, frequency marks, rare forms.
-  private val xml =
-    """<?xml version="1.0" encoding="UTF-8"?>
-      |<!DOCTYPE JMdict [
-      |<!ELEMENT JMdict (entry*)>
-      |<!ENTITY n "noun (common) (futsuumeishi)">
-      |<!ENTITY adj-na "adjectival nouns or quasi-adjectives (keiyodoshi)">
-      |<!ENTITY uk "word usually written using kana alone">
-      |<!ENTITY rK "rarely used kanji form">
-      |]>
-      |<JMdict>
-      |<!-- JMdict created: 2026-01-02 -->
-      |<entry>
-      |<ent_seq>2000002</ent_seq>
-      |<k_ele><keb>猫</keb><ke_pri>news1</ke_pri><ke_pri>nf20</ke_pri></k_ele>
-      |<r_ele><reb>ねこ</reb><re_pri>nf20</re_pri></r_ele>
-      |<sense><pos>&n;</pos><gloss>cat</gloss></sense>
-      |<sense><gloss xml:lang="fre">chat</gloss></sense>
-      |<sense><gloss xml:lang="ger">Katze</gloss></sense>
-      |</entry>
-      |<entry>
-      |<ent_seq>2000001</ent_seq>
-      |<k_ele><keb>綺麗</keb><ke_pri>ichi1</ke_pri><ke_pri>nf02</ke_pri></k_ele>
-      |<k_ele><keb>奇麗</keb><ke_inf>&rK;</ke_inf></k_ele>
-      |<r_ele><reb>きれい</reb><re_pri>nf02</re_pri></r_ele>
-      |<sense><pos>&adj-na;</pos><misc>&uk;</misc><gloss>pretty</gloss><gloss>clean</gloss></sense>
-      |</entry>
-      |<entry>
-      |<ent_seq>2000003</ent_seq>
-      |<r_ele><reb>まれ</reb></r_ele>
-      |<sense><pos>&n;</pos><gloss>rare word</gloss></sense>
-      |</entry>
-      |</JMdict>
-      |""".stripMargin
-
-  private def gzipped: Array[Byte] = {
-    val bytes = java.io.ByteArrayOutputStream()
-    Using.resource(GZIPOutputStream(bytes))(
-      _.write(xml.getBytes(StandardCharsets.UTF_8))
-    )
-    bytes.toByteArray
-  }
 
   val tests: Tests = Tests {
     test(
       "entries: forms, codes, senses in the languages kept, frequency rank"
     ) {
       val entries = scala.collection.mutable.ListBuffer.empty[Jmdict.Entry]
-      Jmdict.entries(ByteArrayInputStream(gzipped))(entries += _)
+      Jmdict.entries(ByteArrayInputStream(SampleJmdict.gzipped))(entries += _)
       val List(cat, pretty, rare) = entries.toList: @unchecked
       assert(cat.id == 2000002, cat.rank.contains(20), cat.common)
       assert(cat.senses.map(_.language) == List("eng", "fre"))
@@ -73,7 +26,9 @@ object JmdictTests extends TestSuite {
       assert(pretty.senses.head.misc == List("uk"))
       assert(rare.rank.isEmpty, !rare.common)
       assert(
-        Jmdict.createdIn(ByteArrayInputStream(gzipped)).contains("2026-01-02")
+        Jmdict
+          .createdIn(ByteArrayInputStream(SampleJmdict.gzipped))
+          .contains("2026-01-02")
       )
     }
     test(
@@ -94,7 +49,7 @@ object JmdictTests extends TestSuite {
     ) {
       val directory = Files.createTempDirectory("hanamaru-jmdict")
       val source = directory.resolve("JMdict.gz")
-      Files.write(source, gzipped)
+      Files.write(source, SampleJmdict.gzipped)
       val database = directory.resolve("dictionary.db")
       // 猫 in N5; きれい (ranked) and まれ (not) in N4; 猫 again in N3
       val core = List(

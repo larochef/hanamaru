@@ -5,7 +5,7 @@ import hanamaru.backend.writing.WritingAttempts
 import hanamaru.shared.kana.Kana
 import hanamaru.shared.learner.Grade
 import hanamaru.shared.placement.*
-import hanamaru.shared.writing.{StrokeVerdict, WritingStep}
+import hanamaru.shared.writing.*
 
 import java.time.Instant
 
@@ -73,8 +73,7 @@ final class KanaPlacementTest(
             Some(PlacementQuestion.Writing(asked))
           )
           if attempt.character == asked && attempt.step == WritingStep.FromMemory =>
-        val right = attempt.completed &&
-          attempt.strokes.forall(_.judgement.verdict == StrokeVerdict.Accepted)
+        val right = WritingCorrection.outcome(attempt) == WritingOutcome.Right
         Right(Answered(AnswerKind.Writing, asked, right))
       case (PlacementAnswer.SkipScript(script), Some(asked))
           if Kana.find(subjectOf(asked)).exists(_.script == script) =>

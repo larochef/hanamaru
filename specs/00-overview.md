@@ -102,7 +102,8 @@ hiragana and katakana.
       listing it;
    3. (done) research on how vocabulary is best memorised, and practice
       formats proposed to the learner ([`08`](08-vocabulary-practice.md));
-   4. the formats chosen, built;
+   4. (done) the formats chosen, built: typed production, meaning recall,
+      rapid series;
    5. words in generated sentences, validated by code; Tatoeba imported then.
 4. **Lessons**: the grammar curriculum, grammar placement, the text pipeline,
    exercises, corrections by the tutor.

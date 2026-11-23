@@ -575,3 +575,164 @@ button:disabled {
   color: var(--muted);
   text-align: right;
 }
+
+/* a rapid series */
+.series-task {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.series-task form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.series-meaning {
+  font-size: 1.8rem;
+}
+
+.word-shown {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.word-big {
+  font-size: 3rem;
+}
+
+.meaning-input {
+  font-size: 1.3rem;
+  width: 18rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.5rem;
+}
+
+.kana-input {
+  width: 14rem;
+}
+
+.last-answer.is-near {
+  color: #b26a00;
+}
+
+.tutor-note {
+  color: var(--muted);
+}
+
+.series-progress {
+  color: var(--muted);
+}
+
+/* a word written with the stylus, character after character */
+.handwritten-word {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  align-self: stretch;
+}
+
+.character-places {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.character-place {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1px solid var(--faint);
+  border-radius: 0.2rem;
+  background: #fff;
+}
+
+.character-place.is-current {
+  border-color: var(--ink);
+}
+
+.character-place.is-done {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+/* writing from memory: the controls, then the correction */
+.writing-controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.correction-body {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.correction-box {
+  width: min(40vh, 100%);
+  max-width: 18rem;
+}
+
+.correction-box .written polyline {
+  stroke-width: 3;
+}
+
+.correction-box .written .is-right {
+  stroke: #2e7d32;
+}
+
+.correction-box .written .is-near {
+  stroke: #e08a00;
+}
+
+.correction-box .written .is-wrong {
+  stroke: var(--accent);
+}
+
+.correction-box .numbers text {
+  font-size: 7px;
+  fill: var(--ink);
+}
+
+.correction-words {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.correction-words ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.correction-character {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.writing-message.is-near {
+  color: #b26a00;
+}
+
+.corrections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-self: stretch;
+}
+
+/* the red hanamaru beside the name */
+.top-bar .title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.top-bar .logo {
+  width: 2.2rem;
+  height: 2.2rem;
+}

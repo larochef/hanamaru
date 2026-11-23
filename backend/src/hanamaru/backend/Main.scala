@@ -7,6 +7,7 @@ import hanamaru.backend.reference.*
 import hanamaru.backend.session.*
 import hanamaru.backend.status.StatusApi
 import hanamaru.backend.storage.{Database, Places}
+import hanamaru.backend.vocabulary.*
 import hanamaru.backend.writing.*
 
 import java.net.http.HttpClient
@@ -45,6 +46,13 @@ object Main extends OxApp {
     )
     releaseAfterScope(model.stop())
     forkUnsupervised(model.run()).discard
+    val vocabulary = VocabularyPractice(
+      () => reference.dictionary,
+      learner,
+      MeaningJudge(LlamaClient(model, http)),
+      attempts,
+      writingReview
+    )
     val server = NettySyncServer()
       // a restart does not have to wait for the previous run's port
       .modifyConfig(_.socketConfig(NettySocketConfig.default.withReuseAddress))
@@ -61,6 +69,7 @@ object Main extends OxApp {
       )
       .addEndpoints(LearnerApi(learner).endpoints)
       .addEndpoints(DictionaryApi(reference).endpoints)
+      .addEndpoints(VocabularyApi(vocabulary).endpoints)
       .addEndpoints(
         PlacementApi(
           KanaPlacementTest(PlacementStore(database), learner, attempts)

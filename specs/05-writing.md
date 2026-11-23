@@ -24,8 +24,24 @@ is every kyōiku kanji.
   2. **Guided**: the learner writes over the faint model. A wrong stroke is
      named, erased, and drawn again.
   3. **From memory**: an empty box, the character hidden, its reading as the
-     prompt. The first wrong stroke ends the attempt: the expected stroke is
-     drawn in red, from its start, so its direction shows.
+     prompt. The learner **writes the whole character as they think it goes**
+     (the last stroke can be erased), says it is done, and **only then is it
+     corrected** (`WritingCorrection`, in `shared`): every stroke drawn is
+     judged against the stroke expected at its place, and the correction shows
+     the learner's strokes over the faint model, green when right, orange when
+     only their direction or order is wrong, red otherwise, numbered in the
+     order drawn, with each fault in words: a stroke the other way, a stroke
+     that is another one of the character (the order), a stroke not the one
+     expected, a stroke too many, strokes missing. The stroke order can be
+     watched again. The character is right when it has every stroke and each
+     is right; right but for the order or direction of some strokes; or wrong.
+     Graded *good*, *hard* and *again*.
+- **Writing a word** from memory (a vocabulary answer, [`08`](08-vocabulary-practice.md)):
+  its characters one after the other, in a box each, with no correction in
+  between; all are corrected together once the last is written. A kana written
+  wrong (or with strokes out of order) within a word is kept as a review of
+  that kana's writing, so it comes back to be practised; one written right
+  only when its writing was due, not to crowd its schedule.
 - **Correction is deterministic, not by the AI**: the matcher
   (`StrokeMatcher`, in `shared`, run in the browser) judges each stroke as it
   ends, against the stroke expected next. Both are resampled to 32 points
