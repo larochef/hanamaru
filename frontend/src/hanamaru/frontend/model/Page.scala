@@ -22,13 +22,17 @@ enum Page {
   /** A planned session: reviews due, then new kana, in the time given. */
   case Session
 
+  /** The core vocabulary, in the order it is learned. */
+  case Vocabulary
+
   def path: String = this match {
     case Chart           => "/"
     case Character(kana) =>
       s"/write/${URIUtils.encodeURIComponent(kana.character)}"
-    case Placement => "/placement"
-    case Review    => "/review"
-    case Session   => "/session"
+    case Placement  => "/placement"
+    case Review     => "/review"
+    case Session    => "/session"
+    case Vocabulary => "/vocabulary"
   }
 }
 
@@ -42,9 +46,10 @@ object Page {
           .find(URIUtils.decodeURIComponent(character))
           .map(Character(_))
           .getOrElse(Chart)
-      case List("placement") => Placement
-      case List("review")    => Review
-      case List("session")   => Session
-      case _                 => Chart
+      case List("placement")  => Placement
+      case List("review")     => Review
+      case List("session")    => Session
+      case List("vocabulary") => Vocabulary
+      case _                  => Chart
     }
 }

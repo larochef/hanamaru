@@ -13,8 +13,14 @@ enum ReferenceDataState {
   case Failed(reason: String)
 }
 
-/** The server as the page sees it. */
-final case class ServerStatus(referenceData: ReferenceDataState)
+/** The server as the page sees it: its reference data, the strokes and the
+  * dictionary, and its tutor's model.
+  */
+final case class ServerStatus(
+    strokes: ReferenceDataState,
+    dictionary: ReferenceDataState,
+    model: ModelState
+)
 
 object ServerStatus {
   given JsonValueCodec[ServerStatus] = JsonCodecMaker.make

@@ -43,4 +43,7 @@ object AppCommand {
 
   /** Ends a session before its time. */
   final case class EndSession(session: Long) extends AppCommand
+
+  /** Asks for the core vocabulary, `count` words from `from`. */
+  final case class LoadCoreWords(from: Int, count: Int) extends AppCommand
 }

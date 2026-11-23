@@ -1,6 +1,6 @@
 # 10 — LLM runtime and the AI tutor
 
-**Status:** planned
+**Status:** runtime built; no role used yet
 
 ## Intent
 
@@ -14,10 +14,30 @@ later conversation. The backend runs it and keeps it within the rules of
 - **Engine: upstream llama.cpp `llama-server`, Vulkan build.** On a Strix Halo
   it works better than the Strix-specific fork. If ROCm is ever needed, use the
   **system ROCm** (10.1 or later). No separate ROCm tree is downloaded.
-- **The backend launches and supervises `llama-server`** as a long-lived process,
-  and speaks to its OpenAI-compatible API. The binary's path is in the local
-  configuration; the model files are found in the Hugging Face cache by their
-  repository and names. No runtime manager to begin with.
+- **The backend launches and supervises `llama-server`** (`LlamaServer`, built)
+  as a long-lived process, and speaks to its OpenAI-compatible API:
+  - its path is the `llama.server` setting of this machine, in
+    `~/.config/hanamaru/hanamaru.properties` (`HANAMARU_CONFIG` moves it),
+    outside the repository; `model.repository`, `model.file` and
+    `model.context` override the model's defaults;
+  - the model file is found in the Hugging Face cache (`HF_HUB_CACHE`, else
+    `HF_HOME/hub`, else `~/.cache/huggingface/hub`), from the snapshot its
+    `main` reference names;
+  - it is launched as the backend starts, on a free port of `127.0.0.1` only,
+    with every layer on the GPU, one request at a time, a 16k context, no
+    thinking before answers (`--reasoning off`) and no web page; it is watched
+    until `/health` answers, launched again if it stops, given up after three
+    failures in a row, and stopped with the backend;
+  - what it writes goes to `~/.cache/hanamaru/logs/llama-server.log`; the
+    backend logs one line when it is ready;
+  - the page shows whether the tutor is ready, loading, or off, and says what
+    to set when it is not set up or its model is missing.
+  On the Strix Halo, the model loads in about 7 s (2 s once in the system's
+  cache) and writes about 47 tokens a second; a short answer constrained by a
+  JSON schema takes under 3 s.
+- **Later: a settings page** to manage the runner and the model: choosing the
+  `llama-server` build and the model, including smaller models for more modest
+  GPUs, instead of editing the settings file.
 - **Model: Gemma 4 26B A4B instruct**, from the Hugging Face repository
   `unsloth/gemma-4-26b-a4b-it-GGUF`, read from the Hugging Face cache:
   - `gemma-4-26B-A4B-it-UD-Q4_K_XL.gguf`: the model (about 17 GB);

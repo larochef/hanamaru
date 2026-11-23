@@ -3,7 +3,7 @@ package hanamaru.frontend.appServices
 import hanamaru.frontend.api.ApiClient
 import hanamaru.frontend.model.*
 import hanamaru.frontend.utils.AppStreams
-import hanamaru.shared.ReferenceDataState
+import hanamaru.shared.{ModelState, ReferenceDataState}
 
 import scala.scalajs.js.timers.setTimeout
 
@@ -20,7 +20,11 @@ class StatusService(bus: AppBus, apiClient: ApiClient) {
     AppStreams.runOnce(apiClient.status()) {
       case Right(status) =>
         bus.publish(AppEvent.ServerChecked(status))
-        if (status.referenceData == ReferenceDataState.Preparing) {
+        if (
+          status.strokes == ReferenceDataState.Preparing ||
+          status.dictionary == ReferenceDataState.Preparing ||
+          status.model == ModelState.Starting
+        ) {
           setTimeout(pollMillis)(check(command))
         }
       case Left(reason) => bus.publish(AppEvent.RequestFailed(command, reason))

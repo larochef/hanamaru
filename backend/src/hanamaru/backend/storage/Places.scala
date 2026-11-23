@@ -4,10 +4,11 @@ import java.nio.file.{Files, Path}
 
 /** Where Hanamaru keeps what it keeps, as the XDG base directories say: the
   * learner's data under `~/.local/share/hanamaru`, what it can make again
-  * (imported reference data, generated audio) under `~/.cache/hanamaru`.
-  * `HANAMARU_DATA` and `HANAMARU_CACHE` move them.
+  * (imported reference data, generated audio, logs) under `~/.cache/hanamaru`,
+  * the settings of this machine under `~/.config/hanamaru`. `HANAMARU_DATA`,
+  * `HANAMARU_CACHE` and `HANAMARU_CONFIG` move them.
   */
-final case class Places(data: Path, cache: Path) {
+final case class Places(data: Path, cache: Path, config: Path) {
   def database: Path = data.resolve("learner.db")
 
   /** Every character written, one JSON line each, as `WritingAttempts` keeps
@@ -18,9 +19,16 @@ final case class Places(data: Path, cache: Path) {
   /** The open datasets, as downloaded. */
   def reference: Path = cache.resolve("reference")
 
+  /** What the model servers write as they run. */
+  def logs: Path = cache.resolve("logs")
+
+  /** The settings of this machine: paths to its model servers and models. */
+  def settings: Path = config.resolve("hanamaru.properties")
+
   def created(): Places = {
     Files.createDirectories(data)
     Files.createDirectories(cache)
+    Files.createDirectories(logs)
     this
   }
 }
@@ -44,7 +52,11 @@ object Places {
       cache = environment
         .get("HANAMARU_CACHE")
         .map(Path.of(_))
-        .getOrElse(xdg("XDG_CACHE_HOME", ".cache"))
+        .getOrElse(xdg("XDG_CACHE_HOME", ".cache")),
+      config = environment
+        .get("HANAMARU_CONFIG")
+        .map(Path.of(_))
+        .getOrElse(xdg("XDG_CONFIG_HOME", ".config"))
     )
   }
 }

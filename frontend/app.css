@@ -481,3 +481,97 @@ button:disabled {
 .strokes-of {
   align-self: stretch;
 }
+
+/* whether the tutor's model is ready */
+.tutor-indicator {
+  margin-left: auto;
+  margin-right: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.tutor-indicator .is-ready::before,
+.tutor-indicator .is-starting::before,
+.tutor-indicator .is-off::before {
+  content: "●";
+  margin-right: 0.35rem;
+}
+
+.tutor-indicator .is-ready::before {
+  color: #2e7d32;
+}
+
+.tutor-indicator .is-starting::before {
+  color: #e0a800;
+}
+
+.tutor-indicator .is-off::before {
+  color: var(--muted);
+}
+
+.notice code {
+  font-size: 0.9em;
+}
+
+/* the main sections, beside the title */
+.main-nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-left: 2rem;
+}
+
+.main-nav a {
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.main-nav a:hover {
+  color: var(--ink);
+}
+
+.credits p {
+  margin: 0.25rem 0;
+}
+
+/* the core vocabulary */
+.vocabulary {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.vocabulary td {
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border-bottom: 1px solid var(--faint);
+  vertical-align: top;
+}
+
+.word-forms {
+  white-space: nowrap;
+}
+
+.word-writing {
+  font-size: 1.4rem;
+  margin-right: 0.6rem;
+}
+
+.word-reading {
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.word-forms .word-reading:first-child {
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+
+.in-english {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.word-level {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: right;
+}

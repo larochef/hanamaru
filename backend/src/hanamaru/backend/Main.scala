@@ -1,8 +1,9 @@
 package hanamaru.backend
 
 import hanamaru.backend.learner.{LearnerApi, LearnerStore}
+import hanamaru.backend.models.*
 import hanamaru.backend.placement.*
-import hanamaru.backend.reference.{Download, ReferenceData}
+import hanamaru.backend.reference.*
 import hanamaru.backend.session.*
 import hanamaru.backend.status.StatusApi
 import hanamaru.backend.storage.{Database, Places}
@@ -20,8 +21,9 @@ object Main extends OxApp {
   private val logger = Logger("hanamaru.backend.main")
 
   override def run(args: Vector[String])(using Ox): ExitCode = {
+    val home = Path.of(sys.props("user.home"))
     val places =
-      Places.fromEnvironment(sys.env, Path.of(sys.props("user.home"))).created()
+      Places.fromEnvironment(sys.env, home).created()
     val port = sys.env.getOrElse("HANAMARU_PORT", "4323").toInt
     logger.info(s"Data in ${places.data}, cache in ${places.cache}")
     val database = useCloseableInScope(Database.open(places.database))
@@ -34,13 +36,22 @@ object Main extends OxApp {
       .build()
     val reference = ReferenceData(places.reference, Download(http))
     forkUnsupervised(reference.prepare()).discard
+    val model = LlamaServer(
+      LocalSettings.read(places.settings),
+      places.settings,
+      HuggingFaceCache(HuggingFaceCache.rootOf(sys.env, home)),
+      places.logs,
+      http
+    )
+    releaseAfterScope(model.stop())
+    forkUnsupervised(model.run()).discard
     val server = NettySyncServer()
       // a restart does not have to wait for the previous run's port
       .modifyConfig(_.socketConfig(NettySocketConfig.default.withReuseAddress))
       // the page and its models are on this machine, nowhere else
       .host("localhost")
       .port(port)
-      .addEndpoints(StatusApi(reference).endpoints)
+      .addEndpoints(StatusApi(reference, model).endpoints)
       .addEndpoints(
         WritingApi(
           reference,
@@ -49,6 +60,7 @@ object Main extends OxApp {
         ).endpoints
       )
       .addEndpoints(LearnerApi(learner).endpoints)
+      .addEndpoints(DictionaryApi(reference).endpoints)
       .addEndpoints(
         PlacementApi(
           KanaPlacementTest(PlacementStore(database), learner, attempts)

@@ -3,7 +3,7 @@ package hanamaru.frontend
 import hanamaru.frontend.api.ApiClient
 import hanamaru.frontend.appServices.*
 import hanamaru.frontend.components.*
-import hanamaru.frontend.i18n.Language
+import hanamaru.frontend.i18n.{Language, Tr}
 import hanamaru.frontend.model.*
 
 import com.raquo.laminar.api.L.*
@@ -39,9 +39,15 @@ object Application {
         span(lang := "ja", "花丸"),
         " Hanamaru"
       ),
+      navTag(
+        cls := "main-nav",
+        PageLink(bus, Page.Chart, Tr("Kana", "Kana")),
+        PageLink(bus, Page.Vocabulary, Tr("Vocabulary", "Vocabulaire"))
+      ),
+      TutorIndicator(bus),
       LanguageChoice()
     ),
-    ReferenceDataNotice(bus),
+    ServerNotice(bus),
     mainTag(
       div(hidden <-- page.map(_ != Page.Chart), KanaChart(bus)),
       div(
@@ -50,7 +56,8 @@ object Application {
       ),
       div(hidden <-- page.map(_ != Page.Placement), PlacementPage(bus)),
       div(hidden <-- page.map(_ != Page.Review), ReviewPage(bus)),
-      div(hidden <-- page.map(_ != Page.Session), SessionPage(bus))
+      div(hidden <-- page.map(_ != Page.Session), SessionPage(bus)),
+      div(hidden <-- page.map(_ != Page.Vocabulary), VocabularyPage(bus))
     ),
     Credits()
   )
@@ -66,6 +73,7 @@ object Application {
     LearnerService(bus, apiClient)
     PlacementService(bus, apiClient)
     SessionService(bus, apiClient)
+    DictionaryService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)
     navigation.showAddressed()

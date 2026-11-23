@@ -96,9 +96,14 @@ hiragana and katakana.
    3. (done) the learner model in SQLite, with FSRS;
    4. (done) the kana placement test;
    5. (done) the Express session format, and a free review of the kana met.
-3. **LLM and vocabulary**: llama-server driven by the backend, the dictionary
-   and a core word list, the vocabulary practice formats, words in generated
-   sentences.
+3. **LLM and vocabulary**, in five deliveries:
+   1. (done) llama-server launched and supervised by the backend;
+   2. (done) JMdict imported, the core word list from the JLPT lists, a page
+      listing it;
+   3. (done) research on how vocabulary is best memorised, and practice
+      formats proposed to the learner ([`08`](08-vocabulary-practice.md));
+   4. the formats chosen, built;
+   5. words in generated sentences, validated by code; Tatoeba imported then.
 4. **Lessons**: the grammar curriculum, grammar placement, the text pipeline,
    exercises, corrections by the tutor.
 5. **Kanji**: grade by grade, writing and recognition, progressive kanji in

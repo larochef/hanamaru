@@ -12,6 +12,10 @@ object PlacesTests extends TestSuite {
       val places = Places.fromEnvironment(Map.empty, home)
       assert(places.data == home.resolve(".local/share/hanamaru"))
       assert(places.cache == home.resolve(".cache/hanamaru"))
+      assert(places.config == home.resolve(".config/hanamaru"))
+      assert(
+        places.settings == home.resolve(".config/hanamaru/hanamaru.properties")
+      )
     }
     test("the XDG directories, when they are set") {
       val places = Places.fromEnvironment(

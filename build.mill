@@ -70,6 +70,10 @@ object shared extends Module {
 
 object backend extends BaseScala {
   def moduleDeps: Seq[JavaModule] = Seq(shared.jvm)
+  // the codecs of what the backend keeps as JSON are made at compile time
+  override def compileMvnDeps: T[Seq[Dep]] = Seq(
+    mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-macros:$jsoniterV",
+  )
 
   private def buildFrontend(mode: String, destDir: os.Path): PathRef = {
     val root = BuildCtx.workspaceRoot

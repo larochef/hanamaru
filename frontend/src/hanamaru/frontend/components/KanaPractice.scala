@@ -17,7 +17,7 @@ class KanaPractice(bus: AppBus, shown: Signal[Option[Kana]])
 
   private val ready: Signal[Boolean] = bus.events.events
     .collect { case AppEvent.ServerChecked(status) =>
-      status.referenceData == ReferenceDataState.Ready
+      status.strokes == ReferenceDataState.Ready
     }
     .startWith(false)
 

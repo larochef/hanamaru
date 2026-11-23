@@ -1,6 +1,7 @@
 package hanamaru.frontend.model
 
 import hanamaru.shared.ServerStatus
+import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.*
 import hanamaru.shared.placement.PlacementState
 import hanamaru.shared.session.SessionState
@@ -41,4 +42,7 @@ object AppEvent {
 
   /** Where the session stands, after a command about it. */
   final case class SessionUpdated(state: SessionState) extends AppEvent
+
+  final case class CoreWordsLoaded(from: Int, words: List[DictionaryWord])
+      extends AppEvent
 }

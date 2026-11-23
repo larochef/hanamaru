@@ -4,6 +4,7 @@ import hanamaru.frontend.api.airstream.AjaxBackend
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.AppResult
 import hanamaru.shared.ServerStatus
+import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.*
 import hanamaru.shared.placement.{PlacementAnswer, PlacementState}
 import hanamaru.shared.routes.*
@@ -65,6 +66,12 @@ class ApiClient(baseUri: Uri) {
 
   def endSession(session: Long): EventStream[AppResult[SessionState]] =
     call(SessionRoutes.end, session)
+
+  def coreWords(
+      from: Int,
+      count: Int
+  ): EventStream[AppResult[List[DictionaryWord]]] =
+    call(DictionaryRoutes.coreWords, (from, count))
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

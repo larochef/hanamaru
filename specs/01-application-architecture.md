@@ -49,9 +49,9 @@ typography (`<ruby>` furigana, vertical text if ever wanted).
 
 The application is **Hanamaru** (花丸: the flower-shaped circle Japanese
 teachers draw on good work). Scala package `hanamaru`, environment variables
-prefixed `HANAMARU_`, data under `~/.local/share/hanamaru` (learner data) and
+prefixed `HANAMARU_`, data under `~/.local/share/hanamaru` (learner data),
 `~/.cache/hanamaru` (what can be rebuilt: imported reference data, generated
-audio).
+audio, logs) and `~/.config/hanamaru` (the settings of this machine).
 
 ## Open
 

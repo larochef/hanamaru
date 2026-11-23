@@ -66,6 +66,8 @@ object Database {
       s"Learner data: $version, applied ${applied.mkString(", ")}"
     }
   }
+
+  /** The learner's database, its schema brought up to date. */
   def open(file: Path): Database = {
     val url = s"jdbc:sqlite:$file"
     val result = Flyway
@@ -75,7 +77,14 @@ object Database {
       .load()
       .migrate()
     logger.info(migrated(result))
-    val connection = DriverManager.getConnection(url)
+    connect(file)
+  }
+
+  /** A database whose schema is its own business, as one rebuilt from reference
+    * data.
+    */
+  def connect(file: Path): Database = {
+    val connection = DriverManager.getConnection(s"jdbc:sqlite:$file")
     Using.resource(connection.createStatement()) { statement =>
       // readers do not wait for the writer, and references are kept
       statement.execute("PRAGMA journal_mode = WAL")

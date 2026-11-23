@@ -1,6 +1,6 @@
 # 02 — Reference data
 
-**Status:** KanjiVG imported
+**Status:** KanjiVG, JMdict and the JLPT lists imported
 
 ## Intent
 
@@ -30,16 +30,38 @@ the application's storage and queried by the backend.
   obsolete ゐ and ゑ are left out.
 - The kanji order follows the **school grades**, with the option of pulling a
   kanji forward when a lesson's vocabulary needs it.
+- **JMdict** (CC BY-SA 4.0, EDRDG) is the full multilingual file
+  (`JMdict.gz`), the only one with the frequency marks and the French glosses.
+  EDRDG publishes it again every day under the same name, with no version to
+  pin: it is downloaded once into the cache, kept with its date and SHA-256,
+  and not downloaded again unless asked for (a settings page, later). It is
+  imported into a SQLite database of its own, rebuilt from it at will
+  (`~/.cache/hanamaru/reference/dictionary.db`, about 60 MB, 2 s to import):
+  words with their frequency rank and common mark, their written forms and
+  readings with JMdict's codes, their senses in French and English with
+  their parts of speech and glosses. A change of the database's shape imports
+  it again.
+- **The core vocabulary list** (the order words are learned in, and the
+  vocabulary placement) is the **JLPT lists**, N5 (the first words) to N1:
+  Jonathan Waller's lists (tanos.co.uk, CC BY), each word tied to its JMdict
+  entry by yomitan-jlpt-vocab (CC BY-SA 4.0), pinned to one commit and each
+  file checked by its SHA-256; 8,283 words, a word in the easiest list it is
+  in. Within a level, the words JMdict ranks most frequent come first.
+  JMdict's own frequency ranks were the first choice and were dropped: they
+  come from a newspaper corpus (食べる near the 12,000th word, 行く and 好き
+  unranked, 安保 "security treaty" among the first 500).
 - Each dataset's licence (share-alike or attribution) is respected and credited
   in the page. KanjiVG is CC BY-SA 3.0 (© Ulrich Apel), as its files state.
+- **French in JMdict**, measured: 57% of its common words have French glosses,
+  79% of the 4,000 most frequent, and 98% of the JLPT N5 to N2 words (79% of
+  N1). The words without French get the English glosses, said so.
 
 ## To verify
 
-- Exact licence versions of KANJIDIC2, JMdict and Tatoeba.
+- Exact licence versions of KANJIDIC2 and Tatoeba.
 - That KANJIDIC2's grade field matches the current (2020) kyōiku list, which has
   1026 kanji. Otherwise the list is taken from another source.
-- How much French JMdict actually carries. French glosses may be patchy, and
-  the tutor may have to translate English glosses, flagged as such.
+
 
 ## Open
 
@@ -48,11 +70,7 @@ the application's storage and queried by the backend.
   its own, writing them is not. Not with the first kana; later, likely with
   vocabulary.
 
-- The source of the **core vocabulary list** for the vocabulary placement and
-  the first lessons: JMdict priority tags, a frequency list, or a JLPT-level list
-  (unofficial).
 - Whether KanjiVG's kana are drawn in a style close enough to textbook
   handwriting, or need small corrections.
-- The storage format of the large datasets (KANJIDIC2, JMdict, Tatoeba):
-  imported into SQLite, or kept as indexed files in the cache. KanjiVG stays in
-  its archive.
+- The storage format of KANJIDIC2 and Tatoeba. JMdict is in a SQLite database
+  of its own, KanjiVG stays in its archive.
