@@ -1,0 +1,157 @@
+//| mill-version: 1.3.1
+//| mvnDeps:
+//| - "com.goyeau::mill-scalafix::0.6.2"
+
+package build
+import com.goyeau.mill.scalafix.ScalafixModule
+import mill.*
+import scalalib.*
+import scalajslib.*
+import scalajslib.api.*
+import mill.api.BuildCtx
+import mill.scalalib.scalafmt.ScalafmtModule
+
+val scalaV = "3.10.1"
+val tapirV = "1.14.1"
+val jsoniterV = "2.43.0"
+val oxV = "1.1.1"
+
+trait BaseScala extends ScalaModule with ScalafmtModule with ScalafixModule {
+  def scalaVersion: T[String] = scalaV
+  def jvmVersion = "zulu:25"
+
+  override def scalafixConfig = Some(BuildCtx.workspaceRoot / ".scalafix.conf")
+
+  override def scalacOptions = {
+    val ciArgs = if (System.getenv("CI") != null) Seq("-Werror") else Seq()
+
+    Seq(
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-old-syntax",
+      "-rewrite",
+      "-language:adhocExtensions",
+      "-Wunused:imports,privates,locals,implicits",
+    ) ++ ciArgs
+  }
+}
+
+trait BaseScalaJS extends BaseScala with ScalaJSModule {
+  def scalaJSVersion = "1.23.0"
+  // the frontend imports its JavaScript libraries, which Vite then bundles
+  def moduleKind = ModuleKind.ESModule
+}
+
+object shared extends Module {
+  trait Shared extends BaseScala with PlatformScalaModule
+  object jvm extends Shared {
+    def mvnDeps: T[Seq[Dep]] = Seq(
+      mvn"com.softwaremill.sttp.tapir::tapir-core:$tapirV",
+      mvn"com.softwaremill.sttp.tapir::tapir-jsoniter-scala:$tapirV",
+      mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:$jsoniterV",
+    )
+    // Macros are only needed to expand `JsonCodecMaker.make*` at compile time.
+    override def compileMvnDeps: T[Seq[Dep]] = Seq(
+      mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-macros:$jsoniterV",
+    )
+  }
+  object js extends Shared with BaseScalaJS {
+    def mvnDeps: T[Seq[Dep]] = Seq(
+      mvn"com.softwaremill.sttp.tapir::tapir-core::$tapirV",
+      mvn"com.softwaremill.sttp.tapir::tapir-jsoniter-scala::$tapirV",
+      mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core::$jsoniterV",
+    )
+    override def compileMvnDeps: T[Seq[Dep]] = Seq(
+      mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-macros::$jsoniterV",
+    )
+  }
+}
+
+object backend extends BaseScala {
+  def moduleDeps: Seq[JavaModule] = Seq(shared.jvm)
+
+  private def buildFrontend(mode: String, destDir: os.Path): PathRef = {
+    val root = BuildCtx.workspaceRoot
+    if (!os.exists(root / "node_modules"))
+      os.proc("npm", "install").call(cwd = root, stdout = os.Inherit)
+    os.proc(
+      "npm",
+      "run",
+      "build",
+      "--",
+      "--outDir",
+      destDir.toString,
+      "--emptyOutDir",
+    ).call(
+      cwd = root,
+      stdout = os.Inherit,
+      env = Map("SCALAJS_MODE" -> mode),
+    )
+    PathRef(destDir)
+  }
+
+  private def frontendDir = Task.Source(
+    Task.dest / ".." / "front-dist",
+  )
+
+  override def run(args: Task[Args]): Task.Command[Unit] = {
+    val newArgs = Task.Anon {
+      Task.log.info(s"Building frontend (fast) in ${frontendDir().path}")
+      frontend.fastLinkJS()
+      buildFrontend("fast", frontendDir().path)
+      args()
+    }
+    super.run(newArgs)
+  }
+
+  private def frontendBundle = Task {
+    Task.log.info(s"Building frontend (full) in ${Task.dest}")
+    frontend.fullLinkJS()
+    buildFrontend("full", Task.dest / "dist")
+  }
+
+  override def jar: T[PathRef] = Task {
+    val jar = Task.dest / "out.jar"
+    mill.util.Jvm.createJar(
+      jar,
+      (frontendBundle() +: localClasspath()).map(_.path).filter(os.exists),
+      manifest(),
+    )
+    PathRef(jar)
+  }
+
+  override def runClasspath: T[Seq[PathRef]] = Task {
+    frontendDir() +: super.runClasspath()
+  }
+
+  def mvnDeps: T[Seq[Dep]] = Seq(
+    mvn"ch.qos.logback:logback-classic:1.6.8",
+    mvn"com.typesafe.scala-logging::scala-logging:3.9.6",
+    mvn"com.softwaremill.sttp.tapir::tapir-files:$tapirV",
+    mvn"com.softwaremill.sttp.tapir::tapir-netty-server-sync:$tapirV",
+    mvn"com.softwaremill.ox::core:$oxV",
+    // the learner's data: one SQLite file, its schema moved on by Flyway
+    mvn"org.xerial:sqlite-jdbc:3.54.1.0",
+    mvn"org.flywaydb:flyway-core:13.13.0",
+  )
+
+  def mainClass = Some("hanamaru.backend.Main")
+
+  // sqlite-jdbc loads its native library, which the JDK otherwise warns of
+  override def forkArgs: T[Seq[String]] = Seq("--enable-native-access=ALL-UNNAMED")
+
+  object test extends ScalaTests with TestModule.Utest with ScalafmtModule {
+    def mvnDeps: T[Seq[Dep]] = Seq(
+      mvn"com.lihaoyi::utest:0.9.5",
+    )
+  }
+}
+
+object frontend extends BaseScalaJS {
+  def moduleDeps: Seq[JavaModule] = Seq(shared.js)
+  def mvnDeps: T[Seq[Dep]] = Seq(
+    mvn"com.raquo::laminar::17.2.1",
+    mvn"com.softwaremill.sttp.tapir::tapir-sttp-client4::$tapirV",
+  )
+}
