@@ -91,7 +91,8 @@ hiragana and katakana.
 2. **Kana**, in five deliveries, writing first so the stroke matcher is tuned
    on real stylus input early:
    1. (done) the kana chart, KanjiVG imported, stroke order animated;
-   2. the stylus canvas and the stroke matcher: guided, then from memory;
+   2. (done, tolerances to tune) the stylus canvas and the stroke matcher:
+      guided, then from memory;
    3. the learner model in SQLite, with FSRS;
    4. the kana placement test;
    5. the Express session format.

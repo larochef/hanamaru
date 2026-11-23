@@ -7,7 +7,7 @@ import hanamaru.shared.writing.CharacterStrokes
 import sttp.shared.Identity
 import sttp.tapir.server.ServerEndpoint
 
-class WritingApi(reference: ReferenceData) {
+class WritingApi(reference: ReferenceData, attempts: WritingAttempts) {
 
   def strokes(character: String): Either[String, CharacterStrokes] =
     reference.kanjiVg match {
@@ -19,6 +19,7 @@ class WritingApi(reference: ReferenceData) {
     }
 
   val endpoints: List[ServerEndpoint[Any, Identity]] = List(
-    WritingRoutes.strokes.handle(strokes)
+    WritingRoutes.strokes.handle(strokes),
+    WritingRoutes.recordAttempt.handleSuccess(attempts.record)
   )
 }

@@ -5,7 +5,7 @@ import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.AppResult
 import hanamaru.shared.ServerStatus
 import hanamaru.shared.routes.{StatusRoutes, WritingRoutes}
-import hanamaru.shared.writing.CharacterStrokes
+import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
 import scala.util.{Failure, Success}
 
@@ -26,6 +26,9 @@ class ApiClient(baseUri: Uri) {
 
   def strokes(character: String): EventStream[AppResult[CharacterStrokes]] =
     call(WritingRoutes.strokes, character)
+
+  def recordAttempt(attempt: WritingAttempt): EventStream[AppResult[Unit]] =
+    call(WritingRoutes.recordAttempt, attempt)
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

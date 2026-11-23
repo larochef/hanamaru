@@ -3,7 +3,7 @@ package hanamaru.backend
 import hanamaru.backend.reference.{Download, ReferenceData}
 import hanamaru.backend.status.StatusApi
 import hanamaru.backend.storage.{Database, Places}
-import hanamaru.backend.writing.WritingApi
+import hanamaru.backend.writing.{WritingApi, WritingAttempts}
 
 import java.net.http.HttpClient
 import java.nio.file.Path
@@ -37,7 +37,9 @@ object Main extends OxApp {
       .host("localhost")
       .port(port)
       .addEndpoints(StatusApi(reference).endpoints)
-      .addEndpoints(WritingApi(reference).endpoints)
+      .addEndpoints(
+        WritingApi(reference, WritingAttempts(places.writingAttempts)).endpoints
+      )
       .addEndpoints(FrontendApi.endpoints)
 
     logger.info(s"Serving on http://localhost:$port")

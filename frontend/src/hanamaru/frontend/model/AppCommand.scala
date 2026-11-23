@@ -1,5 +1,7 @@
 package hanamaru.frontend.model
 
+import hanamaru.shared.writing.WritingAttempt
+
 sealed trait AppCommand
 
 object AppCommand {
@@ -13,4 +15,7 @@ object AppCommand {
 
   /** Asks for a character's strokes. */
   final case class LoadStrokes(character: String) extends AppCommand
+
+  /** Keeps a character written once. */
+  final case class RecordWriting(attempt: WritingAttempt) extends AppCommand
 }

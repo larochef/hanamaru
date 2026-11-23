@@ -141,7 +141,8 @@ a.kana-cell:hover {
   color: var(--muted);
 }
 
-.demonstration {
+.demonstration,
+.writing-exercise {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -149,32 +150,38 @@ a.kana-cell:hover {
   margin-top: 1.5rem;
 }
 
-.demonstration-box {
+.demonstration-box,
+.writing-box {
   width: min(70vh, 100%);
   max-width: 28rem;
   background: #fff;
   border: 1px solid var(--faint);
 }
 
-.demonstration-box .guide line {
+.demonstration-box .guide line,
+.writing-box .guide line {
   stroke: var(--faint);
   stroke-width: 0.5;
   stroke-dasharray: 2 2;
 }
 
-.demonstration-box path {
+.demonstration-box path,
+.writing-box path,
+.writing-box polyline {
   fill: none;
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-.demonstration-box .model path {
+.demonstration-box .model path,
+.writing-box .model path {
   stroke: var(--faint);
 }
 
 /* each stroke drawn from its start to its end, one after the other */
-.demonstration-box .drawn path {
+.demonstration-box .drawn path,
+.writing-box .expected path {
   stroke: var(--ink);
   stroke-dasharray: 1 1;
   stroke-dashoffset: 1;
@@ -207,4 +214,49 @@ a.kana-cell:hover {
   border-radius: 0.5rem;
   background: #fff;
   cursor: pointer;
+}
+
+.step-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.step-tabs button {
+  font-size: 1rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--faint);
+  border-radius: 0.5rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.step-tabs button.is-selected {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* the pen draws: no scrolling, no selection, no browser gesture */
+.writing-box {
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+}
+
+.writing-box .written polyline {
+  stroke: var(--ink);
+}
+
+.writing-box .expected path {
+  stroke: var(--accent);
+}
+
+.writing-message {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.writing-message.is-done {
+  color: #2e7d32;
 }

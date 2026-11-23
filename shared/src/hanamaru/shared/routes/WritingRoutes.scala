@@ -1,6 +1,6 @@
 package hanamaru.shared.routes
 
-import hanamaru.shared.writing.CharacterStrokes
+import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
 import sttp.tapir.*
 import sttp.tapir.json.jsoniter.*
@@ -14,4 +14,13 @@ object WritingRoutes {
       .in(query[String]("character"))
       .errorOut(Routes.refused)
       .out(jsonBody[CharacterStrokes])
+
+  /** Keeps a character written once, every stroke drawn with its verdict: the
+    * material the matcher's tolerances are tuned on.
+    */
+  val recordAttempt: PublicEndpoint[WritingAttempt, String, Unit, Any] =
+    Routes.baseRoute.post
+      .in("writing" / "attempts")
+      .in(jsonBody[WritingAttempt])
+      .errorOut(Routes.refused)
 }

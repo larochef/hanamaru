@@ -10,6 +10,11 @@ import java.nio.file.{Files, Path}
 final case class Places(data: Path, cache: Path) {
   def database: Path = data.resolve("learner.db")
 
+  /** Every character written, one JSON line each, as `WritingAttempts` keeps
+    * them.
+    */
+  def writingAttempts: Path = data.resolve("writing-attempts.jsonl")
+
   /** The open datasets, as downloaded. */
   def reference: Path = cache.resolve("reference")
 
