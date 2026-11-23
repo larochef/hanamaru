@@ -3,6 +3,7 @@ package hanamaru.backend
 import hanamaru.backend.learner.{LearnerApi, LearnerStore}
 import hanamaru.backend.placement.*
 import hanamaru.backend.reference.{Download, ReferenceData}
+import hanamaru.backend.session.*
 import hanamaru.backend.status.StatusApi
 import hanamaru.backend.storage.{Database, Places}
 import hanamaru.backend.writing.*
@@ -26,6 +27,7 @@ object Main extends OxApp {
     val database = useCloseableInScope(Database.open(places.database))
     val learner = LearnerStore(database)
     val attempts = WritingAttempts(places.writingAttempts)
+    val writingReview = WritingReview(learner)
     val http = HttpClient
       .newBuilder()
       .followRedirects(HttpClient.Redirect.NORMAL)
@@ -43,13 +45,23 @@ object Main extends OxApp {
         WritingApi(
           reference,
           attempts,
-          WritingReview(learner)
+          writingReview
         ).endpoints
       )
       .addEndpoints(LearnerApi(learner).endpoints)
       .addEndpoints(
         PlacementApi(
           KanaPlacementTest(PlacementStore(database), learner, attempts)
+        ).endpoints
+      )
+      .addEndpoints(
+        SessionApi(
+          ExpressSessions(
+            SessionStore(database),
+            learner,
+            writingReview,
+            attempts
+          )
         ).endpoints
       )
       .addEndpoints(FrontendApi.endpoints)

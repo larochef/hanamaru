@@ -7,6 +7,7 @@ import hanamaru.shared.ServerStatus
 import hanamaru.shared.learner.*
 import hanamaru.shared.placement.{PlacementAnswer, PlacementState}
 import hanamaru.shared.routes.*
+import hanamaru.shared.session.*
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
 import scala.util.{Failure, Success}
@@ -52,6 +53,18 @@ class ApiClient(baseUri: Uri) {
       answer: PlacementAnswer
   ): EventStream[AppResult[PlacementState]] =
     call(PlacementRoutes.answerKana, answer)
+
+  def startSession(start: SessionStart): EventStream[AppResult[SessionState]] =
+    call(SessionRoutes.start, start)
+
+  def answerSession(
+      session: Long,
+      answer: SessionAnswer
+  ): EventStream[AppResult[SessionState]] =
+    call(SessionRoutes.answer, (session, answer))
+
+  def endSession(session: Long): EventStream[AppResult[SessionState]] =
+    call(SessionRoutes.end, session)
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

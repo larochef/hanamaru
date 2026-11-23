@@ -18,7 +18,11 @@ final class WritingReview(learner: LearnerStore) {
     * memory to its end, or stopped by a wrong stroke. Guided writing is
     * practice, and an attempt given up is no answer.
     */
-  def reviewed(attempt: WritingAttempt, at: Instant): Option[ReviewOutcome] =
+  def reviewed(
+      attempt: WritingAttempt,
+      at: Instant,
+      studySession: Option[Long] = None
+  ): Option[ReviewOutcome] =
     for {
       kana <- Kana.find(attempt.character)
       grade <- gradeOf(attempt)
@@ -29,7 +33,8 @@ final class WritingReview(learner: LearnerStore) {
         CardKind.Writing,
         grade,
         writeToString(attempt),
-        at
+        at,
+        studySession = studySession
       )
       ReviewOutcome(grade, memory.due.toEpochMilli)
     }

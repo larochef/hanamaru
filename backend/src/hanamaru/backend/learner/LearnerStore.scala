@@ -2,6 +2,7 @@ package hanamaru.backend.learner
 
 import hanamaru.backend.storage.Database
 import hanamaru.shared.learner.*
+import hanamaru.shared.session.SessionSummary
 
 import java.time.Instant
 
@@ -19,6 +20,16 @@ enum CardKind(val name: String) {
   /** The character shown, its reading typed. */
   case Reading extends CardKind("reading")
 }
+
+/** A kana's card as the session planner sees it: the kana, what the card tests,
+  * its phase, and when it is due, in milliseconds since the epoch.
+  */
+final case class KanaCard(
+    character: String,
+    kind: CardKind,
+    phase: Phase,
+    due: Long
+)
 
 /** Where an answer was given, as the database names it. */
 enum ReviewSource(val name: String) {
@@ -47,7 +58,8 @@ final class LearnerStore(database: Database) {
       answer: String,
       at: Instant,
       source: ReviewSource = ReviewSource.Practice,
-      toConfirm: Boolean = false
+      toConfirm: Boolean = false,
+      studySession: Option[Long] = None
   ): Memory = database.transaction { session =>
     val item = itemId(session, itemKind, key)
     val card = session.queryOne(
@@ -67,13 +79,14 @@ final class LearnerStore(database: Database) {
       case None => inserted(session, item, cardKind, memory, toConfirm)
     }
     session.insert(
-      """INSERT INTO review (card_id, reviewed_at, grade, answer, source)
-        |VALUES (?, ?, ?, ?, ?)""".stripMargin,
+      """INSERT INTO review (card_id, reviewed_at, grade, answer, source,
+        |session_id) VALUES (?, ?, ?, ?, ?, ?)""".stripMargin,
       cardId,
       at.toEpochMilli,
       grade.value,
       answer,
-      source.name
+      source.name,
+      studySession
     )
     memory
   }
@@ -105,6 +118,52 @@ final class LearnerStore(database: Database) {
         toConfirm = true
       )
     }
+  }
+
+  /** Every card of every kana: what it tests, its phase, and when it is due. */
+  def kanaCards(): List[KanaCard] = database.read(
+    _.query(
+      """SELECT item.key, card.kind, card.phase, card.due
+        |FROM item JOIN card ON card.item_id = item.id
+        |WHERE item.kind = ?""".stripMargin,
+      ItemKind.Kana.name
+    )(row =>
+      KanaCard(
+        row.string("key"),
+        CardKind.values
+          .find(_.name == row.string("kind"))
+          .getOrElse(throw IllegalStateException(row.string("kind"))),
+        Phase.valueOf(row.string("phase")),
+        row.long("due")
+      )
+    )
+  )
+
+  /** What a study session did: its reviews, those answered right, and the kana
+    * it brought in (first reviewed in it), in the order they came.
+    */
+  def sessionSummary(studySession: Long): SessionSummary = database.read {
+    session =>
+      val grades = session.query(
+        "SELECT grade FROM review WHERE session_id = ?",
+        studySession
+      )(_.int("grade"))
+      val introduced = session.query(
+        """SELECT DISTINCT item.key FROM review
+        |JOIN card ON card.id = review.card_id
+        |JOIN item ON item.id = card.item_id
+        |WHERE review.session_id = ?
+        |AND NOT EXISTS (SELECT 1 FROM review earlier
+        |  JOIN card other ON other.id = earlier.card_id
+        |  WHERE other.item_id = card.item_id AND earlier.id < review.id)
+        |ORDER BY review.id""".stripMargin,
+        studySession
+      )(_.string("key"))
+      SessionSummary(
+        grades.size,
+        grades.count(_ >= Grade.Good.value),
+        introduced
+      )
   }
 
   /** Every kana with a card: its status, and when its first card is due. */

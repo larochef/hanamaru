@@ -6,8 +6,6 @@ import hanamaru.shared.kana.{Kana, Script}
 import hanamaru.shared.placement.*
 import hanamaru.shared.writing.WritingStep
 
-import scala.scalajs.js
-
 import com.raquo.laminar.api.L.*
 
 /** The kana placement test: what it is, its questions one by one, then what it
@@ -84,57 +82,28 @@ class PlacementPage(bus: AppBus) extends ReactiveElement {
     )
 
   private def reading(state: PlacementState, kana: Kana): HtmlElement = {
-    val shownAt = js.Date.now()
-    val sent = Var(false)
-    def send(typed: Option[String]): Unit = if (!sent.now()) {
-      sent.set(true)
-      answer(
-        PlacementAnswer.Reading(kana.character, typed, js.Date.now() - shownAt)
+    lazy val question: ReadingQuestion = ReadingQuestion(
+      kana,
+      button(
+        cls := "link",
+        Tr(
+          s"I don't know the ${scriptName(kana.script)} at all",
+          s"Je ne connais pas du tout les ${scriptName(kana.script)}"
+        ),
+        onClick --> { _ =>
+          if (question.claimAnswer()) {
+            answer(PlacementAnswer.SkipScript(kana.script))
+          }
+        }
       )
-    }
-    val field = input(
-      cls := "reading-input",
-      placeholder := "romaji",
-      autoComplete := "off",
-      spellCheck := false,
-      onMountFocus
     )
     div(
       cls := "placement-question",
       lastReading(state),
-      p(
-        cls := "placement-prompt",
-        Tr("How is it read?", "Comment se lit-il ?")
-      ),
-      span(cls := "placement-kana", lang := "ja", kana.character),
-      form(
-        onSubmit.preventDefault --> { _ =>
-          Option(field.ref.value)
-            .filter(_.trim.nonEmpty)
-            .foreach(typed => send(Some(typed)))
-        },
-        field,
-        button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
-      ),
-      div(
-        cls := "placement-escapes",
-        button(
-          Tr("I don't know", "Je ne sais pas"),
-          onClick --> (_ => send(None))
-        ),
-        button(
-          cls := "link",
-          Tr(
-            s"I don't know the ${scriptName(kana.script)} at all",
-            s"Je ne connais pas du tout les ${scriptName(kana.script)}"
-          ),
-          onClick --> { _ =>
-            if (!sent.now()) {
-              sent.set(true)
-              answer(PlacementAnswer.SkipScript(kana.script))
-            }
-          }
-        )
+      question.node.amend(
+        question.answers.map(reading =>
+          PlacementAnswer.Reading(kana.character, reading.typed, reading.millis)
+        ) --> (answer(_))
       )
     )
   }

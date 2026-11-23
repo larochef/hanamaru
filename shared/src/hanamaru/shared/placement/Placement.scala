@@ -36,6 +36,10 @@ final case class ReadingResult(
     romaji: String
 )
 
+object ReadingResult {
+  given Schema[ReadingResult] = Schema.derived
+}
+
 /** How far the learner went in one script: kana read right out of those asked,
   * kana written right out of those asked, and the first row not mastered, named
   * by its first kana (none when every row was).
@@ -66,7 +70,6 @@ final case class PlacementState(
 object PlacementState {
   given JsonValueCodec[PlacementState] = JsonCodecMaker.make
   given Schema[PlacementQuestion] = Schema.derived
-  given Schema[ReadingResult] = Schema.derived
   given Schema[ScriptResult] = Schema.derived
   given Schema[PlacementState] = Schema.derived
 }

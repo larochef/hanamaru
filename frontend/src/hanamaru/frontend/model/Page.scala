@@ -19,12 +19,16 @@ enum Page {
   /** Kana reviewed one after the other, as long as the learner wishes. */
   case Review
 
+  /** A planned session: reviews due, then new kana, in the time given. */
+  case Session
+
   def path: String = this match {
     case Chart           => "/"
     case Character(kana) =>
       s"/write/${URIUtils.encodeURIComponent(kana.character)}"
     case Placement => "/placement"
     case Review    => "/review"
+    case Session   => "/session"
   }
 }
 
@@ -40,6 +44,7 @@ object Page {
           .getOrElse(Chart)
       case List("placement") => Placement
       case List("review")    => Review
+      case List("session")   => Session
       case _                 => Chart
     }
 }

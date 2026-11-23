@@ -1,6 +1,7 @@
 package hanamaru.frontend.model
 
 import hanamaru.shared.placement.PlacementAnswer
+import hanamaru.shared.session.{SessionAnswer, SessionStart}
 import hanamaru.shared.writing.WritingAttempt
 
 sealed trait AppCommand
@@ -33,4 +34,13 @@ object AppCommand {
 
   /** Keeps a character written once. */
   final case class RecordWriting(attempt: WritingAttempt) extends AppCommand
+
+  /** Starts an Express session with the time and context declared. */
+  final case class StartSession(start: SessionStart) extends AppCommand
+
+  final case class AnswerSession(session: Long, answer: SessionAnswer)
+      extends AppCommand
+
+  /** Ends a session before its time. */
+  final case class EndSession(session: Long) extends AppCommand
 }

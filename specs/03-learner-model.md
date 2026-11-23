@@ -44,9 +44,10 @@ what it may use.
   (time, grade 1 to 4, the answer as JSON, and its source: practice or
   placement, whose reviews FSRS is not fitted on), in
   `~/.local/share/hanamaru/learner.db`.
-- **Kana** have two cards: **reading** (the kana shown, its reading typed),
-  reviewed so far only by the placement test, and **writing**. Writing is the
-  first card reviewed in practice: a kana written from memory
+- **Kana** have two cards: **reading** (the kana shown, its reading typed) and
+  **writing**, both reviewed in Express sessions ([`09`](09-sessions.md)), where
+  a reading is graded *good* when typed right and *again* otherwise. Writing is
+  also reviewed anywhere a kana is written from memory: a kana written from memory
   ([`05`](05-writing.md)) is a review of it, graded *good* when every stroke
   was accepted and *again* when a wrong stroke stopped it. Guided writing is
   practice, and an attempt given up is no answer: neither is a review. The

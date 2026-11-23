@@ -105,8 +105,19 @@ object backend extends BaseScala {
     super.run(newArgs)
   }
 
+  // what Vite bundles besides the Scala.js code: a change to them alone must
+  // rebuild the page
+  private def pageSources = Task.Sources(
+    BuildCtx.workspaceRoot / "frontend" / "index.html",
+    BuildCtx.workspaceRoot / "frontend" / "main.js",
+    BuildCtx.workspaceRoot / "frontend" / "app.css",
+    BuildCtx.workspaceRoot / "package.json",
+    BuildCtx.workspaceRoot / "vite.config.js",
+  )
+
   private def frontendBundle = Task {
     Task.log.info(s"Building frontend (full) in ${Task.dest}")
+    pageSources()
     frontend.fullLinkJS()
     buildFrontend("full", Task.dest / "dist")
   }

@@ -137,11 +137,15 @@ class KanaChart(bus: AppBus) extends ReactiveElement {
     div(
       cls := "chart-bar",
       progressLegend,
-      PageLink(
-        bus,
-        Page.Review,
-        cls := "button primary",
-        Tr("Review", "Réviser")
+      div(
+        cls := "chart-actions",
+        PageLink(bus, Page.Review, cls := "button", Tr("Review", "Réviser")),
+        PageLink(
+          bus,
+          Page.Session,
+          cls := "button primary",
+          Tr("Express session", "Séance express")
+        )
       )
     ),
     child.maybe <-- loaded.map(

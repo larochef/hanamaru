@@ -49,7 +49,8 @@ object Application {
         CharacterPage(bus)
       ),
       div(hidden <-- page.map(_ != Page.Placement), PlacementPage(bus)),
-      div(hidden <-- page.map(_ != Page.Review), ReviewPage(bus))
+      div(hidden <-- page.map(_ != Page.Review), ReviewPage(bus)),
+      div(hidden <-- page.map(_ != Page.Session), SessionPage(bus))
     ),
     Credits()
   )
@@ -64,6 +65,7 @@ object Application {
     WritingService(bus, apiClient)
     LearnerService(bus, apiClient)
     PlacementService(bus, apiClient)
+    SessionService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)
     navigation.showAddressed()
