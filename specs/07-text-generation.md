@@ -1,6 +1,6 @@
 # 07 — Generated texts and progressive kanji
 
-**Status:** first piece built: single sentences checked and laid out in kana
+**Status:** sentences for words, and reading texts for lessons, built in kana
 
 ## Intent
 
@@ -23,6 +23,18 @@ learned, without anyone writing them by hand.
   in kana, words spaced as in books for beginners, a word used as it stands in
   the dictionary read as JMdict reads it first. With 40 words met, 9 sentences
   in 10 were written and checked, in 1 to 3 s each.
+- **Reading texts for lessons** (built, `TextWriter`): the tutor is given the
+  lesson's point, the points up to it (pattern and title), the particles not
+  learned yet, never to be used (those of the points to come, and が, と, て,
+  ね…), and the words known: those of the lessons' examples and their words
+  up to this one, and the words the learner has met. It writes 3 to 5 short
+  sentences with their translation. The code checks each sentence
+  (`SentenceGrammar`): a point after the lesson's, named by what is written
+  (へ, not the point's id); a particle or auxiliary no point learned covers;
+  a word neither known nor grammar (names of people and numbers allowed); and
+  the lesson's point must be in two sentences. Refused, the tutor is asked
+  again with the problems, three times at most. On the 14 points, 13 had a
+  text at the first request, in 4 to 12 s; ます never did, and has none.
 - **Pipeline**:
   1. The backend asks the model for a text built on a grammar point and a set
      of words, with constraints: length, level, the vocabulary allowed, the
@@ -46,8 +58,8 @@ learned, without anyone writing them by hand.
 
 ## Open
 
-- How to judge the grammar level of a generated sentence. The analyser gives
-  words and inflections. Mapping them to curriculum points is to be designed.
+- Variety: with few points and words, texts repeat the same person and
+  sentences (たなかさんは…); hidden reviews of due words are not asked yet.
 - Naturalness: the model's Japanese can be wrong in ways validation does not
   catch. Options: a second pass where the model reviews its own text; a button
   for the learner to flag a sentence; keeping texts that read well.

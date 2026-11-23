@@ -1,6 +1,6 @@
 # 04 — Placement tests
 
-**Status:** built for kana
+**Status:** built for kana and grammar
 
 ## Intent
 
@@ -47,8 +47,21 @@ tailored to a particular learner.
 - **Vocabulary**: a quick sort of the core word list, by frequency, into
   *known / unsure / unknown*. *Known* words are not trusted: they enter the
   reviews as *to confirm*, so a wrong answer brings them back to *learning*.
-- **Grammar**: two or three questions per curriculum point, in curriculum
-  order. Passed → *to confirm*; failed → the point becomes a lesson to do.
+- **Grammar** (built, its own page, reached from the grammar page): the
+  curriculum's points in order, **two questions each**, written by hand in the
+  curriculum file ([`06`](06-curriculum-and-lessons.md)): a sentence with a
+  blank, its French, three choices in kana, the wrong ones wrong for that
+  meaning (は is not offered where も is meant). A test checks each: its
+  answer among distinct choices, the sentence filled showing its point and
+  none after it, the blank whole tokens.
+  - A point's second question is asked only if its first was right; a point
+    is **passed with both right**. The test stops after **two points failed in
+    a row**, or when given up ("I know no Japanese grammar").
+  - A point passed is a first review graded *easy*, *to confirm*, from
+    placement; a point failed is left alone: it is a lesson to do.
+  - The result: each point decided, passed or not, and the lesson to start
+    with, the first point not passed. Answers are kept as the kana test's are
+    (`placement_answer`, subject `wa#0`), so the test resumes.
 - **Kanji**: by school grade, reading and meaning first. Writing is only tested
   for kanji that are recognised.
 - **What comes out**: a level per domain shown to the learner, and the starting
@@ -60,7 +73,9 @@ tailored to a particular learner.
 - How fast *to confirm* items of the other domains are spaced out, and when
   they count as *known*. For kana: a first review graded *easy*, confirmed by
   the next one, known once stable for 21 days like any card.
-- How the questions are made: hand-checked, generated and validated, or a mix.
+- How the questions are made for vocabulary and kanji: hand-checked,
+  generated and validated, or a mix. Kana are all asked; grammar questions are
+  written by hand and checked by the analyser.
 - How finely the other domains are sampled. Kana: every kana is read, one per
   row is written, and its row's writing inferred from it.
 - Whether hesitation (response time) counts as a weak answer. The time each

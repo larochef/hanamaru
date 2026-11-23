@@ -1,6 +1,6 @@
 # 03 — Learner model and spaced repetition
 
-**Status:** built for kana
+**Status:** built for kana, words and grammar points
 
 ## Intent
 
@@ -16,7 +16,8 @@ what it may use.
   - word: reading → meaning, meaning → word (typed), audio → meaning
   - kanji: kanji → reading and meaning, meaning → kanji written with the stylus
   - kana: kana → reading, sound → kana written
-  - grammar point: exercises tagged with it
+  - grammar point: one card, `usage`, its exercises in a lesson graded together
+    (built): four answers in five right is Good, half is Hard, less is Again
 - **FSRS** schedules every card. It is the current algorithm used by Anki:
   FSRS-6, ported to Scala (`Fsrs`) from py-fsrs 6.3.3, the reference
   implementation, with its default parameters, a desired retention of 0.9, its
@@ -68,6 +69,4 @@ what it may use.
   defaults.
 - How a review hidden in a reading text counts (a word looked up versus read
   without help), see [`07`](07-text-generation.md).
-- How grammar points are graded: per exercise, or as an aggregate over a
-  session.
 - What progress views are worth showing (kanji known per grade, words, streaks).

@@ -37,8 +37,8 @@ object SessionPlanner {
     def exercise(card: KanaCard): SessionExercise = card.kind match {
       case CardKind.Reading => SessionExercise.Reading(card.character)
       case CardKind.Writing => SessionExercise.Writing(card.character)
-      // a kana has no word cards
-      case CardKind.Production | CardKind.Meaning =>
+      // a kana has no word or grammar cards
+      case CardKind.Production | CardKind.Meaning | CardKind.Usage =>
         throw IllegalStateException(s"${card.kind} is not a kana card")
     }
     def notJustAsked[A](

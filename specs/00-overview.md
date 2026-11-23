@@ -106,8 +106,15 @@ hiragana and katakana.
       rapid series;
    5. (done) words in sentences written by the tutor and checked by code,
       Sudachi as the analyser; Tatoeba left for reading texts.
-4. **Lessons**: the grammar curriculum, grammar placement, the text pipeline,
-   exercises, corrections by the tutor.
+4. **Lessons** (done), in five deliveries:
+   1. (done) the curriculum's format and its first points, a lesson page with
+      the explanation and the examples;
+   2. (done) the grammar of a sentence told by code, reading texts held to
+      the points learned, words tapped for their meaning;
+   3. (done) exercises (a particle chosen, a sentence translated) and
+      corrections by the tutor, recorded as reviews of the point;
+   4. (done) grammar placement, two questions per point written by hand;
+   5. (done) the Lesson session: grammar reviews due, then the next lesson.
 5. **Kanji**: grade by grade, writing and recognition, progressive kanji in
    texts.
 6. **Speech**: synthesis for texts and words, then recognition for reading

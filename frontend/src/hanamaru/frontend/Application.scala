@@ -43,7 +43,8 @@ object Application {
       navTag(
         cls := "main-nav",
         PageLink(bus, Page.Chart, Tr("Kana", "Kana")),
-        PageLink(bus, Page.Vocabulary, Tr("Vocabulary", "Vocabulaire"))
+        PageLink(bus, Page.Vocabulary, Tr("Vocabulary", "Vocabulaire")),
+        PageLink(bus, Page.Grammar, Tr("Grammar", "Grammaire"))
       ),
       TutorIndicator(bus),
       LanguageChoice()
@@ -59,7 +60,20 @@ object Application {
       div(hidden <-- page.map(_ != Page.Review), ReviewPage(bus)),
       div(hidden <-- page.map(_ != Page.Session), SessionPage(bus)),
       div(hidden <-- page.map(_ != Page.Vocabulary), VocabularyPage(bus)),
-      div(hidden <-- page.map(_ != Page.Series), SeriesPage(bus))
+      div(hidden <-- page.map(_ != Page.Series), SeriesPage(bus)),
+      div(hidden <-- page.map(_ != Page.Grammar), GrammarPage(bus)),
+      div(
+        hidden <-- page.map(!_.isInstanceOf[Page.Lesson]),
+        LessonPage(bus)
+      ),
+      div(
+        hidden <-- page.map(_ != Page.GrammarPlacement),
+        GrammarPlacementPage(bus)
+      ),
+      div(
+        hidden <-- page.map(_ != Page.LessonSession),
+        LessonSessionPage(bus)
+      )
     ),
     Credits()
   )
@@ -77,6 +91,7 @@ object Application {
     SessionService(bus, apiClient)
     DictionaryService(bus, apiClient)
     VocabularyService(bus, apiClient)
+    LessonService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)
     navigation.showAddressed()

@@ -1,0 +1,362 @@
+[
+  {
+    "id": "desu",
+    "level": 5,
+    "title": "です : c'est…",
+    "pattern": "〜です",
+    "requires": [],
+    "explanation": [
+      "です se place après un nom pour dire ce qu'est une chose ou une personne : がくせいです, « je suis étudiant », ou « c'est un étudiant ».",
+      "Le japonais ne dit pas le sujet quand on le comprend. がくせいです peut donc vouloir dire « je suis étudiant », « elle est étudiante » ou « c'est un étudiant », selon la situation.",
+      "です ne change ni avec la personne ni avec le nombre. Il rend aussi la phrase polie : c'est la forme à employer avec quelqu'un qu'on connaît peu, et celle de toutes les premières leçons.",
+      "Le う final se prononce à peine : です se dit presque « dess »."
+    ],
+    "examples": [
+      { "japanese": "学生です。", "french": "Je suis étudiant." },
+      { "japanese": "先生です。", "french": "C'est le professeur." },
+      { "japanese": "日本人です。", "french": "Je suis japonaise." },
+      { "japanese": "本です。", "french": "C'est un livre." }
+    ],
+    "words": [],
+    "placement": [
+      { "sentence": "学生＿。", "french": "Je suis étudiant.", "choices": ["です", "ます", "を"], "answer": "です" },
+      { "sentence": "先生＿。", "french": "C'est le professeur.", "choices": ["です", "を", "の"], "answer": "です" }
+    ],
+    "signature": [[{ "form": "です" }]]
+  },
+  {
+    "id": "wa",
+    "level": 5,
+    "title": "は : ce dont on parle",
+    "pattern": "〜は〜です",
+    "requires": ["desu"],
+    "explanation": [
+      "は annonce de quoi on parle, le thème ; la suite de la phrase dit quelque chose sur lui. わたしは がくせいです : « moi, je suis étudiant ».",
+      "Comme particule, は se lit « wa », et non « ha ». C'est une trace d'une ancienne orthographe : dans un mot, comme はな (fleur), il se lit bien « ha ».",
+      "Les particules se placent après le mot qu'elles marquent, jamais avant. Là où le français dit « à Paris », le japonais dit « Paris à ».",
+      "Une fois le thème posé, on ne le répète pas : il vaut pour les phrases suivantes, jusqu'à ce qu'on en change.",
+      "さん se met après le nom des autres, jamais après le sien : たなかさん, « monsieur Tanaka » ou « madame Tanaka »."
+    ],
+    "examples": [
+      { "japanese": "私は学生です。", "french": "Je suis étudiant." },
+      { "japanese": "田中さんは先生です。", "french": "Monsieur Tanaka est professeur." },
+      { "japanese": "父は医者です。", "french": "Mon père est médecin." }
+    ],
+    "words": ["わたし", "さん"],
+    "placement": [
+      { "sentence": "私＿学生です。", "french": "Je suis étudiant.", "choices": ["は", "を", "へ"], "answer": "は" },
+      { "sentence": "田中さん＿医者です。", "french": "Monsieur Tanaka est médecin.", "choices": ["は", "で", "を"], "answer": "は" }
+    ],
+    "signature": [[{ "form": "は", "pos": "助詞,係助詞" }]]
+  },
+  {
+    "id": "ka",
+    "level": 5,
+    "title": "か : la question",
+    "pattern": "〜ですか",
+    "requires": ["desu"],
+    "explanation": [
+      "Pour poser une question, on ajoute か à la fin de la phrase, sans rien changer d'autre : がくせいです, « c'est un étudiant » ; がくせいですか, « est-ce un étudiant ? ».",
+      "か tient lieu de point d'interrogation. À l'écrit, la phrase finit souvent par un simple 。.",
+      "Avec un mot interrogatif, comme だれ (qui) ou なん (quoi), on garde か : だれですか, « qui est-ce ? ».",
+      "On répond par はい (oui) ou いいえ (non)."
+    ],
+    "examples": [
+      { "japanese": "学生ですか。", "french": "Vous êtes étudiant ?" },
+      { "japanese": "あなたは日本人ですか。", "french": "Êtes-vous japonais ?" },
+      { "japanese": "田中さんは先生ですか。", "french": "Monsieur Tanaka est-il professeur ?" },
+      { "japanese": "だれですか。", "french": "Qui est-ce ?" }
+    ],
+    "words": ["はい", "いいえ", "だれ", "なん"],
+    "placement": [
+      { "sentence": "学生です＿。", "french": "Vous êtes étudiant ?", "choices": ["か", "は", "の"], "answer": "か" },
+      { "sentence": "田中さんは先生です＿。", "french": "Monsieur Tanaka est-il professeur ?", "choices": ["か", "を", "へ"], "answer": "か" }
+    ],
+    "signature": [[{ "form": "か", "pos": "助詞,終助詞" }]]
+  },
+  {
+    "id": "no",
+    "level": 5,
+    "title": "の : relier deux noms",
+    "pattern": "〜の〜",
+    "requires": ["desu"],
+    "explanation": [
+      "の relie deux noms ; le premier précise le second. わたしの ほん : « mon livre », littéralement « le livre de moi ».",
+      "L'ordre est l'inverse du français : ce qui précise vient d'abord. にほんの くるま : « une voiture du Japon ».",
+      "の dit l'appartenance, mais aussi l'origine ou le domaine : にほんごの せんせい, « un professeur de japonais ».",
+      "Après わたし ou あなた, il donne les possessifs : わたしの, « mon, ma, mes »."
+    ],
+    "examples": [
+      { "japanese": "私の本です。", "french": "C'est mon livre." },
+      { "japanese": "日本語の先生です。", "french": "C'est le professeur de japonais." },
+      { "japanese": "田中さんの車ですか。", "french": "C'est la voiture de monsieur Tanaka ?" },
+      { "japanese": "私の父は医者です。", "french": "Mon père est médecin." }
+    ],
+    "words": ["あなた"],
+    "placement": [
+      { "sentence": "私＿本です。", "french": "C'est mon livre.", "choices": ["の", "は", "を"], "answer": "の" },
+      { "sentence": "日本語＿先生です。", "french": "C'est le professeur de japonais.", "choices": ["の", "を", "か"], "answer": "の" }
+    ],
+    "signature": [[{ "form": "の", "pos": "助詞,格助詞" }]]
+  },
+  {
+    "id": "mo",
+    "level": 5,
+    "title": "も : aussi",
+    "pattern": "〜も〜です",
+    "requires": ["wa"],
+    "explanation": [
+      "も veut dire « aussi », et « non plus » dans une phrase négative. Il prend la place de は : わたしも がくせいです, « moi aussi, je suis étudiant ».",
+      "は et も ne vont jamais ensemble : も remplace は, comme il remplacera d'autres particules plus loin."
+    ],
+    "examples": [
+      { "japanese": "私も学生です。", "french": "Moi aussi, je suis étudiant." },
+      { "japanese": "山田さんも日本人です。", "french": "Madame Yamada aussi est japonaise." },
+      { "japanese": "田中さんも先生ですか。", "french": "Monsieur Tanaka est professeur, lui aussi ?" }
+    ],
+    "words": [],
+    "placement": [
+      { "sentence": "私＿学生です。", "french": "Moi aussi, je suis étudiant.", "choices": ["も", "は", "の"], "answer": "も" },
+      { "sentence": "山田さん＿日本人です。", "french": "Madame Yamada aussi est japonaise.", "choices": ["も", "を", "へ"], "answer": "も" }
+    ],
+    "signature": [[{ "form": "も", "pos": "助詞,係助詞" }]]
+  },
+  {
+    "id": "kosoado",
+    "level": 5,
+    "title": "これ, それ, あれ : ceci, cela",
+    "pattern": "これ・それ・あれ・どれ",
+    "requires": ["wa", "ka"],
+    "explanation": [
+      "Les démonstratifs vont par séries de quatre, selon la distance : こ, près de celui qui parle ; そ, près de celui qui écoute ; あ, loin des deux ; ど, pour la question.",
+      "これ, それ, あれ, どれ remplacent un nom : これは ほんです, « ceci est un livre » ; どれですか, « lequel ? ».",
+      "この, その, あの, どの se placent devant un nom, jamais seuls : この ほん, « ce livre-ci ».",
+      "ここ, そこ, あそこ, どこ désignent un lieu : ここです, « c'est ici » ; どこですか, « où est-ce ? »."
+    ],
+    "examples": [
+      { "japanese": "これは本です。", "french": "Ceci est un livre." },
+      { "japanese": "それは何ですか。", "french": "Qu'est-ce que c'est ?" },
+      { "japanese": "この人は先生です。", "french": "Cette personne est professeur." },
+      { "japanese": "トイレはどこですか。", "french": "Où sont les toilettes ?" }
+    ],
+    "words": [],
+    "placement": [
+      { "sentence": "＿は本です。", "french": "Ceci est un livre.", "choices": ["これ", "この", "ここ"], "answer": "これ" },
+      { "sentence": "＿人は先生です。", "french": "Cette personne est professeur.", "choices": ["この", "これ", "ここ"], "answer": "この" }
+    ],
+    "signature": [[{ "forms": ["これ", "それ", "あれ", "どれ", "この", "その", "あの", "どの", "ここ", "そこ", "あそこ", "どこ"] }]]
+  },
+  {
+    "id": "masu",
+    "level": 5,
+    "title": "Les verbes en ます",
+    "pattern": "〜ます",
+    "requires": ["wa"],
+    "explanation": [
+      "Le verbe se place à la fin de la phrase. À la forme polie, il finit par ます : いきます (aller), たべます (manger), のみます (boire).",
+      "La forme en ます vaut pour le présent comme pour le futur : いきます, « je vais » ou « j'irai ». Le japonais n'a pas de futur à part ; un mot comme あした (demain) le précise.",
+      "Comme avec です, le sujet se tait quand on le comprend, et le う final se prononce à peine.",
+      "Le dictionnaire donne les verbes sous une autre forme, la forme du dictionnaire : いく, たべる, のむ. On verra plus loin comment passer de l'une à l'autre ; pour l'instant, on retient la forme en ます."
+    ],
+    "examples": [
+      { "japanese": "行きます。", "french": "J'y vais." },
+      { "japanese": "私も行きます。", "french": "Moi aussi, j'y vais." },
+      { "japanese": "田中さんは毎日来ます。", "french": "Monsieur Tanaka vient tous les jours." },
+      { "japanese": "明日は休みます。", "french": "Demain, je me repose." }
+    ],
+    "words": ["来る", "行く", "毎日"],
+    "text": false,
+    "placement": [
+      { "sentence": "明日、行き＿。", "french": "Demain, j'y vais.", "choices": ["ます", "です", "か"], "answer": "ます" },
+      { "sentence": "田中さんは毎日来＿。", "french": "Monsieur Tanaka vient tous les jours.", "choices": ["ます", "です", "ません"], "answer": "ます" }
+    ],
+    "signature": [[{ "form": "ます", "conjugation": "終止形" }]]
+  },
+  {
+    "id": "wo",
+    "level": 5,
+    "title": "を : ce sur quoi porte l'action",
+    "pattern": "〜を〜ます",
+    "requires": ["masu"],
+    "explanation": [
+      "を marque ce sur quoi porte l'action : ce qu'on mange, ce qu'on lit, ce qu'on achète. ほんを よみます, « je lis un livre ».",
+      "Il se place après le nom, et le verbe reste à la fin : わたしは ほんを よみます. L'ordre de base est donc : le thème, le complément, le verbe.",
+      "を se prononce « o », comme お ; on ne l'écrit que pour cette particule.",
+      "Avec も, を disparaît : ほんも よみます, « je lis aussi des livres »."
+    ],
+    "examples": [
+      { "japanese": "本を読みます。", "french": "Je lis un livre." },
+      { "japanese": "水を飲みます。", "french": "Je bois de l'eau." },
+      { "japanese": "私は毎朝パンを食べます。", "french": "Je mange du pain tous les matins." },
+      { "japanese": "なにを買いますか。", "french": "Qu'est-ce que vous achetez ?" }
+    ],
+    "words": ["読む", "飲む", "食べる"],
+    "placement": [
+      { "sentence": "水＿飲みます。", "french": "Je bois de l'eau.", "choices": ["を", "へ", "の"], "answer": "を" },
+      { "sentence": "本＿読みます。", "french": "Je lis un livre.", "choices": ["を", "に", "か"], "answer": "を" }
+    ],
+    "signature": [[{ "form": "を", "pos": "助詞,格助詞" }]]
+  },
+  {
+    "id": "ni-he",
+    "level": 5,
+    "title": "へ, に : où l'on va",
+    "pattern": "〜へ・〜に いきます",
+    "requires": ["masu", "kosoado"],
+    "explanation": [
+      "へ et に disent où l'on va : がっこうへ いきます ou がっこうに いきます, « je vais à l'école ».",
+      "Comme particule, へ se prononce « é », et non « hé ».",
+      "へ insiste sur la direction, に sur le point d'arrivée. Avec いきます (aller), きます (venir) et かえります (rentrer), les deux conviennent.",
+      "に a d'autres emplois, que d'autres leçons présenteront : le moment, le lieu où l'on se trouve."
+    ],
+    "examples": [
+      { "japanese": "学校へ行きます。", "french": "Je vais à l'école." },
+      { "japanese": "明日、日本に行きます。", "french": "Demain, je pars au Japon." },
+      { "japanese": "私は家に帰ります。", "french": "Je rentre à la maison." },
+      { "japanese": "どこへ行きますか。", "french": "Où allez-vous ?" }
+    ],
+    "words": ["帰る", "学校"],
+    "placement": [
+      { "sentence": "学校＿行きます。", "french": "Je vais à l'école.", "choices": ["へ", "を", "の"], "answer": "へ" },
+      { "sentence": "私は家＿帰ります。", "french": "Je rentre à la maison.", "choices": ["に", "の", "を"], "answer": "に" }
+    ],
+    "signature": [
+      [{ "form": "へ", "pos": "助詞,格助詞" }],
+      [{ "form": "に", "pos": "助詞,格助詞" }]
+    ]
+  },
+  {
+    "id": "masen-mashita",
+    "level": 5,
+    "title": "ません, ました : la négation et le passé",
+    "pattern": "〜ません・〜ました",
+    "requires": ["masu"],
+    "explanation": [
+      "Le verbe en ます change de fin pour dire la négation et le passé : いきます (je vais), いきません (je ne vais pas), いきました (je suis allé), いきませんでした (je ne suis pas allé).",
+      "ません est la négation, au présent ou au futur : あした いきません, « je n'irai pas demain ».",
+      "ました est le passé, quel qu'il soit : « je suis allé », « j'allais », « j'étais allé ».",
+      "ませんでした est la négation au passé : ません suivi de でした, le passé de です."
+    ],
+    "examples": [
+      { "japanese": "肉を食べません。", "french": "Je ne mange pas de viande." },
+      { "japanese": "昨日、学校へ行きました。", "french": "Hier, je suis allé à l'école." },
+      { "japanese": "私は行きませんでした。", "french": "Moi, je n'y suis pas allé." },
+      { "japanese": "田中さんも来ましたか。", "french": "Monsieur Tanaka est venu, lui aussi ?" }
+    ],
+    "words": ["昨日", "明日", "今日"],
+    "placement": [
+      { "sentence": "昨日、学校へ行き＿。", "french": "Hier, je suis allé à l'école.", "choices": ["ました", "ます", "ません"], "answer": "ました" },
+      { "sentence": "肉を食べ＿。", "french": "Je ne mange pas de viande.", "choices": ["ません", "ます", "ました"], "answer": "ません" }
+    ],
+    "signature": [
+      [{ "form": "ます" }, { "form": "ぬ" }],
+      [{ "form": "ます" }, { "form": "た" }],
+      [{ "form": "です" }, { "form": "た" }]
+    ]
+  },
+  {
+    "id": "ja-arimasen",
+    "level": 5,
+    "title": "じゃありません : ce n'est pas",
+    "pattern": "〜じゃありません",
+    "requires": ["desu", "masen-mashita"],
+    "explanation": [
+      "La négation de です est じゃありません : がくせいじゃありません, « je ne suis pas étudiant ».",
+      "ありません est la forme en ません du verbe ある, « il y a », « exister » ; じゃ relie le nom à ce verbe.",
+      "ではありません veut dire la même chose, en plus soigné ; じゃ en est la contraction, courante à l'oral. Dans では, は se lit « wa ».",
+      "Pour répondre non : いいえ、がくせいじゃありません."
+    ],
+    "examples": [
+      { "japanese": "学生じゃありません。", "french": "Je ne suis pas étudiant." },
+      { "japanese": "これは私の本じゃありません。", "french": "Ce n'est pas mon livre." },
+      { "japanese": "いいえ、日本人じゃありません。", "french": "Non, je ne suis pas japonais." },
+      { "japanese": "田中さんは先生じゃありません。", "french": "Monsieur Tanaka n'est pas professeur." }
+    ],
+    "words": [],
+    "placement": [
+      { "sentence": "学生＿。", "french": "Je ne suis pas étudiant.", "choices": ["じゃありません", "です", "ません"], "answer": "じゃありません" },
+      { "sentence": "これは私の本＿。", "french": "Ce n'est pas mon livre.", "choices": ["じゃありません", "です", "ですか"], "answer": "じゃありません" }
+    ],
+    "signature": [
+      [{ "form": "だ", "conjugation": "連用形-融合" }, { "form": "ある" }, { "form": "ます" }, { "form": "ぬ" }],
+      [{ "form": "で", "pos": "助詞,格助詞" }, { "form": "は", "pos": "助詞,係助詞" }, { "form": "ある" }, { "form": "ます" }, { "form": "ぬ" }]
+    ]
+  },
+  {
+    "id": "i-adjectives",
+    "level": 5,
+    "title": "Les adjectifs en い",
+    "pattern": "〜い・〜いです",
+    "requires": ["desu", "kosoado"],
+    "explanation": [
+      "Les adjectifs japonais sont de deux sortes. Ceux de la première finissent par い : おおきい (grand), たかい (cher, haut), おもしろい (intéressant).",
+      "Ils se placent devant le nom, tels quels : おおきい くるま, « une grande voiture ».",
+      "Ils peuvent aussi finir la phrase, suivis de です : この くるまは おおきいです, « cette voiture est grande ». です ne veut alors pas dire « être » : il rend seulement la phrase polie.",
+      "Leur négation et leur passé se font en changeant le い final ; ce sera pour plus loin. Attention : きれい (joli, propre) finit par い sans en être un."
+    ],
+    "examples": [
+      { "japanese": "この本は面白いです。", "french": "Ce livre est intéressant." },
+      { "japanese": "大きい車です。", "french": "C'est une grande voiture." },
+      { "japanese": "日本語は難しいですか。", "french": "Le japonais, c'est difficile ?" },
+      { "japanese": "今日は寒いです。", "french": "Il fait froid aujourd'hui." }
+    ],
+    "words": [],
+    "placement": [
+      { "sentence": "＿車です。", "french": "C'est une grande voiture.", "choices": ["おおきい", "おおきいな", "おおきいの"], "answer": "おおきい" },
+      { "sentence": "この本は＿。", "french": "Ce livre est intéressant.", "choices": ["おもしろいです", "おもしろいな", "おもしろいを"], "answer": "おもしろいです" }
+    ],
+    "signature": [[{ "pos": "形容詞,一般" }]]
+  },
+  {
+    "id": "na-adjectives",
+    "level": 5,
+    "title": "Les adjectifs en な",
+    "pattern": "〜な・〜です",
+    "requires": ["i-adjectives", "ja-arimasen"],
+    "explanation": [
+      "Les adjectifs de la deuxième sorte se comportent comme des noms : しずか (calme), きれい (joli, propre), ゆうめい (célèbre).",
+      "Devant un nom, ils prennent な : しずかな へや, « une pièce calme ».",
+      "En fin de phrase, ils prennent です, comme un nom : この へやは しずかです. Leur négation est donc celle des noms : しずかじゃありません.",
+      "Le dictionnaire les donne sans な : on l'ajoute seulement devant un nom."
+    ],
+    "examples": [
+      { "japanese": "静かな部屋です。", "french": "C'est une pièce calme." },
+      { "japanese": "この町はきれいです。", "french": "Cette ville est jolie." },
+      { "japanese": "有名な人です。", "french": "C'est quelqu'un de célèbre." },
+      { "japanese": "ここは静かじゃありません。", "french": "Ici, ce n'est pas calme." }
+    ],
+    "words": [],
+    "placement": [
+      { "sentence": "＿部屋です。", "french": "C'est une pièce calme.", "choices": ["しずかな", "しずか", "しずかの"], "answer": "しずかな" },
+      { "sentence": "有名＿人です。", "french": "C'est quelqu'un de célèbre.", "choices": ["な", "い", "を"], "answer": "な" }
+    ],
+    "signature": [
+      [{ "pos": "形状詞,一般" }, { "form": "だ", "conjugation": "連体形" }],
+      [{ "pos": "形状詞,一般" }]
+    ]
+  },
+  {
+    "id": "de",
+    "level": 5,
+    "title": "で : où l'on fait, avec quoi",
+    "pattern": "〜で〜ます",
+    "requires": ["wo", "ni-he"],
+    "explanation": [
+      "で dit où se passe une action : としょかんで べんきょうします, « j'étudie à la bibliothèque ».",
+      "La différence avec に : に dit où l'on va, で où l'on fait quelque chose.",
+      "で dit aussi le moyen : でんしゃで きました, « je suis venu en train » ; はしで たべます, « je mange avec des baguettes »."
+    ],
+    "examples": [
+      { "japanese": "図書館で勉強します。", "french": "J'étudie à la bibliothèque." },
+      { "japanese": "電車で来ました。", "french": "Je suis venu en train." },
+      { "japanese": "レストランで昼ご飯を食べます。", "french": "Je déjeune au restaurant." },
+      { "japanese": "箸で食べます。", "french": "Je mange avec des baguettes." }
+    ],
+    "words": [],
+    "placement": [
+      { "sentence": "図書館＿勉強します。", "french": "J'étudie à la bibliothèque.", "choices": ["で", "を", "の"], "answer": "で" },
+      { "sentence": "電車＿来ました。", "french": "Je suis venu en train.", "choices": ["で", "の", "を"], "answer": "で" }
+    ],
+    "signature": [[{ "form": "で", "pos": "助詞,格助詞" }]]
+  }
+]

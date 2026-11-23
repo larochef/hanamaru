@@ -2,6 +2,7 @@ package hanamaru.shared.vocabulary
 
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.Grade
+import hanamaru.shared.text.SentencePart
 import hanamaru.shared.writing.WritingAttempt
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
@@ -25,15 +26,6 @@ final case class SeriesWord(
     word: DictionaryWord,
     isNew: Boolean,
     inSentence: Boolean = false
-)
-
-/** A piece of a sentence as shown: its text in kana, whether it is the word
-  * asked (blanked until answered), and whether a space comes before it.
-  */
-final case class SentencePart(
-    text: String,
-    blank: Boolean,
-    spaceBefore: Boolean
 )
 
 /** A sentence written for a word by the tutor and checked by the code: its
@@ -98,10 +90,6 @@ final case class SelfGrade(
 
 object Direction {
   given Schema[Direction] = Schema.derived
-}
-
-object SentencePart {
-  given Schema[SentencePart] = Schema.derived
 }
 
 object WordSentence {

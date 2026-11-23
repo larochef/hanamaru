@@ -1,6 +1,7 @@
 package hanamaru.backend
 
 import hanamaru.backend.learner.{LearnerApi, LearnerStore}
+import hanamaru.backend.lessons.*
 import hanamaru.backend.models.*
 import hanamaru.backend.placement.*
 import hanamaru.backend.reference.*
@@ -12,6 +13,7 @@ import hanamaru.backend.writing.*
 
 import java.net.http.HttpClient
 import java.nio.file.Path
+import scala.concurrent.duration.*
 
 import com.typesafe.scalalogging.Logger
 import ox.*
@@ -56,8 +58,14 @@ object Main extends OxApp {
       SentenceWriter(tutor, () => reference.analyser)
     )
     val server = NettySyncServer()
-      // a restart does not have to wait for the previous run's port
-      .modifyConfig(_.socketConfig(NettySocketConfig.default.withReuseAddress))
+      // a restart does not have to wait for the previous run's port; and
+      // stopping does not wait for the page's open connections longer than
+      // OxApp waits for the whole application to stop, else the tutor's model
+      // would outlive it
+      .modifyConfig(
+        _.socketConfig(NettySocketConfig.default.withReuseAddress)
+          .withGracefulShutdownTimeout(2.seconds)
+      )
       // the page and its models are on this machine, nowhere else
       .host("localhost")
       .port(port)
@@ -73,8 +81,25 @@ object Main extends OxApp {
       .addEndpoints(DictionaryApi(reference).endpoints)
       .addEndpoints(VocabularyApi(vocabulary).endpoints)
       .addEndpoints(
+        LessonApi(
+          Lessons(
+            () => reference.analyser,
+            () => reference.dictionary,
+            learner,
+            TextWriter(tutor)
+          ),
+          ExerciseJudge(tutor, () => reference.analyser)
+        ).endpoints
+      )
+      .addEndpoints(
         PlacementApi(
-          KanaPlacementTest(PlacementStore(database), learner, attempts)
+          KanaPlacementTest(PlacementStore(database), learner, attempts),
+          GrammarPlacementTest(
+            PlacementStore(database),
+            learner,
+            Curriculum.points,
+            () => reference.analyser
+          )
         ).endpoints
       )
       .addEndpoints(

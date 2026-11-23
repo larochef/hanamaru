@@ -6,7 +6,8 @@ import hanamaru.frontend.model.AppResult
 import hanamaru.shared.ServerStatus
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.*
-import hanamaru.shared.placement.{PlacementAnswer, PlacementState}
+import hanamaru.shared.lessons.*
+import hanamaru.shared.placement.*
 import hanamaru.shared.routes.*
 import hanamaru.shared.session.*
 import hanamaru.shared.vocabulary.*
@@ -87,6 +88,40 @@ class ApiClient(baseUri: Uri) {
 
   def sentence(word: Long): EventStream[AppResult[Option[WordSentence]]] =
     call(VocabularyRoutes.sentence, word)
+
+  def curriculum(): EventStream[AppResult[List[GrammarPoint]]] =
+    call(LessonRoutes.curriculum, ())
+
+  def lesson(point: String): EventStream[AppResult[GrammarLesson]] =
+    call(LessonRoutes.lesson, point)
+
+  def lessonText(point: String): EventStream[AppResult[Option[LessonText]]] =
+    call(LessonRoutes.text, point)
+
+  def exercises(point: String): EventStream[AppResult[List[LessonExercise]]] =
+    call(LessonRoutes.exercises, point)
+
+  def answerExercise(
+      answer: ExerciseAnswer
+  ): EventStream[AppResult[ExerciseVerdict]] =
+    call(LessonRoutes.answer, answer)
+
+  def finishExercises(done: ExercisesDone): EventStream[AppResult[Unit]] =
+    call(LessonRoutes.done, done)
+
+  def grammarPlacement(): EventStream[AppResult[GrammarPlacementState]] =
+    call(PlacementRoutes.grammar, ())
+
+  def startGrammarPlacement(): EventStream[AppResult[GrammarPlacementState]] =
+    call(PlacementRoutes.startGrammar, ())
+
+  def answerGrammarPlacement(
+      answer: GrammarPlacementAnswer
+  ): EventStream[AppResult[GrammarPlacementState]] =
+    call(PlacementRoutes.answerGrammar, answer)
+
+  def lessonPlan(): EventStream[AppResult[LessonPlan]] =
+    call(LessonRoutes.plan, ())
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

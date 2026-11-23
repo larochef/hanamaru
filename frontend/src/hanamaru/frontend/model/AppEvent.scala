@@ -3,7 +3,8 @@ package hanamaru.frontend.model
 import hanamaru.shared.ServerStatus
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.*
-import hanamaru.shared.placement.PlacementState
+import hanamaru.shared.lessons.*
+import hanamaru.shared.placement.*
 import hanamaru.shared.session.SessionState
 import hanamaru.shared.vocabulary.*
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
@@ -59,4 +60,27 @@ object AppEvent {
   /** A sentence for a word, none when none could be written. */
   final case class SentenceLoaded(word: Long, sentence: Option[WordSentence])
       extends AppEvent
+
+  final case class CurriculumLoaded(points: List[GrammarPoint]) extends AppEvent
+
+  final case class LessonLoaded(lesson: GrammarLesson) extends AppEvent
+
+  /** A reading text for a lesson, none when none could be written. */
+  final case class LessonTextWritten(point: String, text: Option[LessonText])
+      extends AppEvent
+
+  final case class ExercisesLoaded(
+      point: String,
+      exercises: List[LessonExercise]
+  ) extends AppEvent
+
+  final case class ExerciseJudged(
+      answer: ExerciseAnswer,
+      verdict: ExerciseVerdict
+  ) extends AppEvent
+
+  final case class GrammarPlacementUpdated(state: GrammarPlacementState)
+      extends AppEvent
+
+  final case class LessonPlanLoaded(plan: LessonPlan) extends AppEvent
 }

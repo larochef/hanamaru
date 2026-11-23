@@ -2,7 +2,7 @@ package hanamaru.backend.vocabulary
 
 import hanamaru.backend.reference.Token
 import hanamaru.shared.dictionary.{DictionaryWord, Meaning}
-import hanamaru.shared.vocabulary.SentencePart
+import hanamaru.shared.text.SentencePart
 
 import utest.*
 
@@ -39,11 +39,11 @@ object SentenceCheckTests extends TestSuite {
       val parts =
         SentenceCheck.checked(sentence, cat, List(me, like)).toOption.get
       assert(parts.map(_.text).mkString == "わたしはねこがすきです。")
-      assert(parts.filter(_.blank).map(_.text) == List("ねこ"))
+      assert(parts.filter(_.marked).map(_.text) == List("ねこ"))
       assert(parts.filter(_.spaceBefore).map(_.text) == List("ねこ", "すき"))
       // the usual reading of a word used as it stands: わたし, not わたくし
       assert(
-        parts.head == SentencePart("わたし", blank = false, spaceBefore = false)
+        parts.head == SentencePart("わたし", marked = false, spaceBefore = false)
       )
     }
     test("a word the learner does not know is named") {
@@ -70,7 +70,7 @@ object SentenceCheckTests extends TestSuite {
       )
       val parts = SentenceCheck.checked(going, go, List(school)).toOption.get
       // conjugated, it is shown as read: the blank stands for the dictionary form asked
-      assert(parts.filter(_.blank).map(_.text) == List("いき"))
+      assert(parts.filter(_.marked).map(_.text) == List("いき"))
     }
   }
 }

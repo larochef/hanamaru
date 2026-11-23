@@ -758,3 +758,140 @@ button:disabled {
   flex-direction: column;
   gap: 0.25rem;
 }
+
+/* the grammar curriculum and its lessons */
+.grammar-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-left: 2rem;
+}
+
+.grammar-points li a {
+  display: inline-flex;
+  gap: 1rem;
+  align-items: baseline;
+  color: inherit;
+  text-decoration: none;
+}
+
+.grammar-points li a:hover .grammar-title {
+  text-decoration: underline;
+}
+
+.grammar-points .word-level {
+  margin-left: 1rem;
+}
+
+.grammar-pattern {
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.lesson-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.lesson-page .grammar-pattern {
+  margin-top: 0;
+  font-size: 1.6rem;
+}
+
+.lesson-explanation {
+  max-width: 44rem;
+  line-height: 1.6;
+}
+
+.in-japanese {
+  font-size: 1.15em;
+  word-break: keep-all;
+}
+
+.lesson-example {
+  margin-bottom: 1rem;
+}
+
+.lesson-example .word-sentence {
+  font-size: 1.6rem;
+}
+
+.example-french {
+  margin: 0;
+  color: var(--muted);
+}
+
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+/* a word of a lesson's sentence, tapped for its meaning */
+.word-sentence .is-word {
+  cursor: pointer;
+}
+
+.word-sentence .is-word:hover {
+  text-decoration: underline dotted;
+}
+
+.word-gloss {
+  position: sticky;
+  bottom: 1rem;
+  max-width: 30rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--faint);
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+
+.gloss-reading {
+  font-size: 1.4rem;
+  margin-right: 0.75rem;
+}
+
+.gloss-form {
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+
+.lesson-text {
+  margin-top: 2rem;
+}
+
+.lesson-text details {
+  color: var(--muted);
+}
+
+/* a lesson's exercises */
+.lesson-exercises {
+  margin-top: 2rem;
+}
+
+.exercise-choices {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.exercise-choices button {
+  min-width: 3.5rem;
+  font-size: 1.4rem;
+}
+
+.sentence-input {
+  width: 24rem;
+}
+
+.typed-answer {
+  font-size: 1.3rem;
+}
+
+.tutor-explanation {
+  max-width: 40rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--accent);
+  background: var(--faint);
+}

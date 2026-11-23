@@ -240,9 +240,9 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
     lang := "ja",
     sentence.parts.map(part =>
       span(
-        cls("is-asked") := part.blank,
+        cls("is-asked") := part.marked,
         (if (part.spaceBefore) " " else "") +
-          (if (part.blank && !revealed) "＿＿＿" else part.text)
+          (if (part.marked && !revealed) "＿＿＿" else part.text)
       )
     )
   )

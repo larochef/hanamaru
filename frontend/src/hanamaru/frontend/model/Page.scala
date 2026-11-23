@@ -28,15 +28,32 @@ enum Page {
   /** A rapid series of words, both ways. */
   case Series
 
+  /** The grammar curriculum, in the order it is learned. */
+  case Grammar
+
+  /** A grammar point's lesson. */
+  case Lesson(point: String)
+
+  /** The grammar placement test. */
+  case GrammarPlacement
+
+  /** A lesson session: the grammar reviews due, then the next lesson. */
+  case LessonSession
+
   def path: String = this match {
     case Chart           => "/"
     case Character(kana) =>
       s"/write/${URIUtils.encodeURIComponent(kana.character)}"
-    case Placement  => "/placement"
-    case Review     => "/review"
-    case Session    => "/session"
-    case Vocabulary => "/vocabulary"
-    case Series     => "/vocabulary/series"
+    case Placement        => "/placement"
+    case Review           => "/review"
+    case Session          => "/session"
+    case Vocabulary       => "/vocabulary"
+    case Series           => "/vocabulary/series"
+    case Grammar          => "/grammar"
+    case GrammarPlacement => "/grammar/placement"
+    case LessonSession    => "/grammar/session"
+    case Lesson(point)    =>
+      s"/grammar/${URIUtils.encodeURIComponent(point)}"
   }
 }
 
@@ -55,6 +72,11 @@ object Page {
       case List("session")              => Session
       case List("vocabulary")           => Vocabulary
       case List("vocabulary", "series") => Series
-      case _                            => Chart
+      case List("grammar")              => Grammar
+      case List("grammar", "placement") => GrammarPlacement
+      case List("grammar", "session")   => LessonSession
+      case List("grammar", point)       =>
+        Lesson(URIUtils.decodeURIComponent(point))
+      case _ => Chart
     }
 }

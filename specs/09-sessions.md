@@ -1,6 +1,6 @@
 # 09 — Sessions
 
-**Status:** Express built for kana, with a free review
+**Status:** Express built for kana, with a free review; Lesson built
 
 ## Intent
 
@@ -63,6 +63,15 @@ and a free afternoon are both useful.
   - each session is kept (`study_session`) with the exercise it asks, so that
     an answer to another one is refused, and each review keeps its session, so
     that the time exercises take can be measured later.
+
+- **Lesson, as built** (the grammar page's "Lesson session" button): the
+  grammar points due for review, two at most, in the curriculum's order, each
+  practised in its exercises (or skipped); then the **next lesson**, the first
+  point never practised nor placed: its explanation, examples, reading text
+  and exercises. Its exercises done are its first review; missed, it comes
+  back as a review at the next session. It ends with what was reviewed and
+  the lesson seen. It does not keep to a time yet, and asks nothing of the
+  context: nothing in it is spoken, and it needs no stylus.
 
 ## Open
 

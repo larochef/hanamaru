@@ -1,6 +1,6 @@
 # 10 — LLM runtime and the AI tutor
 
-**Status:** runtime built; roles: judging meanings, writing sentences
+**Status:** runtime built; roles: judging meanings, writing sentences and lesson texts, correcting exercises
 
 ## Intent
 
@@ -60,6 +60,13 @@ later conversation. The backend runs it and keeps it within the rules of
 - **Second role built: writing a sentence** for a word with only the words
   the learner knows (`SentenceWriter`, [`07`](07-text-generation.md)), at
   temperature 0.7 so that a sentence refused is not written again the same.
+- **Third role built: writing a lesson's reading text** (`TextWriter`,
+  [`07`](07-text-generation.md)), told the grammar and words allowed and the
+  particles forbidden, checked sentence by sentence by the code.
+- **Fourth role built: correcting an exercise** (`ExerciseJudge`,
+  [`06`](06-curriculum-and-lessons.md)), asked only when the code cannot tell:
+  whether a particle or a sentence is right all the same, the learner's
+  sentence corrected, and why, in French, Japanese in kana.
 - **The tutor's roles**, each a prompt of its own with what it may use (known
   words, current grammar point):
   - generate texts and exercises ([`07`](07-text-generation.md));

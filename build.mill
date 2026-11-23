@@ -22,19 +22,23 @@ trait BaseScala extends ScalaModule with ScalafmtModule with ScalafixModule {
 
   override def scalafixConfig = Some(BuildCtx.workspaceRoot / ".scalafix.conf")
 
-  override def scalacOptions = {
-    val ciArgs = if (System.getenv("CI") != null) Seq("-Werror") else Seq()
+  override def scalacOptions = Seq(
+    "-deprecation",
+    "-feature",
+    "-unchecked",
+    "-old-syntax",
+    "-rewrite",
+    "-language:adhocExtensions",
+    "-Wunused:imports,privates,locals,implicits",
+    // every warning is an error, by a rule rather than -Werror: scalafix's
+    // compile below turns it back
+    "-Wconf:any:e",
+  )
 
-    Seq(
-      "-deprecation",
-      "-feature",
-      "-unchecked",
-      "-old-syntax",
-      "-rewrite",
-      "-language:adhocExtensions",
-      "-Wunused:imports,privates,locals,implicits",
-    ) ++ ciArgs
-  }
+  // scalafix compiles the code to find what it fixes, unused imports among
+  // them: there, warnings must stay warnings
+  override protected def semanticDbEnablePluginScalacOptions =
+    Task(super.semanticDbEnablePluginScalacOptions() :+ "-Wconf:any:w")
 }
 
 trait BaseScalaJS extends BaseScala with ScalaJSModule {

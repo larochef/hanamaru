@@ -1,6 +1,7 @@
 package hanamaru.frontend.model
 
-import hanamaru.shared.placement.PlacementAnswer
+import hanamaru.shared.lessons.*
+import hanamaru.shared.placement.*
 import hanamaru.shared.session.{SessionAnswer, SessionStart}
 import hanamaru.shared.vocabulary.{SelfGrade, VocabularyAnswer}
 import hanamaru.shared.writing.WritingAttempt
@@ -59,4 +60,32 @@ object AppCommand {
 
   /** Asks the tutor for a sentence with a word. */
   final case class LoadSentence(word: Long) extends AppCommand
+
+  /** Asks for the grammar curriculum. */
+  case object LoadCurriculum extends AppCommand
+
+  /** Asks for a grammar point's lesson. */
+  final case class LoadLesson(point: String) extends AppCommand
+
+  /** Asks the tutor for a new reading text for a lesson. */
+  final case class WriteLessonText(point: String) extends AppCommand
+
+  /** Asks for exercises on a lesson's point. */
+  final case class LoadExercises(point: String) extends AppCommand
+
+  /** Has an exercise's answer judged. */
+  final case class AnswerExercise(answer: ExerciseAnswer) extends AppCommand
+
+  /** Records a lesson's exercises done. */
+  final case class FinishExercises(done: ExercisesDone) extends AppCommand
+
+  case object LoadGrammarPlacement extends AppCommand
+
+  case object StartGrammarPlacement extends AppCommand
+
+  final case class AnswerGrammarPlacement(answer: GrammarPlacementAnswer)
+      extends AppCommand
+
+  /** Asks for a lesson session's plan. */
+  case object LoadLessonPlan extends AppCommand
 }

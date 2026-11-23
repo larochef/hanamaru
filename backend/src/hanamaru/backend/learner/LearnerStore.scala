@@ -12,6 +12,9 @@ enum ItemKind(val name: String) {
 
   /** A word of the dictionary, keyed by its JMdict number. */
   case Word extends ItemKind("word")
+
+  /** A grammar point of the curriculum, keyed by its id. */
+  case Grammar extends ItemKind("grammar")
 }
 
 /** A way of testing an item, as the database names it. */
@@ -28,6 +31,9 @@ enum CardKind(val name: String) {
 
   /** A word given, its meaning typed. */
   case Meaning extends CardKind("meaning")
+
+  /** A grammar point used in sentences: its exercises, graded together. */
+  case Usage extends CardKind("usage")
 }
 
 /** A kana's card as the session planner sees it: the kana, what the card tests,

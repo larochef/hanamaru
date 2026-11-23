@@ -82,7 +82,11 @@ final class Analyser(dictionaryFile: Path) extends AutoCloseable {
   def tokens(sentence: String): List[Token] = synchronized {
     dictionary
       .tokenizer()
-      .tokenize(Tokenizer.SplitMode.C, sentence)
+      // Japanese has no spaces between words: those the tutor may add are left out
+      .tokenize(
+        Tokenizer.SplitMode.C,
+        sentence.filterNot(character => character == ' ' || character == '　')
+      )
       .asScala
       .toList
       .map(morpheme =>

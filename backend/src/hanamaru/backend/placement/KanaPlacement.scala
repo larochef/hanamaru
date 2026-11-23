@@ -11,8 +11,15 @@ enum AnswerKind(val name: String) {
   case Reading extends AnswerKind("reading")
   case Writing extends AnswerKind("writing")
 
-  /** A script given up: its subject is the script's name. */
+  /** A script given up: its subject is the script's name (or `grammar`, the
+    * grammar test given up).
+    */
   case Skip extends AnswerKind("skip")
+
+  /** A grammar question: its subject is the point and the question's number,
+    * `wa#0`.
+    */
+  case Grammar extends AnswerKind("grammar")
 }
 
 /** An answer kept: its kind, what it was about, and whether it was right. */
