@@ -43,6 +43,11 @@ the application's storage and queried by the backend.
 
 ## Open
 
+- When to add the kana combinations (yōon: きゃ, しゅ, ちょ…), the long-vowel
+  mark ー and the extended katakana (ティ, ファ…): reading them is a skill of
+  its own, writing them is not. Not with the first kana; later, likely with
+  vocabulary.
+
 - The source of the **core vocabulary list** for the vocabulary placement and
   the first lessons: JMdict priority tags, a frequency list, or a JLPT-level list
   (unofficial).

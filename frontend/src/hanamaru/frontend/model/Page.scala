@@ -13,10 +13,18 @@ enum Page {
   /** One kana: how it is written. */
   case Character(kana: Kana)
 
+  /** The kana placement test. */
+  case Placement
+
+  /** Kana reviewed one after the other, as long as the learner wishes. */
+  case Review
+
   def path: String = this match {
     case Chart           => "/"
     case Character(kana) =>
       s"/write/${URIUtils.encodeURIComponent(kana.character)}"
+    case Placement => "/placement"
+    case Review    => "/review"
   }
 }
 
@@ -30,6 +38,8 @@ object Page {
           .find(URIUtils.decodeURIComponent(character))
           .map(Character(_))
           .getOrElse(Chart)
-      case _ => Chart
+      case List("placement") => Placement
+      case List("review")    => Review
+      case _                 => Chart
     }
 }

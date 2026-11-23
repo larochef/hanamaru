@@ -4,10 +4,16 @@ import java.nio.file.Path
 import java.sql.*
 import java.util.concurrent.locks.ReentrantLock
 import scala.collection.mutable.ListBuffer
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 import scala.util.control.NonFatal
 
-/** The learner's SQLite database.
+import com.typesafe.scalalogging.Logger
+import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.output.MigrateResult
+
+/** The learner's SQLite database, its schema brought up to date by Flyway when
+  * it opens, from the migrations in the resources' `db/migration`.
   *
   * One connection, one caller at a time: a single learner's data, whose
   * requests are short. Plain SQL with `?` parameters; a value is a String, an
@@ -44,8 +50,31 @@ final class Database(connection: Connection) extends AutoCloseable {
 }
 
 object Database {
+  private val logger = Logger("hanamaru.backend.storage")
+
+  // Flyway's own logs are kept to its warnings: this line says where the
+  // schema stands, and what this start changed.
+  private def migrated(result: MigrateResult): String = {
+    val version = Option(result.targetSchemaVersion)
+      .orElse(Option(result.initialSchemaVersion))
+      .fold("no schema")(version => s"schema version $version")
+    val applied = result.migrations.asScala.toList
+      .map(migration => s"V${migration.version} ${migration.description}")
+    if (applied.isEmpty) {
+      s"Learner data: $version, up to date"
+    } else {
+      s"Learner data: $version, applied ${applied.mkString(", ")}"
+    }
+  }
   def open(file: Path): Database = {
     val url = s"jdbc:sqlite:$file"
+    val result = Flyway
+      .configure()
+      .dataSource(url, null, null)
+      .locations("classpath:db/migration")
+      .load()
+      .migrate()
+    logger.info(migrated(result))
     val connection = DriverManager.getConnection(url)
     Using.resource(connection.createStatement()) { statement =>
       // readers do not wait for the writer, and references are kept
@@ -63,6 +92,7 @@ object Database {
       Option(results.getString(column))
     def int(column: String): Int = results.getInt(column)
     def long(column: String): Long = results.getLong(column)
+    def double(column: String): Double = results.getDouble(column)
     def intOption(column: String): Option[Int] = {
       val value = results.getInt(column)
       Option.when(!results.wasNull())(value)

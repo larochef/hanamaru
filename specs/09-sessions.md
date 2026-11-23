@@ -1,6 +1,6 @@
 # 09 — Sessions
 
-**Status:** planned
+**Status:** free review built; planned sessions to come
 
 ## Intent
 
@@ -9,6 +9,15 @@ planned from what the learner declares at its start, so a short quiet evening
 and a free afternoon are both useful.
 
 ## Decided
+
+- **Free review** (built, the chart's "Review" button): kana after kana, each
+  shown, written guided, then from memory, as long as the learner wishes; the
+  learner moves to the next one when ready. The next kana is picked among those
+  already met: first those being learned that are due, then the others being
+  learned (those missed in the placement test, first of all), then those due,
+  then any; at random within each, never the same twice in a row. Writing from
+  memory there is a review like anywhere else. Kana never met are not offered:
+  new content belongs to the planned sessions below.
 
 - **At the start of a session** the learner gives:
   - the **time available** (for example 10, 20, 45, 60+ minutes);

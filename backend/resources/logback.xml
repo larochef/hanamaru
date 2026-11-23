@@ -5,6 +5,9 @@
     </encoder>
   </appender>
 
+  <!-- the schema's version and the migrations applied are logged by Database -->
+  <logger name="org.flywaydb" level="WARN" />
+
   <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>

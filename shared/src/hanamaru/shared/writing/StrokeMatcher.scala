@@ -15,25 +15,34 @@ enum StrokeVerdict {
   case Misdrawn
 }
 
-/** A drawn stroke's verdict, and how far it was from the expected stroke: the
-  * mean distance between their points, in units of the 109-unit box.
+/** A drawn stroke's verdict, and how far it was from the expected stroke, in
+  * units of the 109-unit box: in shape (the mean distance between their points,
+  * once their centres are put together), and in place (the distance between
+  * their centres).
   */
-final case class StrokeJudgement(verdict: StrokeVerdict, distance: Double)
+final case class StrokeJudgement(
+    verdict: StrokeVerdict,
+    distance: Double,
+    offset: Double = 0
+)
 
 /** Judges drawn strokes against KanjiVG's, deterministically: both are
   * resampled to the same number of points evenly spaced along them, and
-  * compared point by point, in place in the box. Position, size, shape and
-  * direction all count.
+  * compared point by point. Shape and place are judged apart, the place more
+  * leniently: a stroke drawn right but a little off is a stroke drawn right.
   */
 object StrokeMatcher {
   private val samples = 32
 
-  /** How far a stroke may be from the expected one: a fixed part, for where it
-    * is placed, and a part growing with the stroke's length, for its shape.
-    * First guesses, to be tuned on real stylus input.
+  /** How far a stroke's shape may be from the expected one's: a fixed part, and
+    * a part growing with the stroke's length. Tuned on real stylus attempts
+    * written from memory.
     */
   val baseTolerance: Double = 8
   val lengthTolerance: Double = 0.12
+
+  /** How far a stroke's centre may be from the expected one's. */
+  val placeTolerance: Double = 22
 
   /** Judges `drawn` as the stroke at `expected` (counted from 0) of a character
     * whose strokes are `strokes`.
@@ -43,32 +52,85 @@ object StrokeMatcher {
       strokes: List[List[Point]],
       expected: Int
   ): StrokeJudgement = {
-    val shape = resampled(drawn)
-    def distanceTo(stroke: List[Point]) = meanDistance(shape, resampled(stroke))
+    val line = resampled(drawn)
     val target = strokes(expected)
-    val forward = distanceTo(target)
-    val backward = meanDistance(shape.reverse, resampled(target))
-    val nearest = forward.min(backward)
-    // a later stroke closer than the expected one: it is that one, too early
+    val shapeForward = shapeDistance(line, target)
+    val shapeBackward = shapeDistance(line.reverse, target)
+    val offset = distance(centre(line), centre(resampled(target)))
+    val fits = shapeForward.min(shapeBackward) <= toleranceOf(target) &&
+      offset <= placeTolerance
+    // A later stroke fitting better than the expected one, shape and place
+    // together, is that one drawn too early. When the expected stroke fits
+    // too, the later one must fit far better: two strokes alike (ほ's two
+    // bars) are told apart by place alone, and a bar a little low is still
+    // the bar expected.
+    val inPlace = inPlaceDistance(line, target)
+    val laterMargin = if (fits) 0.5 else 1.0
     val nearestLater = strokes.zipWithIndex
       .drop(expected + 1)
-      .map((stroke, index) => (index, distanceTo(stroke), toleranceOf(stroke)))
-      .filter((_, distance, tolerance) => distance <= tolerance)
+      .filter((stroke, _) =>
+        shapeDistance(line, stroke) <= toleranceOf(stroke) &&
+          distance(centre(line), centre(resampled(stroke))) <= placeTolerance
+      )
+      .map((stroke, index) => index -> inPlaceDistance(line, stroke))
       .minByOption(_._2)
-      .filter(_._2 < nearest)
+      .filter(_._2 < laterMargin * inPlace)
     // Short strokes, a dakuten's, stay within the tolerance even reversed: the
-    // direction is the one that matches best, not the one within it.
+    // direction is the one that matches best, not the one within it. A loop
+    // has no direction to judge.
     val verdict = nearestLater match {
-      case Some((index, _, _)) => StrokeVerdict.WrongOrder(index + 1)
-      case None if nearest > toleranceOf(target) => StrokeVerdict.Misdrawn
-      case None if backward < forward            => StrokeVerdict.WrongDirection
-      case None                                  => StrokeVerdict.Accepted
+      case Some((index, _)) => StrokeVerdict.WrongOrder(index + 1)
+      case None if !fits    => StrokeVerdict.Misdrawn
+      case None if !isLoop(target) && shapeBackward < shapeForward =>
+        StrokeVerdict.WrongDirection
+      case None => StrokeVerdict.Accepted
     }
-    StrokeJudgement(verdict, forward)
+    StrokeJudgement(verdict, shapeForward.min(shapeBackward), offset)
   }
 
   private def toleranceOf(stroke: List[Point]): Double =
     baseTolerance + lengthTolerance * length(stroke)
+
+  /** A stroke that ends about where it starts, as a handakuten's circle. */
+  private def isLoop(stroke: List[Point]): Boolean =
+    distance(stroke.head, stroke.last) < 0.25 * length(stroke)
+
+  // The shape alone, the drawn line moved onto the expected stroke's centre;
+  // a loop compared from any start, both ways round.
+  private def shapeDistance(
+      line: Vector[Point],
+      stroke: List[Point]
+  ): Double = {
+    val target = resampled(stroke)
+    val (from, to) = (centre(line), centre(target))
+    val moved =
+      line.map(point => Point(point.x + to.x - from.x, point.y + to.y - from.y))
+    if (isLoop(stroke)) {
+      val open = moved.dropRight(1)
+      val ring = target.dropRight(1)
+      open.indices
+        .flatMap { start =>
+          val turned = open.drop(start) ++ open.take(start)
+          Seq(turned, turned.reverse)
+        }
+        .map(meanDistance(_, ring))
+        .min
+    } else {
+      meanDistance(moved, target)
+    }
+  }
+
+  // shape and place together, either way along the stroke
+  private def inPlaceDistance(
+      line: Vector[Point],
+      stroke: List[Point]
+  ): Double = {
+    val target = resampled(stroke)
+    meanDistance(line, target).min(meanDistance(line.reverse, target))
+  }
+
+  private def centre(points: Vector[Point]): Point =
+    Point(points.map(_.x).sum / points.size, points.map(_.y).sum / points.size)
 
   def length(points: List[Point]): Double =
     points.zip(points.drop(1)).map(distance).sum

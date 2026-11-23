@@ -22,8 +22,8 @@ class WritingService(bus: AppBus, apiClient: ApiClient) {
     .collect { case command: AppCommand.RecordWriting => command }
     .foreach { command =>
       AppStreams.runOnce(apiClient.recordAttempt(command.attempt)) {
-        case Right(()) =>
-          bus.publish(AppEvent.WritingRecorded(command.attempt))
+        case Right(review) =>
+          bus.publish(AppEvent.WritingRecorded(command.attempt, review))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }

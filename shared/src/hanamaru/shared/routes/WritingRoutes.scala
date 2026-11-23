@@ -1,5 +1,6 @@
 package hanamaru.shared.routes
 
+import hanamaru.shared.learner.ReviewOutcome
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
 import sttp.tapir.*
@@ -16,11 +17,14 @@ object WritingRoutes {
       .out(jsonBody[CharacterStrokes])
 
   /** Keeps a character written once, every stroke drawn with its verdict: the
-    * material the matcher's tolerances are tuned on.
+    * material the matcher's tolerances are tuned on. Written from memory, it is
+    * also a review of the character's writing: its outcome, if it made one.
     */
-  val recordAttempt: PublicEndpoint[WritingAttempt, String, Unit, Any] =
+  val recordAttempt
+      : PublicEndpoint[WritingAttempt, String, Option[ReviewOutcome], Any] =
     Routes.baseRoute.post
       .in("writing" / "attempts")
       .in(jsonBody[WritingAttempt])
       .errorOut(Routes.refused)
+      .out(jsonBody[Option[ReviewOutcome]])
 }

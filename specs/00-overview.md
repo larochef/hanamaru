@@ -93,9 +93,10 @@ hiragana and katakana.
    1. (done) the kana chart, KanjiVG imported, stroke order animated;
    2. (done, tolerances to tune) the stylus canvas and the stroke matcher:
       guided, then from memory;
-   3. the learner model in SQLite, with FSRS;
-   4. the kana placement test;
-   5. the Express session format.
+   3. (done) the learner model in SQLite, with FSRS;
+   4. (done) the kana placement test;
+   5. the Express session format. A free review of the kana met (built
+      first, at the learner's request) already brings back those missed.
 3. **LLM and vocabulary**: llama-server driven by the backend, the dictionary
    and a core word list, the vocabulary practice formats, words in generated
    sentences.

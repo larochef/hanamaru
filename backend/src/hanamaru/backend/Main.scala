@@ -1,9 +1,11 @@
 package hanamaru.backend
 
+import hanamaru.backend.learner.{LearnerApi, LearnerStore}
+import hanamaru.backend.placement.*
 import hanamaru.backend.reference.{Download, ReferenceData}
 import hanamaru.backend.status.StatusApi
 import hanamaru.backend.storage.{Database, Places}
-import hanamaru.backend.writing.{WritingApi, WritingAttempts}
+import hanamaru.backend.writing.*
 
 import java.net.http.HttpClient
 import java.nio.file.Path
@@ -21,9 +23,9 @@ object Main extends OxApp {
       Places.fromEnvironment(sys.env, Path.of(sys.props("user.home"))).created()
     val port = sys.env.getOrElse("HANAMARU_PORT", "4323").toInt
     logger.info(s"Data in ${places.data}, cache in ${places.cache}")
-    // opened at start, so that unreadable learner data stops the server at
-    // once rather than at the first answer
-    useCloseableInScope(Database.open(places.database)).discard
+    val database = useCloseableInScope(Database.open(places.database))
+    val learner = LearnerStore(database)
+    val attempts = WritingAttempts(places.writingAttempts)
     val http = HttpClient
       .newBuilder()
       .followRedirects(HttpClient.Redirect.NORMAL)
@@ -38,7 +40,17 @@ object Main extends OxApp {
       .port(port)
       .addEndpoints(StatusApi(reference).endpoints)
       .addEndpoints(
-        WritingApi(reference, WritingAttempts(places.writingAttempts)).endpoints
+        WritingApi(
+          reference,
+          attempts,
+          WritingReview(learner)
+        ).endpoints
+      )
+      .addEndpoints(LearnerApi(learner).endpoints)
+      .addEndpoints(
+        PlacementApi(
+          KanaPlacementTest(PlacementStore(database), learner, attempts)
+        ).endpoints
       )
       .addEndpoints(FrontendApi.endpoints)
 

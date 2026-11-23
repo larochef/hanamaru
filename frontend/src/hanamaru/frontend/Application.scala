@@ -47,7 +47,9 @@ object Application {
       div(
         hidden <-- page.map(!_.isInstanceOf[Page.Character]),
         CharacterPage(bus)
-      )
+      ),
+      div(hidden <-- page.map(_ != Page.Placement), PlacementPage(bus)),
+      div(hidden <-- page.map(_ != Page.Review), ReviewPage(bus))
     ),
     Credits()
   )
@@ -60,6 +62,8 @@ object Application {
     dom.document.documentElement.setAttribute("lang", Language.current.code)
     StatusService(bus, apiClient)
     WritingService(bus, apiClient)
+    LearnerService(bus, apiClient)
+    PlacementService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)
     navigation.showAddressed()

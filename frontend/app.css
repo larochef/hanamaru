@@ -260,3 +260,188 @@ a.kana-cell:hover {
 .writing-message.is-done {
   color: #2e7d32;
 }
+
+/* where the learner stands on each kana */
+.kana-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.kana-legend .mark::before {
+  content: "";
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-right: 0.4rem;
+  border-radius: 0.2rem;
+  vertical-align: -0.1rem;
+  border: 2px solid transparent;
+}
+
+.mark.is-learning::before,
+a.kana-cell.is-learning {
+  background: #fff4d6;
+}
+
+.mark.is-to-confirm::before,
+a.kana-cell.is-to-confirm {
+  background: #e3ecf7;
+}
+
+.mark.is-known::before,
+a.kana-cell.is-known {
+  background: #e3f1e4;
+}
+
+.mark.is-due::before,
+a.kana-cell.is-due {
+  border: 2px solid var(--accent);
+}
+
+.next-review {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* buttons, and links shown as buttons */
+button,
+a.button {
+  display: inline-block;
+  font-size: 1rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.5rem;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button.primary,
+a.button.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button.link {
+  border: none;
+  background: none;
+  padding: 0;
+  text-decoration: underline;
+  color: var(--muted);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.invitation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #e3ecf7;
+}
+
+.invitation p {
+  margin: 0;
+}
+
+/* the placement test */
+.placement-page h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.placement-question {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.placement-prompt {
+  margin: 0;
+  color: var(--muted);
+}
+
+.placement-kana {
+  font-size: 7rem;
+  line-height: 1.1;
+}
+
+.placement-reading {
+  font-size: 2.5rem;
+}
+
+.placement-question form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.reading-input {
+  font-size: 1.5rem;
+  width: 10rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.5rem;
+}
+
+.placement-escapes {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.last-answer {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.last-answer.is-right {
+  color: #2e7d32;
+}
+
+.placement-result h3 {
+  margin-bottom: 0.25rem;
+}
+
+.placement-result p {
+  margin: 0.25rem 0;
+}
+
+.placement-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.chart-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* review, kana after kana */
+.review-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.review-bar h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-right: auto;
+}
+
+.review-why {
+  color: var(--muted);
+}

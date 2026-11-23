@@ -97,6 +97,32 @@ object StrokeMatcherTests extends TestSuite {
           .verdict == StrokeVerdict.Accepted
       )
     }
+    test("a stroke drawn right but a little off its place") {
+      assert(judged(shifted(strokes(0), 12, 14), 0) == StrokeVerdict.Accepted)
+    }
+    test("a circle drawn the other way round, from another start") {
+      val circle = SvgPath.points("M50,40c-10,0,-10,20,0,20c10,0,10,-20,0,-20")
+      val withCircle = List(strokes(0), circle)
+      val turned = StrokeMatcher.resampled(circle).toList
+      val otherStart = (turned.drop(10).dropRight(1) ++ turned.take(11)).reverse
+      assert(
+        StrokeMatcher
+          .judge(otherStart, withCircle, 1)
+          .verdict == StrokeVerdict.Accepted
+      )
+    }
+    test("of two bars alike, the expected one drawn a little low is still it") {
+      val bars =
+        List(SvgPath.points("M30,40l40,0"), SvgPath.points("M30,60l40,0"))
+      val low = shifted(bars(0), 0, 12)
+      assert(
+        StrokeMatcher.judge(low, bars, 0).verdict == StrokeVerdict.Accepted
+      )
+      assert(
+        StrokeMatcher.judge(bars(1), bars, 0).verdict == StrokeVerdict
+          .WrongOrder(2)
+      )
+    }
     test("a dot, drawn without moving") {
       assert(judged(List(Point(50, 50)), 0) == StrokeVerdict.Misdrawn)
     }

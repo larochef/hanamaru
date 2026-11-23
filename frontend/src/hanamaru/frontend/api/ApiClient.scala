@@ -4,7 +4,9 @@ import hanamaru.frontend.api.airstream.AjaxBackend
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.AppResult
 import hanamaru.shared.ServerStatus
-import hanamaru.shared.routes.{StatusRoutes, WritingRoutes}
+import hanamaru.shared.learner.*
+import hanamaru.shared.placement.{PlacementAnswer, PlacementState}
+import hanamaru.shared.routes.*
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
 import scala.util.{Failure, Success}
@@ -27,8 +29,29 @@ class ApiClient(baseUri: Uri) {
   def strokes(character: String): EventStream[AppResult[CharacterStrokes]] =
     call(WritingRoutes.strokes, character)
 
-  def recordAttempt(attempt: WritingAttempt): EventStream[AppResult[Unit]] =
+  def recordAttempt(
+      attempt: WritingAttempt
+  ): EventStream[AppResult[Option[ReviewOutcome]]] =
     call(WritingRoutes.recordAttempt, attempt)
+
+  def kanaProgress(): EventStream[AppResult[List[KanaProgress]]] =
+    call(LearnerRoutes.kanaProgress, ())
+
+  def nextKana(
+      after: Option[String]
+  ): EventStream[AppResult[Option[KanaToReview]]] =
+    call(LearnerRoutes.nextKana, after)
+
+  def placement(): EventStream[AppResult[PlacementState]] =
+    call(PlacementRoutes.kana, ())
+
+  def startPlacement(): EventStream[AppResult[PlacementState]] =
+    call(PlacementRoutes.startKana, ())
+
+  def answerPlacement(
+      answer: PlacementAnswer
+  ): EventStream[AppResult[PlacementState]] =
+    call(PlacementRoutes.answerKana, answer)
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

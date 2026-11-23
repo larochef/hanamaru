@@ -20,9 +20,9 @@ typography (`<ruby>` furigana, vertical text if ever wanted).
     (stroke matching, romaji → kana conversion)
 - **SQLite** for the learner's data, through plain JDBC with small helpers
   (`Database` in the backend): one connection, one caller at a time. Its schema
-  will be moved on by **Flyway** migrations, in the backend's resources under
-  `db/migration`; Flyway is added with the first one, the learner model
-  ([`03`](03-learner-model.md)).
+  is moved on by **Flyway** migrations, in the backend's resources under
+  `db/migration`, applied as the server starts. Flyway logs only its warnings;
+  one line says the schema's version and the migrations applied.
 - **Ports**: the backend listens on `localhost:4323` (`HANAMARU_PORT`), Vite's
   dev server on 5175, away from the usual defaults so that other local
   applications can run beside it. Only `localhost`: nothing else on the network

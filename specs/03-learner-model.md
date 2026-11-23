@@ -1,6 +1,6 @@
 # 03 — Learner model and spaced repetition
 
-**Status:** planned
+**Status:** built for kana
 
 ## Intent
 
@@ -17,16 +17,40 @@ what it may use.
   - kanji: kanji → reading and meaning, meaning → kanji written with the stylus
   - kana: kana → reading, sound → kana written
   - grammar point: exercises tagged with it
-- **FSRS** schedules every card. It is the current algorithm used by Anki,
-  implemented in Scala. Its state per card is stability, difficulty and the due
-  date.
+- **FSRS** schedules every card. It is the current algorithm used by Anki:
+  FSRS-6, ported to Scala (`Fsrs`) from py-fsrs 6.3.3, the reference
+  implementation, with its default parameters, a desired retention of 0.9, its
+  learning steps (1 and 10 minutes) and relearning step (10 minutes). The
+  random spread py-fsrs can add to intervals is left out, so scheduling is
+  deterministic. py-fsrs's own scheduling tests are ported with their
+  expected values (`FsrsReferenceTests`), which checks the port against the
+  reference implementation: the intervals of a run of answers, the memory
+  after a history, and the learning and relearning steps. Its settings are
+  those of py-fsrs and can be changed, for the day they are fitted to the
+  learner's own history. Its state per card is a phase (learning, review,
+  relearning) and step, stability, difficulty, the due date and the last
+  review.
 - **Grades come from the answer, not from self-assessment**, wherever the
   answer can be checked: typed answers are compared, strokes are matched,
   multiple choices are scored. Self-grading ("I knew it") is the fallback for
   what cannot be checked.
-- **Item status** derived from its cards: *unknown*, *learning*, *known*
-  (stable), plus *to confirm* for what the placement test marked as probably
-  known.
+- **Item status** derived from its cards: *unknown* (never reviewed),
+  *learning*, *known* (every card in review with a stability of 21 days or
+  more), plus *to confirm* for what the placement test found probably known
+  ([`04`](04-placement.md)): its next review confirms it, or sends it back to
+  learning. An item is only as far as its least known card.
+- **Storage**: tables `item` (kind and key: the character, for a kana),
+  `card` (its kind and FSRS state, a row once first reviewed) and `review`
+  (time, grade 1 to 4, the answer as JSON, and its source: practice or
+  placement, whose reviews FSRS is not fitted on), in
+  `~/.local/share/hanamaru/learner.db`.
+- **Kana** have two cards: **reading** (the kana shown, its reading typed),
+  reviewed so far only by the placement test, and **writing**. Writing is the
+  first card reviewed in practice: a kana written from memory
+  ([`05`](05-writing.md)) is a review of it, graded *good* when every stroke
+  was accepted and *again* when a wrong stroke stopped it. Guided writing is
+  practice, and an attempt given up is no answer: neither is a review. The
+  chart of kana shows each one's status and which are due.
 - **Prerequisites**: grammar points and words can name the points they rely on.
   Repeated failures on exercises tagged with a point lower that point's
   stability. When the tutor's diagnosis of a mistake names a missing

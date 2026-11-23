@@ -1,8 +1,14 @@
 package hanamaru.shared.kana
 
+import sttp.tapir.Schema
+
 /** The two kana scripts. */
 enum Script {
   case Hiragana, Katakana
+}
+
+object Script {
+  given Schema[Script] = Schema.derived
 }
 
 /** Where a kana stands in the chart: the basic sounds, those voiced with
@@ -70,6 +76,37 @@ object Kana {
     Script.values.toList.flatMap(chart(_).flatMap(_._2.flatten.flatten))
 
   def find(character: String): Option[Kana] = all.find(_.character == character)
+
+  // Other romanisations of the same sound, as other systems or keyboards
+  // write it; a small kana can be typed as its keyboard input.
+  private val variants: Map[String, Set[String]] = Map(
+    "shi" -> Set("si"),
+    "chi" -> Set("ti"),
+    "tsu" -> Set("tu"),
+    "fu" -> Set("hu"),
+    "ji" -> Set("zi", "di"),
+    "zu" -> Set("du"),
+    "wo" -> Set("o"),
+    "n" -> Set("nn")
+  )
+
+  /** Every reading accepted for a kana typed in romaji, in lower case. */
+  def readings(kana: Kana): Set[String] = {
+    val sounds = variants.getOrElse(kana.romaji, Set.empty) + kana.romaji
+    kana.group match {
+      case KanaGroup.Small =>
+        sounds ++ sounds.flatMap(sound => Set("x" + sound, "l" + sound))
+      case _ => sounds
+    }
+  }
+
+  /** Whether `typed` is a reading of `kana`, whatever its case and spaces. */
+  def reads(kana: Kana, typed: String): Boolean =
+    readings(kana).contains(typed.trim.toLowerCase)
+
+  /** A script's kana row by row, in the chart's order, without its gaps. */
+  def rows(script: Script): List[List[Kana]] =
+    chart(script).flatMap(_._2).map(_.flatten)
 
   private def row(
       hiragana: String,

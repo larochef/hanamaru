@@ -1,7 +1,6 @@
 package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
-import hanamaru.frontend.model.*
 import hanamaru.shared.writing.*
 
 import scala.scalajs.js
@@ -12,12 +11,13 @@ import org.scalajs.dom
 /** A character written with the stylus, stroke by stroke, each judged as it
   * ends. Guided, over its faint model: a wrong stroke is said, erased, and
   * drawn again. From memory, in an empty box: a wrong stroke ends the attempt,
-  * and the expected one is shown.
+  * and the expected one is shown. Each attempt ended, or given up by starting
+  * again, comes out of `attempts`: what becomes of it is for the page to say.
   */
 class WritingExercise(
-    bus: AppBus,
     character: CharacterStrokes,
-    step: WritingStep
+    step: WritingStep,
+    canStartAgain: Boolean
 ) extends ReactiveElement {
   private val size = CharacterStrokes.boxSize
   private val guided = step == WritingStep.Guided
@@ -35,7 +35,9 @@ class WritingExercise(
     */
   private val refused = Var(Option.empty[(Int, StrokeVerdict)])
   private val ended = Var(false)
-  private val attempts = EventBus[WritingAttempt]()
+  private val attemptsEnded = EventBus[WritingAttempt]()
+
+  val attempts: EventStream[WritingAttempt] = attemptsEnded.events
   private var strokeStart = 0.0
 
   private def drawnPoint(
@@ -95,7 +97,7 @@ class WritingExercise(
   }
 
   private def record(completed: Boolean): Unit =
-    attempts.writer.onNext(
+    attemptsEnded.writer.onNext(
       WritingAttempt(character.character, step, judged.now(), completed)
     )
 
@@ -222,36 +224,16 @@ class WritingExercise(
       case _ => None
     }
 
-  private val unsaved: EventStream[Option[HtmlElement]] =
-    attempts.events.flatMapSwitch(attempt =>
-      bus
-        .request(AppCommand.RecordWriting(attempt)) {
-          case AppEvent.WritingRecorded(`attempt`) => ()
-        }
-        .map {
-          case Right(())    => None
-          case Left(reason) =>
-            Some(
-              p(
-                cls := "is-failed",
-                Tr(
-                  s"The attempt could not be kept: $reason",
-                  s"L'essai n'a pas pu être gardé : $reason"
-                )
-              )
-            )
-        }
-    )
-
   override lazy val node: HtmlElement = div(
     cls := "writing-exercise",
     box,
     child.maybe <-- message,
-    child.maybe <-- unsaved,
-    button(
-      cls := "replay",
-      Tr("Start again", "Recommencer"),
-      onClick --> (_ => restart())
+    Option.when(canStartAgain)(
+      button(
+        cls := "replay",
+        Tr("Start again", "Recommencer"),
+        onClick --> (_ => restart())
+      )
     )
   )
 }

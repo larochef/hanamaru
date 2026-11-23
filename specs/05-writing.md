@@ -28,23 +28,34 @@ is every kyōiku kanji.
      drawn in red, from its start, so its direction shows.
 - **Correction is deterministic, not by the AI**: the matcher
   (`StrokeMatcher`, in `shared`, run in the browser) judges each stroke as it
-  ends, against the stroke expected next:
-  - both are resampled to 32 points evenly spaced along them and compared point
-    by point, in place in the box: the mean distance measures position, size
-    and shape at once;
-  - a stroke is within tolerance when that distance is at most 8 units (of the
-    109-unit box) plus 12% of the expected stroke's length;
-  - its **direction** is the one, forward or backward, that matches best, and
-    its **order** is wrong when a later stroke matches better than the
-    expected one: comparing, rather than testing a threshold, is what tells a
-    dakuten's two short strokes apart;
-  - the verdicts are *accepted*, *wrong direction*, *wrong order* (naming the
+  ends, against the stroke expected next. Both are resampled to 32 points
+  evenly spaced along them, and **shape and place are judged apart**, the place
+  more leniently: a stroke drawn right but a little off is drawn right.
+  - **Shape**: the mean distance between their points once their centres are
+    put together, at most 8 units (of the 109-unit box) plus 12% of the
+    expected stroke's length.
+  - **Place**: the distance between their centres, at most 22 units.
+  - **Direction**: the one, forward or backward, whose shape matches best. A
+    loop (a stroke ending about where it starts, as a handakuten's circle) has
+    no direction: it is compared from any start, both ways round.
+  - **Order**: wrong when a later stroke fits, shape and place together, better
+    than the expected one; when the expected one fits too, the later one must
+    fit twice as well, so that of two strokes alike (ほ's bars) the expected
+    one drawn a little off is still taken for itself, while a dakuten's two
+    strokes drawn the other way round are caught.
+  - The verdicts are *accepted*, *wrong direction*, *wrong order* (naming the
     stroke drawn) and *misdrawn*. A stroke under 2 units is a slip of the pen
     and is ignored.
-  On KanjiVG's own 437 kana strokes, every stroke is accepted, every reversed
-  one and every later one drawn too early is caught. With strokes shifted by up
-  to 4 units and noisy, 99.8% are accepted; the misses are dakuten strokes taken
-  for each other.
+
+  These tolerances were tuned on the first real attempts written from memory
+  with the stylus (113 strokes): correct strokes sit within 15 units of the
+  model in shape and in place 95 times out of 100, 24 and 20 at most. Judging
+  place apart accepts the 9 correct strokes the first matcher refused (begun a
+  little off, circles drawn the other way) and still refuses the 6 real
+  mistakes. On KanjiVG's own 437 kana strokes, every stroke is accepted, every
+  reversed one and every later one drawn too early is caught; with strokes
+  shifted by up to 8 units and noisy, 99.3% are accepted, the misses being
+  dakuten strokes taken for each other.
 - **Every attempt is kept** in `~/.local/share/hanamaru/writing-attempts.jsonl`,
   one JSON line each: the character, the step, every stroke drawn with its
   points and verdict, and whether it was completed. It is the material the
@@ -58,10 +69,15 @@ is every kyōiku kanji.
 - The tolerances, tuned on the attempts kept; and whether point distances
   after resampling are enough, or dynamic time warping or the Fréchet distance
   do better on real strokes.
+- Whether, from memory, a stroke's place should be judged against the strokes
+  already drawn rather than against the box, for a character written much
+  smaller or larger than the model. Judging against the box with a lenient
+  place tolerance was enough on the first attempts.
 - Whether the learner can choose strict or lenient matching, and whether
   strictness grows with the item's stability.
 - Judging *tome / hane / harai* from the end of the stroke's trajectory and
   pressure, later.
-- Whether the attempts move into the learner model's database once it exists
+- Whether the attempts file stays once enough are kept to tune on: those
+  written from memory are also kept as reviews' answers, in the learner model
   ([`03`](03-learner-model.md)).
 - Writing words (several characters in boxes) as a dictation exercise.

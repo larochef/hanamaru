@@ -131,8 +131,9 @@ object backend extends BaseScala {
     mvn"com.softwaremill.sttp.tapir::tapir-files:$tapirV",
     mvn"com.softwaremill.sttp.tapir::tapir-netty-server-sync:$tapirV",
     mvn"com.softwaremill.ox::core:$oxV",
-    // the learner's data: one SQLite file
+    // the learner's data: one SQLite file, its schema moved on by Flyway
     mvn"org.xerial:sqlite-jdbc:3.54.1.0",
+    mvn"org.flywaydb:flyway-core:13.13.0",
   )
 
   def mainClass = Some("hanamaru.backend.Main")
