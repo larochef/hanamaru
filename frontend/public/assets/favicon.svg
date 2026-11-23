@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="花丸">
+  <title>花丸 Hanamaru</title>
+  <circle cx="50.0" cy="50.0" r="22.0" fill="#d3242c"/>
+  <path d="M50.00,26.00 C57.73,2.22 87.51,19.42 70.78,38.00 C95.24,32.80 95.24,67.20 70.78,62.00 C87.51,80.58 57.73,97.78 50.00,74.00 C42.27,97.78 12.49,80.58 29.22,62.00 C4.76,67.20 4.76,32.80 29.22,38.00 C12.49,19.42 42.27,2.22 50.00,26.00 Z" fill="none" stroke="#d3242c" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
