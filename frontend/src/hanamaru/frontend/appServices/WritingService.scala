@@ -19,6 +19,28 @@ class WritingService(bus: AppBus, apiClient: ApiClient) {
     }(using unsafeWindowOwner)
 
   bus.commands.events
+    .collect { case command: AppCommand.LoadManyStrokes => command }
+    .foreach { command =>
+      AppStreams.runOnce(apiClient.manyStrokes(command.characters)) {
+        case Right(strokes) =>
+          bus.publish(AppEvent.ManyStrokesLoaded(command.characters, strokes))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
+    }(using unsafeWindowOwner)
+
+  // kept for tuning only: nothing waits for it
+  bus.commands.events
+    .collect { case command: AppCommand.RecordPadCharacters => command }
+    .foreach { command =>
+      AppStreams.runOnce(apiClient.recordPadCharacters(command.characters)) {
+        case Right(())    => ()
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
+    }(using unsafeWindowOwner)
+
+  bus.commands.events
     .collect { case command: AppCommand.RecordWriting => command }
     .foreach { command =>
       AppStreams.runOnce(apiClient.recordAttempt(command.attempt)) {

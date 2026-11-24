@@ -1,6 +1,6 @@
 # 08 — Vocabulary practice
 
-**Status:** rapid series built, with typed production and meaning recall
+**Status:** rapid series built, with typed production and meaning recall, fed by the curriculum's units
 
 ## Intent
 
@@ -52,7 +52,8 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
   JMdict's French senses in a doubtful order.
 - **Production with the stylus** (the series' "Answer with the stylus", on by
   default): the word written from memory in kana, as its first reading, one
-  character after the other, corrected at the end as writing from memory is
+  character after the other in one box, each taken once the pen rests, the
+  learner saying when the word is written; corrected at the end as writing from memory is
   ([`05`](05-writing.md)): right when every character is right, nearly
   (graded *hard*) when only strokes' order or direction are wrong, otherwise
   missed. The kanji form will be written the same way once kanji are learned.
@@ -64,6 +65,9 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
   other; a word whose sentence is not ready, or could not be written, is asked
   without one. Once answered, the sentence is shown whole, with its
   translation.
+- **The script said**: typed production says whether the word is written in
+  hiragana or katakana, and the kana field starts in that script (あ / ア
+  switch beside it).
 - **Meaning recall** is graded by code first: right when the answer is one of
   the word's glosses, French or English, whatever the accents, case, leading
   article, "to", "to be" or words in brackets. Otherwise the **tutor** is asked
@@ -75,8 +79,12 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
 - **After every answer the whole word is shown**: its reading, its written
   form, its meanings, and what the tutor recognised.
 - **Rapid series** (the vocabulary page's button): up to 10 words, those due
-  first (the most overdue first), then new ones in the order they are learned,
-  at most 5 and fewer when many are due. The new words are shown first; every
+  first (the most overdue first), then new ones, at most 5 and fewer when many
+  are due: the words of the **unit under way** ([`06`](06-curriculum-and-lessons.md)),
+  then, once they are all met, those of them not stable yet. Once most of a
+  unit's words are stable, no new word comes until its lesson is practised;
+  the vocabulary and series pages say where the unit stands and what opens
+  the next one. Past the last unit, the core list in the order it is learned. The new words are shown first; every
   word is asked for itself, then for its meaning, in a shuffled order; the new
   ones are asked for themselves once more at the end. A word missed comes back
   4 questions later, twice at most. A new word the learner says they already

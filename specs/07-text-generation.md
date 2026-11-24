@@ -31,10 +31,15 @@ learned, without anyone writing them by hand.
   sentences with their translation. The code checks each sentence
   (`SentenceGrammar`): a point after the lesson's, named by what is written
   (へ, not the point's id); a particle or auxiliary no point learned covers;
-  a word neither known nor grammar (names of people and numbers allowed); and
-  the lesson's point must be in two sentences. Refused, the tutor is asked
-  again with the problems, three times at most. On the 14 points, 13 had a
-  text at the first request, in 4 to 12 s; ます never did, and has none.
+  a word neither known nor grammar (names of people and numbers allowed; a
+  word a learned point names, as the potential verbs; a piece of a word the
+  analyser splits, known whole with its neighbour: 茶 of お茶, ずつ of
+  少しずつ); and the lesson's point must be in two sentences. The tutor is told
+  the lesson's own words to use, and the particles and forms not learned yet
+  (ため, ように, のに, けど…), never to be used. Refused, the tutor is asked
+  again with the problems, three times at most. On the 66 points, 62 had a
+  text at the first request (about 5 s; up to 13 s with retries); the others
+  usually at the next; ます never does, and has none.
 - **Pipeline**:
   1. The backend asks the model for a text built on a grammar point and a set
      of words, with constraints: length, level, the vocabulary allowed, the

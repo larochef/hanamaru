@@ -35,7 +35,7 @@ class NewKanaLesson(bus: AppBus, session: Long, kana: Kana, stylus: Boolean)
     cls := "character-heading",
     span(cls := "character-model", lang := "ja", kana.character),
     div(
-      span(cls := "character-reading", kana.romaji),
+      span(cls := "character-reading", Kana.shownReading(kana)),
       span(cls := "character-script", Tr("new kana", "nouveau kana"))
     )
   )
@@ -72,7 +72,7 @@ class NewKanaLesson(bus: AppBus, session: Long, kana: Kana, stylus: Boolean)
       cls := "placement-prompt",
       Tr("Now from memory:", "Maintenant de mémoire :")
     ),
-    span(cls := "placement-reading", kana.romaji),
+    span(cls := "placement-reading", Kana.shownReading(kana)),
     StrokesOf(
       bus,
       kana.character,

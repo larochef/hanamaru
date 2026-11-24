@@ -1,6 +1,7 @@
 package hanamaru.backend.session
 
 import hanamaru.backend.storage.Database
+import hanamaru.shared.kana.Script
 import hanamaru.shared.session.{SessionExercise, SessionStart}
 
 import java.time.Instant
@@ -10,13 +11,15 @@ import com.github.plokhotnyuk.jsoniter_scala.core.{
   writeToString
 }
 
-/** A study session as kept: what was declared at its start, the exercise it
-  * asks now, when it started, and whether it is over.
+/** A study session as kept: what was declared at its start (the kana script it
+  * works on among it, none for both), the exercise it asks now, when it
+  * started, and whether it is over.
   */
 final case class StudySession(
     id: Long,
     minutes: Int,
     stylus: Boolean,
+    script: Option[Script],
     current: Option[SessionExercise],
     startedAt: Long,
     ended: Boolean
@@ -30,17 +33,19 @@ final class SessionStore(database: Database) {
   def started(format: String, start: SessionStart, at: Instant): StudySession =
     database.transaction { session =>
       val id = session.insert(
-        """INSERT INTO study_session (format, budget_minutes, stylus, started_at)
-          |VALUES (?, ?, ?, ?)""".stripMargin,
+        """INSERT INTO study_session (format, budget_minutes, stylus, kana_script,
+          |started_at) VALUES (?, ?, ?, ?, ?)""".stripMargin,
         format,
         start.minutes,
         start.stylus,
+        start.script.map(_.toString),
         at.toEpochMilli
       )
       StudySession(
         id,
         start.minutes,
         start.stylus,
+        start.script,
         None,
         at.toEpochMilli,
         ended = false
@@ -53,6 +58,7 @@ final class SessionStore(database: Database) {
         row.long("id"),
         row.int("budget_minutes"),
         row.boolean("stylus"),
+        row.stringOption("kana_script").map(Script.valueOf),
         row
           .stringOption("current_exercise")
           .map(readFromString[SessionExercise](_)),

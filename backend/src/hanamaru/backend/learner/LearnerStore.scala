@@ -15,6 +15,11 @@ enum ItemKind(val name: String) {
 
   /** A grammar point of the curriculum, keyed by its id. */
   case Grammar extends ItemKind("grammar")
+
+  /** A kanji, keyed by itself: read in a word (its reading card), written from
+    * a word's reading and meaning (its writing card).
+    */
+  case Kanji extends ItemKind("kanji")
 }
 
 /** A way of testing an item, as the database names it. */

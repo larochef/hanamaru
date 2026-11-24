@@ -1,7 +1,7 @@
 package hanamaru.shared.routes
 
 import hanamaru.shared.learner.ReviewOutcome
-import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
+import hanamaru.shared.writing.*
 
 import sttp.tapir.*
 import sttp.tapir.json.jsoniter.*
@@ -16,6 +16,14 @@ object WritingRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[CharacterStrokes])
 
+  /** The strokes of several characters, those KanjiVG has. */
+  val manyStrokes: PublicEndpoint[String, String, List[CharacterStrokes], Any] =
+    Routes.baseRoute.get
+      .in("strokes" / "many")
+      .in(query[String]("characters"))
+      .errorOut(Routes.refused)
+      .out(jsonBody[List[CharacterStrokes]])
+
   /** Keeps a character written once, every stroke drawn with its verdict: the
     * material the matcher's tolerances are tuned on. Written from memory, it is
     * also a review of the character's writing: its outcome, if it made one.
@@ -27,4 +35,12 @@ object WritingRoutes {
       .in(jsonBody[WritingAttempt])
       .errorOut(Routes.refused)
       .out(jsonBody[Option[ReviewOutcome]])
+
+  /** Keeps the kana of an answer written in the pad. */
+  val recordPadCharacters
+      : PublicEndpoint[List[PadCharacter], String, Unit, Any] =
+    Routes.baseRoute.post
+      .in("writing" / "pad")
+      .in(jsonBody[List[PadCharacter]])
+      .errorOut(Routes.refused)
 }

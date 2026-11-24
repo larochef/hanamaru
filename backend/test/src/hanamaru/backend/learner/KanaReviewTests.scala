@@ -26,24 +26,34 @@ object KanaReviewTests extends TestSuite {
       assert(KanaReview.next(Nil, now, None, Random(1)).isEmpty)
     }
     test(
-      "being learned and due first, then being learned, then due, then any"
+      "due first, being learned first; then to confirm; then being learned, then any"
     ) {
       val learningDue = KanaProgress("あ", ItemStatus.Learning, Some(now - 1))
-      val learning = KanaProgress("い", ItemStatus.Learning, Some(now + 1))
       val confirmDue = KanaProgress("う", ItemStatus.ToConfirm, Some(now - 1))
+      val toConfirm = KanaProgress("お", ItemStatus.ToConfirm, Some(now + 50))
+      val learning = KanaProgress("い", ItemStatus.Learning, Some(now + 1))
       val known = KanaProgress("え", ItemStatus.Known, Some(now + 100))
-      assert(picked(List(known, confirmDue, learning, learningDue)) == Set("あ"))
-      assert(picked(List(known, confirmDue, learning)) == Set("い"))
-      assert(picked(List(known, confirmDue)) == Set("う"))
-      assert(picked(List(known)) == Set("え"))
+      val all = List(known, learning, toConfirm, confirmDue, learningDue)
+      assert(picked(all) == Set("あ"))
+      assert(picked(all.take(4)) == Set("う"))
+      assert(picked(all.take(3)) == Set("お"))
+      assert(picked(all.take(2)) == Set("い"))
+      assert(picked(all.take(1)) == Set("え"))
     }
-    test("at random within a level, never the kana just reviewed") {
-      val learning = List("あ", "い", "う").map(
-        KanaProgress(_, ItemStatus.Learning, Some(now + 1))
+    test("being learned and not due: the one due soonest, each in turn") {
+      val learning = List("あ" -> 3L, "い" -> 1L, "う" -> 2L).map((kana, in) =>
+        KanaProgress(kana, ItemStatus.Learning, Some(now + in))
       )
-      assert(picked(learning) == Set("あ", "い", "う"))
-      assert(picked(learning, after = Some("あ")) == Set("い", "う"))
-      assert(picked(learning.take(1), after = Some("あ")) == Set("あ"))
+      assert(picked(learning) == Set("い"))
+      assert(picked(learning, after = Some("い")) == Set("う"))
+    }
+    test("at random among those due, never the kana just reviewed") {
+      val due = List("あ", "い", "う").map(
+        KanaProgress(_, ItemStatus.Learning, Some(now - 1))
+      )
+      assert(picked(due) == Set("あ", "い", "う"))
+      assert(picked(due, after = Some("あ")) == Set("い", "う"))
+      assert(picked(due.take(1), after = Some("あ")) == Set("あ"))
     }
   }
 }

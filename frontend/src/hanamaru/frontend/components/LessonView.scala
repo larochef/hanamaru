@@ -2,6 +2,7 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
+import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.lessons.*
 import hanamaru.shared.text.PartWord
 
@@ -152,6 +153,30 @@ class LessonView(
     )
   }
 
+  // a word of the unit: its reading, its usual writing, its meaning
+  private def unitWord(word: DictionaryWord): HtmlElement = {
+    val french = word.meanings.filter(_.language == "fre")
+    val meanings =
+      if (french.nonEmpty) french else word.meanings.filter(_.language == "eng")
+    div(
+      cls := "unit-word",
+      span(
+        cls := "word-reading",
+        lang := "ja",
+        word.readings.headOption.getOrElse("")
+      ),
+      Option.when(!word.usuallyKana)(
+        word.writings.headOption.map(writing =>
+          span(cls := "word-writing", lang := "ja", writing)
+        )
+      ),
+      span(
+        cls := "unit-meaning",
+        meanings.headOption.fold("")(_.glosses.take(3).mkString(", "))
+      )
+    )
+  }
+
   private def link(
       point: GrammarPoint,
       before: String = "",
@@ -177,6 +202,13 @@ class LessonView(
         )
       ),
       div(cls := "lesson-explanation", lesson.explanation.map(paragraph)),
+      Option.when(lesson.vocabulary.nonEmpty)(
+        div(
+          cls := "lesson-vocabulary",
+          h2(Tr("Vocabulary: ", "Vocabulaire : "), lesson.theme),
+          div(cls := "unit-words", lesson.vocabulary.map(unitWord))
+        )
+      ),
       h2(Tr("Examples", "Exemples")),
       lesson.examples.map(example(_, selected)),
       Option.when(lesson.hasText)(readingText(lesson.point.id, selected)),

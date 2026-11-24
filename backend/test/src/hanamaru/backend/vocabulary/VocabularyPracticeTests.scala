@@ -1,5 +1,6 @@
 package hanamaru.backend.vocabulary
 
+import hanamaru.backend.lessons.Units
 import hanamaru.backend.learner.{ItemKind, LearnerStore}
 import hanamaru.backend.models.*
 import hanamaru.backend.reference.SampleJmdict
@@ -43,7 +44,8 @@ object VocabularyPracticeTests extends TestSuite {
           MeaningJudge(LlamaClient(tutor, http)),
           WritingAttempts(directory.resolve("attempts.jsonl")),
           WritingReview(learner),
-          SentenceWriter(LlamaClient(tutor, http), () => None)
+          SentenceWriter(LlamaClient(tutor, http), () => None),
+          Units(Nil, () => Some(dictionary), learner, () => Some(_ => None))
         ),
         learner
       )

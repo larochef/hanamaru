@@ -64,7 +64,9 @@ final class TextWriter(client: LlamaClient) {
               s"""Write a text of 3 to 5 sentences that uses, in at least two sentences, the grammar point "${point.pattern}: ${point.title}".
               |Grammar the learner knows (use no other particle, ending or conjugation):
               |$grammar
-              |Particles the learner does not know yet, never to be used: ${notYet
+              |Particles and forms the learner does not know yet, never to be used: ${notYet
+                  .mkString(", ")}.
+              |The lesson's own words, to use as many as fit naturally: ${point.wordForms
                   .mkString(", ")}.
               |Words the learner knows (and names of people, numbers): ${known
                   .take(wordsGiven)
@@ -108,7 +110,21 @@ object TextWriter {
 
   given JsonValueCodec[Text] = JsonCodecMaker.make
 
-  private val usualParticles = List("が", "と", "や", "て", "から", "まで", "ね", "よ")
+  private val usualParticles =
+    List(
+      "が",
+      "と",
+      "や",
+      "て",
+      "から",
+      "まで",
+      "ね",
+      "よ",
+      "ため",
+      "ように",
+      "のに",
+      "けど"
+    )
 
   private val schema =
     """{"type":"object","properties":{"sentences":{"type":"array","minItems":3,"maxItems":5,"items":{"type":"object","properties":{"japanese":{"type":"string"},"french":{"type":"string"}},"required":["japanese","french"]}}},"required":["sentences"]}"""

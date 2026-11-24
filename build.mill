@@ -79,7 +79,8 @@ object backend extends BaseScala {
     mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-macros:$jsoniterV",
   )
 
-  private def buildFrontend(mode: String, destDir: os.Path): PathRef = {
+  // the Scala.js code linked in `linked`, bundled by Vite into `destDir`
+  private def buildFrontend(mode: String, linked: os.Path, destDir: os.Path): PathRef = {
     val root = BuildCtx.workspaceRoot
     if (!os.exists(root / "node_modules"))
       os.proc("npm", "install").call(cwd = root, stdout = os.Inherit)
@@ -94,7 +95,7 @@ object backend extends BaseScala {
     ).call(
       cwd = root,
       stdout = os.Inherit,
-      env = Map("SCALAJS_MODE" -> mode),
+      env = Map("SCALAJS_MODE" -> mode, "SCALAJS_OUTPUT" -> linked.toString),
     )
     PathRef(destDir)
   }
@@ -106,8 +107,7 @@ object backend extends BaseScala {
   override def run(args: Task[Args]): Task.Command[Unit] = {
     val newArgs = Task.Anon {
       Task.log.info(s"Building frontend (fast) in ${frontendDir().path}")
-      frontend.fastLinkJS()
-      buildFrontend("fast", frontendDir().path)
+      buildFrontend("fast", frontend.fastLinkJS().dest.path, frontendDir().path)
       args()
     }
     super.run(newArgs)
@@ -127,8 +127,7 @@ object backend extends BaseScala {
   private def frontendBundle = Task {
     Task.log.info(s"Building frontend (full) in ${Task.dest}")
     pageSources()
-    frontend.fullLinkJS()
-    buildFrontend("full", Task.dest / "dist")
+    buildFrontend("full", frontend.fullLinkJS().dest.path, Task.dest / "dist")
   }
 
   override def jar: T[PathRef] = Task {

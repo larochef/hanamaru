@@ -17,7 +17,8 @@ final class Lessons(
     analyser: () => Option[Analyser],
     dictionary: () => Option[Dictionary],
     learner: LearnerStore,
-    writer: TextWriter
+    writer: TextWriter,
+    units: Units
 ) {
   private val points = Curriculum.points
   private val laidOut = ConcurrentHashMap[String, GrammarLesson]()
@@ -48,7 +49,9 @@ final class Lessons(
           ),
           points.lift(index - 1).map(_.summary),
           points.lift(index + 1).map(_.summary),
-          point.text
+          point.text,
+          point.theme,
+          units.wordsOf(point)
         )
         laidOut.put(id, lesson)
         lesson
@@ -161,16 +164,44 @@ final class Lessons(
       )
     }
 
+  /** The unit under way, with how far it is. */
+  def unit: Option[UnitProgress] =
+    units.current.map { (point, words) =>
+      val kanji = units.kanjiOf(point).getOrElse(Nil)
+      UnitProgress(
+        point.summary,
+        point.theme,
+        words,
+        words.count(word => units.stable(word.id)),
+        units.practised(point),
+        kanji,
+        kanji.count(units.kanjiLearned)
+      )
+    }
+
   /** A lesson session's plan: the points due for review, two at most, in the
-    * curriculum's order, then the first point never practised nor placed.
+    * curriculum's order; a series when `wordsToPractise`; the lesson of the
+    * unit under way, if its point was never practised nor placed (past the last
+    * unit, the first point never practised); its kanji when `kanjiToPractise`.
     */
-  def plan(now: Instant): LessonPlan = {
+  def plan(
+      now: Instant,
+      wordsToPractise: Boolean,
+      kanjiToPractise: Boolean
+  ): LessonPlan = {
     val due =
       learner.dueKeys(ItemKind.Grammar, now.toEpochMilli, reviewsAtMost).toSet
-    val met = learner.metKeys(ItemKind.Grammar)
     LessonPlan(
       points.filter(point => due(point.id)).map(_.summary),
-      points.find(point => !met(point.id)).map(_.summary)
+      wordsToPractise,
+      Lessons
+        .nextLesson(
+          points,
+          units.current.map(_._1),
+          learner.metKeys(ItemKind.Grammar)
+        )
+        .map(_.summary),
+      kanjiToPractise
     )
   }
 
@@ -204,23 +235,40 @@ final class Lessons(
     val met = words.words(
       learner.metKeys(ItemKind.Word).flatMap(_.toLongOption).toList
     )
-    val ofLessons = points
-      .take(index + 1)
-      .flatMap(_.examples)
-      .flatMap(example => analysis.tokens(example.japanese))
-      .filterNot(_.isGrammar)
-      .map(_.dictionaryForm)
-      .++(points.take(index + 1).flatMap(_.words))
-      .distinct
+    val (ofLessons, ofLessonsForms) = lessonWords(index, analysis, words)
     val known = ofLessons ++ met.flatMap(word =>
       word.writings.headOption.orElse(word.readings.headOption)
     )
-    // the lessons' words written in kana too: いく as well as 行く
-    val knownForms = (ofLessons.flatMap(words.withForm) ++ met)
-      .flatMap(word => word.writings ++ word.readings)
-      .toSet ++ ofLessons
+    val knownForms =
+      ofLessonsForms ++ met.flatMap(word => word.writings ++ word.readings)
     writer.written(index, analysis, known.distinct, knownForms, points)
   }
+
+  private val lessonWordsUpTo =
+    ConcurrentHashMap[Int, (List[String], Set[String])]()
+
+  // The words of the lessons up to one, theirs and their examples', as written,
+  // and every form of them (いく as well as 行く): the same for every text of a
+  // lesson, looked up in the dictionary once.
+  private def lessonWords(index: Int, analysis: Analyser, words: Dictionary) =
+    lessonWordsUpTo.computeIfAbsent(
+      index,
+      _ => {
+        val written = points
+          .take(index + 1)
+          .flatMap(_.examples)
+          .flatMap(example => analysis.tokens(example.japanese))
+          .filterNot(_.isGrammar)
+          .map(_.dictionaryForm)
+          .++(points.take(index + 1).flatMap(_.wordForms))
+          .distinct
+        val forms = words
+          .withForms(written)
+          .flatMap(word => word.writings ++ word.readings)
+          .toSet ++ written
+        (written, forms)
+      }
+    )
 
   private def indexOf(id: String): Either[String, Int] =
     Right(points.indexWhere(_.id == id)).filterOrElse(_ >= 0, s"No lesson $id")
@@ -231,9 +279,39 @@ final class Lessons(
       tokens: List[Token],
       french: String,
       glosses: Glosses
-  ): LessonExample =
+  ): LessonExample = {
+    val words = tokens.map(token => token -> glosses.of(token)).toMap
     LessonExample(
-      SentenceLayout.laidOut(tokens, point.shownIn(tokens), word = glosses.of),
+      SentenceLayout.laidOut(
+        tokens,
+        point.shownIn(tokens),
+        // a word as it stands in the dictionary is read as the dictionary
+        // reads it: はこ, not the ばこ the analyser may guess
+        reading = token =>
+          words
+            .get(token)
+            .flatten
+            .filter(_ => token.surface == token.dictionaryForm)
+            .map(_.reading),
+        word = words.get(_).flatten
+      ),
       french
     )
+  }
+}
+
+object Lessons {
+
+  /** The lesson to learn next: the unit under way's, unless its point was met
+    * already (practised or placed), its words then being what is left of it;
+    * past the last unit, the first point never met.
+    */
+  def nextLesson(
+      points: List[CurriculumPoint],
+      unit: Option[CurriculumPoint],
+      met: Set[String]
+  ): Option[CurriculumPoint] = unit match {
+    case Some(point) => Option.unless(met(point.id))(point)
+    case None        => points.find(point => !met(point.id))
+  }
 }

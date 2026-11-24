@@ -129,7 +129,7 @@ class KanaPractice(bus: AppBus, shown: Signal[Option[Kana]])
       kana.character
     ),
     div(
-      span(cls := "character-reading", kana.romaji),
+      span(cls := "character-reading", Kana.shownReading(kana)),
       span(cls := "character-script", scriptName(kana.script))
     )
   )

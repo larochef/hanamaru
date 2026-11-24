@@ -7,6 +7,9 @@ import scala.scalajs.js.URIUtils
 /** A page the application shows, each at an address of its own. */
 enum Page {
 
+  /** Today: what to do now, as the learner stands. */
+  case Home
+
   /** Every kana, as a chart. */
   case Chart
 
@@ -37,36 +40,49 @@ enum Page {
   /** The grammar placement test. */
   case GrammarPlacement
 
-  /** A lesson session: the grammar reviews due, then the next lesson. */
+  /** My lesson: the unit under way, its grammar reviews due, its words in a
+    * series, then its lesson.
+    */
   case LessonSession
 
+  /** The kanji, by school grade. */
+  case KanjiChart
+
+  /** One kanji: its readings, meanings, strokes and words. */
+  case KanjiCharacter(literal: String)
+
   def path: String = this match {
-    case Chart           => "/"
+    case Home            => "/"
+    case Chart           => "/kana"
     case Character(kana) =>
       s"/write/${URIUtils.encodeURIComponent(kana.character)}"
-    case Placement        => "/placement"
-    case Review           => "/review"
-    case Session          => "/session"
-    case Vocabulary       => "/vocabulary"
-    case Series           => "/vocabulary/series"
-    case Grammar          => "/grammar"
-    case GrammarPlacement => "/grammar/placement"
-    case LessonSession    => "/grammar/session"
-    case Lesson(point)    =>
+    case Placement               => "/placement"
+    case Review                  => "/review"
+    case Session                 => "/session"
+    case Vocabulary              => "/vocabulary"
+    case Series                  => "/vocabulary/series"
+    case Grammar                 => "/grammar"
+    case GrammarPlacement        => "/grammar/placement"
+    case LessonSession           => "/lesson"
+    case KanjiChart              => "/kanji"
+    case KanjiCharacter(literal) =>
+      s"/kanji/${URIUtils.encodeURIComponent(literal)}"
+    case Lesson(point) =>
       s"/grammar/${URIUtils.encodeURIComponent(point)}"
   }
 }
 
 object Page {
 
-  /** The page at an address; the chart for any address that is not a page. */
+  /** The page at an address; today's for any address that is not a page. */
   def at(path: String): Page =
     path.stripPrefix("/").split('/').toList match {
       case List("write", character) =>
         Kana
           .find(URIUtils.decodeURIComponent(character))
           .map(Character(_))
-          .getOrElse(Chart)
+          .getOrElse(Home)
+      case List("kana")                 => Chart
       case List("placement")            => Placement
       case List("review")               => Review
       case List("session")              => Session
@@ -74,9 +90,12 @@ object Page {
       case List("vocabulary", "series") => Series
       case List("grammar")              => Grammar
       case List("grammar", "placement") => GrammarPlacement
-      case List("grammar", "session")   => LessonSession
-      case List("grammar", point)       =>
+      case List("lesson")               => LessonSession
+      case List("kanji")                => KanjiChart
+      case List("kanji", literal)       =>
+        KanjiCharacter(URIUtils.decodeURIComponent(literal))
+      case List("grammar", point) =>
         Lesson(URIUtils.decodeURIComponent(point))
-      case _ => Chart
+      case _ => Home
     }
 }

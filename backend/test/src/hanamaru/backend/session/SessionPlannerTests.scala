@@ -1,6 +1,7 @@
 package hanamaru.backend.session
 
 import hanamaru.backend.learner.{CardKind, KanaCard, Phase}
+import hanamaru.shared.kana.{Kana, Script}
 import hanamaru.shared.session.SessionExercise
 
 import utest.*
@@ -74,8 +75,12 @@ object SessionPlannerTests extends TestSuite {
         card("あ", CardKind.Reading, Phase.Review, endsAt + 3600000)
       )
       assert(next(met).contains(SessionExercise.NewKana("い", true)))
-      assert(next(met, introduced = 3).isEmpty)
-      assert(next(met, at = endsAt - 60 * 1000).isEmpty)
+      // no new kana: the cards met, before they are due
+      assert(next(met, introduced = 3).contains(SessionExercise.Writing("あ")))
+      assert(
+        next(met, at = endsAt - 60 * 1000)
+          .contains(SessionExercise.Writing("あ"))
+      )
     }
     test("a card being learned due in a moment rather than ending early") {
       val cards = List(
@@ -85,7 +90,7 @@ object SessionPlannerTests extends TestSuite {
       assert(next(cards, introduced = 3).contains(SessionExercise.Writing("あ")))
     }
     test(
-      "once nothing else is left, the cards being learned before they are due"
+      "once nothing else is left, the cards before they are due, being learned first"
     ) {
       val cards = List(
         card("あ", CardKind.Writing, Phase.Learning, now + 8 * 60 * 1000),
@@ -98,8 +103,27 @@ object SessionPlannerTests extends TestSuite {
         next(cards, introduced = 3, last = Some(SessionExercise.Writing("あ")))
           .contains(SessionExercise.Writing("い"))
       )
+      // every kana met and none due: the soonest due, not an empty session
       val reviewed = cards.map(_.copy(phase = Phase.Review))
-      assert(next(reviewed, introduced = 3).isEmpty)
+      assert(
+        next(reviewed, introduced = 3).contains(SessionExercise.Reading("あ"))
+      )
+    }
+    test("a katakana session: only katakana, due or new") {
+      val katakana = Kana.all.filter(_.script == Script.Katakana)
+      val cards = List(card("あ", CardKind.Reading, Phase.Learning, now - 10))
+      // the hiragana due is not asked; the first katakana is new
+      assert(
+        SessionPlanner
+          .next(cards, now, endsAt, true, 0, 3, None, katakana)
+          .contains(SessionExercise.NewKana("ア", true))
+      )
+      val due = card("カ", CardKind.Reading, Phase.Review, now - 10) :: cards
+      assert(
+        SessionPlanner
+          .next(due, now, endsAt, true, 0, 3, None, katakana)
+          .contains(SessionExercise.Reading("カ"))
+      )
     }
     test("nothing once the time is up") {
       val cards = List(card("あ", CardKind.Reading, Phase.Learning, now - 10))

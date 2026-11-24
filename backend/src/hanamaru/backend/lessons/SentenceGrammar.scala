@@ -40,18 +40,35 @@ object SentenceGrammar {
   ): SentenceDemands = {
     val (learned, after) = points.splitAt(upTo + 1)
     val covered = learned.flatMap(_.shownIn(tokens)).toSet
+    val named = learned.flatMap(_.namedIn(tokens)).toSet
     // a token of a later point is named as that point
     val ofLater = after.flatMap(_.shownIn(tokens)).toSet
+    // a piece of a word the analyser splits, known whole with the token before
+    // or after it: 茶 of お茶, ずつ of 少しずつ, か of 誰か
+    def inKnownWord(index: Int) = {
+      val token = tokens(index)
+      tokens
+        .lift(index - 1)
+        .exists(before =>
+          knownForms(before.surface + token.surface) ||
+            knownForms(before.surface + token.dictionaryForm)
+        ) || tokens
+        .lift(index + 1)
+        .exists(after => knownForms(token.surface + after.surface))
+    }
     val uncovered = tokens.zipWithIndex.collect {
       case (token, index)
           if token.partOfSpeech.headOption.exists(Set("助詞", "助動詞")) &&
-            !covered(index) && !ofLater(index) =>
+            !covered(index) && !ofLater(index) && !inKnownWord(index) =>
         token.surface
     }.distinct
     def known(token: Token) =
       knownForms(token.dictionaryForm) || knownForms(token.surface) ||
         knownForms(Romaji.asHiragana(token.dictionaryForm))
-    val unknownWords = tokens
+    val unknownWords = tokens.zipWithIndex
+      // a word a point learned names is grammar: 書ける, しまう, できる
+      .filterNot((_, index) => inKnownWord(index) || named(index))
+      .map(_._1)
       .filterNot(token =>
         token.isGrammar || known(token) ||
           SentenceCheck.structureWords(token.dictionaryForm) ||

@@ -48,6 +48,12 @@ class LessonService(bus: AppBus, apiClient: ApiClient) {
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
+    case command @ AppCommand.LoadUnit =>
+      AppStreams.runOnce(apiClient.unit()) {
+        case Right(unit)  => bus.publish(AppEvent.UnitLoaded(unit))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
     case command @ AppCommand.LoadLessonPlan =>
       AppStreams.runOnce(apiClient.lessonPlan()) {
         case Right(plan)  => bus.publish(AppEvent.LessonPlanLoaded(plan))

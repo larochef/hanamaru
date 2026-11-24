@@ -21,11 +21,11 @@ principles and the shared vocabulary that every other file relies on.
 |---|--------|--------|
 | [00](00-overview.md) | Overview, principles, vocabulary, roadmap | reference |
 | [01](01-application-architecture.md) | Application architecture and stack | built |
-| [02](02-reference-data.md) | Reference data (kana, kanji, dictionary, sentences) | KanjiVG, JMdict, JLPT lists, Sudachi imported |
+| [02](02-reference-data.md) | Reference data (kana, kanji, dictionary, sentences) | KanjiVG, JMdict, JLPT lists, Sudachi, KANJIDIC2 imported |
 | [03](03-learner-model.md) | Learner model and spaced repetition | built for kana, words and grammar points |
 | [04](04-placement.md) | Placement tests | built for kana and grammar |
 | [05](05-writing.md) | Writing with the stylus, stroke order | built for kana; tolerances to tune |
-| [06](06-curriculum-and-lessons.md) | Curriculum and lessons | first 14 points, lessons with texts and exercises built |
+| [06](06-curriculum-and-lessons.md) | Curriculum and lessons | 66 units (point, theme, words), N5 and N4, built |
 | [07](07-text-generation.md) | Generated texts and progressive kanji | sentences and lesson texts built, in kana |
 | [08](08-vocabulary-practice.md) | Vocabulary practice | rapid series built |
 | [09](09-sessions.md) | Sessions: time budget, context, formats | Express for kana, Lesson built |

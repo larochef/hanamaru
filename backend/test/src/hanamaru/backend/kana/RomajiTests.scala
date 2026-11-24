@@ -34,6 +34,9 @@ object RomajiTests extends TestSuite {
       assert(kana("nihon") == "にほん")
       assert(Romaji.toKana("konn") == "こnn")
       assert(kana("konn") == "こん")
+      // a space or a punctuation mark ends the n
+      assert(Romaji.toKana("nihonjin desu") == "にほんじん です")
+      assert(Romaji.toKana("hon?") == "ほん?")
       // what the answer field does: only the romaji at its end is converted
       assert("こ" + Romaji.toKana("nni") == "こんに")
     }

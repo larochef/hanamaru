@@ -49,8 +49,35 @@ final class ExerciseJudge(
       case ExerciseKind.Translation =>
         val typed = normalised(answer.answer)
         val expected = normalised(exercise.expected)
-        if (typed == expected) {
+        if (written(answer.answer) == written(exercise.expected)) {
           ExerciseVerdict(right = true, byTutor = false, None, None)
+        } else if (typed == expected) {
+          // right, but in the other script: said, the words in katakana named
+          val inKatakana = exercise.parts.map(_.text).filter(Romaji.isKatakana)
+          ExerciseVerdict(
+            right = true,
+            byTutor = false,
+            None,
+            Some(
+              if (inKatakana.isEmpty)
+                "Juste, mais tout s'écrit ici en hiragana."
+              else
+                s"Juste, mais ${inKatakana.mkString(", ")} s'écri${
+                    if (inKatakana.size == 1) "t" else "vent"
+                  } en katakana, et le reste en hiragana."
+            )
+          )
+        } else if (
+          typed.nonEmpty && uncontracted(typed) == uncontracted(expected)
+        ) {
+          ExerciseVerdict(
+            right = true,
+            byTutor = false,
+            None,
+            Some(
+              "Juste : じゃありません est la forme parlée de ではありません, qu'on écrit plutôt."
+            )
+          )
         } else if (typed.nonEmpty && asSpoken(typed) == asSpoken(expected)) {
           ExerciseVerdict(
             right = true,
@@ -122,12 +149,16 @@ object ExerciseJudge {
   /** A sentence in kana, as compared: in hiragana, without spaces nor
     * punctuation.
     */
-  def normalised(text: String): String =
-    Romaji
-      .asHiragana(text)
-      .filterNot(character =>
-        character.isWhitespace || "。、？?！!.,　".contains(character)
-      )
+  def normalised(text: String): String = Romaji.asHiragana(written(text))
+
+  // a sentence as written, without spaces nor punctuation
+  private def written(text: String): String =
+    text.filterNot(character =>
+      character.isWhitespace || "。、？?！!.,　".contains(character)
+    )
+
+  // じゃ, spoken, as the では it stands for
+  private def uncontracted(text: String): String = text.replace("じゃあり", "ではあり")
 
   // the particles written as they sound: は as わ, へ as え, を as お
   private def asSpoken(text: String): String =

@@ -1,0 +1,146 @@
+package hanamaru.backend.kanji
+
+import hanamaru.backend.learner.*
+import hanamaru.backend.lessons.Units
+import hanamaru.backend.reference.KanjiBook
+import hanamaru.backend.writing.{WritingAttempts, WritingReview}
+import hanamaru.shared.dictionary.DictionaryWord
+import hanamaru.shared.kana.Romaji
+import hanamaru.shared.kanji.*
+import hanamaru.shared.learner.{Grade, ReviewOutcome}
+import hanamaru.shared.writing.WritingAttempt
+
+import java.time.Instant
+import scala.util.Random
+
+import com.github.plokhotnyuk.jsoniter_scala.core.writeToString
+
+/** The kanji of the units, practised in lesson sessions, each in a word the
+  * learner knows: read first, its reading typed; written once its reading has
+  * passed its first steps. A kanji is new only once one of the units' words
+  * written with it is stable: the word is known before its kanji.
+  */
+final class KanjiPractice(
+    book: () => Option[KanjiBook],
+    learner: LearnerStore,
+    units: Units,
+    attempts: WritingAttempts,
+    writing: WritingReview
+) {
+  private val dueAtMost = 6
+  private val newKanjiAtMost = 2
+  private val newWritingsAtMost = 2
+
+  // the units' words so far, those written with kanji as usually written
+  private def wordsSoFar: List[DictionaryWord] =
+    units.soFar.flatMap(units.wordsOf).distinctBy(_.id).filterNot(_.usuallyKana)
+
+  private def writtenWith(word: DictionaryWord, literal: String): Boolean =
+    word.writings.headOption.exists(_.contains(literal))
+
+  private def memory(literal: String, kind: CardKind): Option[Memory] =
+    learner.memory(ItemKind.Kanji, literal, kind)
+
+  /** The kanji exercises of a session: the cards due, the most overdue first;
+    * then the writing of kanji read well enough; then a few new kanji, read.
+    * Each in a word written with it, one of the stable ones at random.
+    */
+  def exercises(at: Instant): Either[String, List[KanjiExercise]] =
+    book().toRight("The kanji are not ready").map { kanjiBook =>
+      val words = wordsSoFar
+      val taught = units.soFar.flatMap(units.kanjiOf(_).getOrElse(Nil)).distinct
+      def known(literal: String) = words
+        .filter(word => writtenWith(word, literal) && units.stable(word.id))
+      def exercise(literal: String, asked: KanjiAsked, isNew: Boolean) =
+        for {
+          kanji <- kanjiBook.kanji(literal)
+          word <- Random
+            .shuffle(known(literal))
+            .headOption
+            .orElse(words.find(writtenWith(_, literal)))
+        } yield KanjiExercise(kanji, word, asked, isNew)
+      val due = taught
+        .flatMap(literal =>
+          List(
+            KanjiAsked.Reading -> CardKind.Reading,
+            KanjiAsked.Writing -> CardKind.Writing
+          )
+            .flatMap((asked, kind) =>
+              memory(literal, kind).map(card => (literal, asked, card.due))
+            )
+        )
+        .filter((_, _, due) => !due.isAfter(at))
+        .sortBy((_, _, due) => due)
+        .take(dueAtMost)
+        .flatMap((literal, asked, _) => exercise(literal, asked, isNew = false))
+      val toWrite = taught
+        .filter(literal =>
+          memory(literal, CardKind.Reading).exists(_.phase == Phase.Review) &&
+            memory(literal, CardKind.Writing).isEmpty
+        )
+        .take(newWritingsAtMost)
+        .flatMap(exercise(_, KanjiAsked.Writing, isNew = true))
+      // new kanji each in a word not read yet in the session: two in one
+      // word (学生) would ask the same reading twice; the second waits for
+      // another session
+      val readIn = (due ++ toWrite)
+        .filter(_.asked == KanjiAsked.Reading)
+        .map(_.word.id)
+      val fresh = taught
+        .filter(literal =>
+          memory(literal, CardKind.Reading).isEmpty && known(literal).nonEmpty
+        )
+        .flatMap(exercise(_, KanjiAsked.Reading, isNew = true))
+        .foldLeft(List.empty[KanjiExercise])((chosen, next) =>
+          if ((readIn ++ chosen.map(_.word.id)).contains(next.word.id)) chosen
+          else chosen :+ next
+        )
+        .take(newKanjiAtMost)
+      due ++ toWrite ++ fresh
+    }
+
+  /** A kanji's reading in a word, judged (the word's reading, in either
+    * script), and kept as a review of its reading.
+    */
+  def read(
+      answer: KanjiReadingAnswer,
+      at: Instant
+  ): Either[String, KanjiReadingVerdict] =
+    wordsSoFar
+      .find(_.id == answer.word)
+      .toRight(s"No word ${answer.word} in the units so far")
+      .map { word =>
+        val typed = Romaji.asHiragana(answer.typed.filterNot(_.isWhitespace))
+        val right = word.readings.map(Romaji.asHiragana).contains(typed)
+        learner.reviewed(
+          ItemKind.Kanji,
+          answer.kanji,
+          CardKind.Reading,
+          if (right) Grade.Good else Grade.Again,
+          writeToString(answer),
+          at
+        )
+        KanjiReadingVerdict(right, word.readings.headOption.getOrElse(""))
+      }
+
+  /** A kanji written: kept, and, written from memory, a review of its writing,
+    * graded by its strokes as a kana's is.
+    */
+  def written(attempt: WritingAttempt, at: Instant): Option[ReviewOutcome] = {
+    attempts.record(attempt)
+    for {
+      _ <- book().flatMap(_.kanji(attempt.character))
+      grade <- writing.gradeOf(attempt)
+    } yield {
+      val memory = learner.reviewed(
+        ItemKind.Kanji,
+        attempt.character,
+        CardKind.Writing,
+        grade,
+        writeToString(attempt),
+        at
+      )
+      ReviewOutcome(grade, memory.due.toEpochMilli)
+    }
+  }
+}

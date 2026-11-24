@@ -1,6 +1,6 @@
 # 09 — Sessions
 
-**Status:** Express built for kana, with a free review; Lesson built
+**Status:** Express built for kana, with a free review; My lesson built (grammar, vocabulary and kanji by unit)
 
 ## Intent
 
@@ -10,12 +10,36 @@ and a free afternoon are both useful.
 
 ## Decided
 
+- **Today** (built, the home page, `/`): what to do now, as the learner
+  stands, so that nothing has to be looked for in the menus.
+  - **The kana**, while they are not settled (90% of them known, their memory
+    holding three weeks): the placement test until it is over (or an Express
+    session to start from nothing); then how many are known, to confirm, being
+    learned and due, with the Express session, the free review and the chart.
+    Once settled, the kana have no place of their own: a card only when some
+    are due, for an Express session.
+  - **My lesson**: the unit under way, where it stands, what today's session
+    holds (grammar reviews, a series, the lesson, kanji), and the grammar
+    placement test while it was never taken and the unit's lesson is to do.
+    A beginner who has met fewer than half the kana is told its words are in
+    kana.
+  - Then, smaller, what can be practised or looked up freely: a series of
+    words, the grammar's lessons, the vocabulary, the kanji, the kana chart.
+
+  The menu: Today and My lesson, where the learner goes on; then, quieter,
+  "Look up": the kana (until they are settled), vocabulary, grammar, kanji.
+  The page shown is marked.
+
 - **Free review** (built, the chart's "Review" button): kana after kana, each
   shown, written guided, then from memory, as long as the learner wishes; the
   learner moves to the next one when ready. The next kana is picked among those
-  already met: first those being learned that are due, then the others being
-  learned (those missed in the placement test, first of all), then those due,
-  then any; at random within each, never the same twice in a row. Writing from
+  already met: first those due, those being learned first; then those the
+  placement test found probably known, to confirm them; then those being
+  learned, the one due soonest first, then any the same way. At random among
+  those due and those to confirm, never the same twice in a row. Every kana
+  once practised is "being learned" until its memory holds three weeks, so
+  picking among them at random kept the same few coming back while those to
+  confirm never came; in turn, each comes back once the others have. Writing from
   memory there is a review like anywhere else. Kana never met are not offered:
   new content belongs to the planned sessions below.
 
@@ -43,16 +67,20 @@ and a free afternoon are both useful.
 - A session can be **stopped at any time**: every answer is saved as it is
   given.
 - **Express, as built for kana** (the chart's "Express session" button):
-  - the learner picks 10, 15 or 20 minutes and says whether the stylus is at
-    hand (speaking and sound do not matter to kana yet, so they are not
-    asked);
+  - the learner picks 10, 15 or 20 minutes, **the kana to work on (hiragana,
+    katakana, or both)**, and says whether the stylus is at hand (speaking and
+    sound do not matter to kana yet, so they are not asked); a session on one
+    script asks only its kana, due or new, and keeps its choice
+    (`study_session.kana_script`);
   - the server plans each exercise as the previous one is answered
     (`SessionPlanner`), from the cards as they stand: the cards due, those being
     learned or relearned first (a card missed comes back a few minutes later,
     within the session), then the most overdue; then the first reading of kana
     met but never read; then **new kana**, in the chart's order, one per three
     minutes of the session, and **only once nothing is due**; then the cards
-    being learned, before they are due, rather than ending early;
+    before they are due, those being learned first, then the soonest due,
+    rather than ending early (with every kana met and none due, a session
+    used to end as it began, empty);
   - exercises: a kana **read** (typed in romaji), a kana **written** from memory
     from its reading, and a **new kana**: shown stroke by stroke, written over
     its model, then from memory (its writing's first review), or, without the
@@ -64,14 +92,39 @@ and a free afternoon are both useful.
     an answer to another one is refused, and each review keeps its session, so
     that the time exercises take can be measured later.
 
-- **Lesson, as built** (the grammar page's "Lesson session" button): the
-  grammar points due for review, two at most, in the curriculum's order, each
-  practised in its exercises (or skipped); then the **next lesson**, the first
-  point never practised nor placed: its explanation, examples, reading text
-  and exercises. Its exercises done are its first review; missed, it comes
-  back as a review at the next session. It ends with what was reviewed and
-  the lesson seen. It does not keep to a time yet, and asks nothing of the
-  context: nothing in it is spoken, and it needs no stylus.
+- **My lesson** (built, first in the menu): the one place to go on with the
+  curriculum, one unit ([`06`](06-curriculum-and-lessons.md)) after the other,
+  grammar and vocabulary together. Kana stay apart for now, in their Express
+  sessions. It is planned from where the learner stands, each time it opens:
+  1. the grammar points due for review, two at most, in the curriculum's
+     order, each practised in its exercises (or skipped);
+  2. a **vocabulary series** ([`08`](08-vocabulary-practice.md)): the words
+     due, then the new words of the unit under way, or those of its words not
+     stable yet; none when there is nothing to practise;
+  3. the **lesson of the unit under way**, when its point was never practised
+     nor placed: its explanation, examples, reading text and exercises, after
+     its first words, so that its text can use them. Its exercises done are its
+     first review; missed, it comes back as a review the next time. Past the
+     last unit, the first point never practised;
+  4. the **kanji** ([`06`](06-curriculum-and-lessons.md)), each in a word of
+     the units the learner knows: those due, read or written, the most overdue
+     first (six at most); then the writing of those read well enough (their
+     reading past its first steps; two at most), over the model first, then
+     from memory; then new ones (two at most), only once a word written with
+     them is stable: shown (meanings, readings, strokes), then read, the
+     word's reading typed in kana. Reading comes before writing, and a word
+     before its kanji.
+
+  It ends with where the unit stands (its words stable, its point practised,
+  its kanji learned) and what opens the next one, with another series to go on. A unit is
+  acquired once its point is practised, most of its words stable and its
+  kanji learned; the next
+  unit's words and lesson come only then, so a unit takes a few sessions:
+  words first, the lesson as soon as some are met, then series until the
+  words hold. It does not keep to a time yet, and asks nothing of the
+  context: nothing in it is spoken; the stylus is a choice within the series
+  and exercises, and needed for the kanji. The vocabulary and grammar pages keep their own
+  series and lessons, for practice out of turn.
 
 ## Open
 
@@ -84,3 +137,5 @@ and a free afternoon are both useful.
   always picks it.
 - Mixing within a session (a few kana or kanji reviews inside a vocabulary
   session).
+- My lesson's next steps: the kana reviews due once the kana are settled, and
+  a time given at the start.

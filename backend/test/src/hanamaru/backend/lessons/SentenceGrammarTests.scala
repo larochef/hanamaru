@@ -37,15 +37,15 @@ object SentenceGrammarTests extends TestSuite {
       assert(demands.problems == List("grammar not learned yet: へ"))
     }
     test("a particle no point covers, and a word not known") {
-      // 学校が大きい
+      // 学校ぞ、大きい
       val tokens = List(
         token("学校", "学校", "名詞", "普通名詞", "一般"),
-        token("が", "が", "助詞", "格助詞"),
+        token("ぞ", "ぞ", "助詞", "終助詞"),
         token("大きい", "大きい", "形容詞", "一般", "*", "*", "形容詞", "終止形-一般")
       )
       val demands = SentenceGrammar.demands(tokens, upTo("de"), Set("学校"))
       assert(
-        demands.uncovered == List("が"),
+        demands.uncovered == List("ぞ"),
         demands.unknownWords == List("大きい")
       )
     }

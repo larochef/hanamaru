@@ -3,10 +3,7 @@ package hanamaru.frontend.components
 import hanamaru.frontend.i18n.Tr
 import hanamaru.shared.writing.*
 
-import scala.scalajs.js
-
 import com.raquo.laminar.api.L.*
-import org.scalajs.dom
 
 /** A character written with the stylus. Guided, over its faint model, each
   * stroke is judged as it ends: a wrong one is said, erased, and drawn again.
@@ -43,38 +40,6 @@ class WritingExercise(
   private val attemptsEnded = EventBus[WritingAttempt]()
 
   val attempts: EventStream[WritingAttempt] = attemptsEnded.events
-  private var strokeStart = 0.0
-
-  private def drawnPoint(
-      box: dom.Element,
-      event: dom.PointerEvent
-  ): DrawnPoint = {
-    val bounds = box.getBoundingClientRect()
-    DrawnPoint(
-      ((event.clientX - bounds.left) / bounds.width * size).max(0).min(size),
-      ((event.clientY - bounds.top) / bounds.height * size).max(0).min(size),
-      event.pressure,
-      event.timeStamp - strokeStart
-    )
-  }
-
-  // A fast pen moves several times between two events: the browser keeps
-  // those positions as the event's coalesced ones.
-  private def movesOf(event: dom.PointerEvent): List[dom.PointerEvent] = {
-    val dynamic = event.asInstanceOf[js.Dynamic]
-    if (js.typeOf(dynamic.getCoalescedEvents) == "function") {
-      val coalesced =
-        dynamic.getCoalescedEvents().asInstanceOf[js.Array[dom.PointerEvent]]
-      if (coalesced.isEmpty) List(event) else coalesced.toList
-    } else {
-      List(event)
-    }
-  }
-
-  // The palm and fingers rest on the screen: only the pen (or a mouse) draws.
-  private def draws(event: dom.PointerEvent): Boolean =
-    event.pointerType != "touch" && !ended.now()
-
   // A Var set while an event is handled takes its value once the event is
   // through: new values are worked out here before they are set.
   private def strokeEnded(points: List[DrawnPoint]): Unit = {
@@ -129,28 +94,6 @@ class WritingExercise(
     ended.set(false)
   }
 
-  private def polyline(points: List[DrawnPoint]): SvgElement =
-    svg.polyline(
-      svg.points := points.map(point => s"${point.x},${point.y}").mkString(" ")
-    )
-
-  // the dashed cross of practice paper, which helps place the strokes
-  private def guide: SvgElement = svg.g(
-    svg.cls := "guide",
-    svg.line(
-      svg.x1 := s"${size / 2.0}",
-      svg.y1 := "0",
-      svg.x2 := s"${size / 2.0}",
-      svg.y2 := s"$size"
-    ),
-    svg.line(
-      svg.x1 := "0",
-      svg.y1 := s"${size / 2.0}",
-      svg.x2 := s"$size",
-      svg.y2 := s"${size / 2.0}"
-    )
-  )
-
   // the stroke that was expected, drawn from its start, so its direction shows
   private def expectedStroke(index: Int): SvgElement = svg.g(
     svg.cls := "expected",
@@ -160,7 +103,7 @@ class WritingExercise(
   private def box: SvgElement = svg.svg(
     svg.viewBox := s"0 0 $size $size",
     svg.cls := "writing-box",
-    guide,
+    PenStrokes.guide,
     Option.when(guided)(
       svg.g(
         svg.cls := "model",
@@ -169,33 +112,13 @@ class WritingExercise(
     ),
     svg.g(
       svg.cls := "written",
-      children <-- accepted.signal.map(_.map(polyline)),
-      child.maybe <-- drawing.signal.map(_.map(polyline))
+      children <-- accepted.signal.map(_.map(PenStrokes.polyline)),
+      child.maybe <-- drawing.signal.map(_.map(PenStrokes.polyline))
     ),
     child.maybe <-- refused.signal.map(
       _.map((index, _) => expectedStroke(index))
     ),
-    inContext { element =>
-      Seq(
-        onPointerDown.filter(draws) --> { event =>
-          element.ref.setPointerCapture(event.pointerId)
-          strokeStart = event.timeStamp
-          drawing.set(Some(List(drawnPoint(element.ref, event))))
-        },
-        onPointerMove.filter(draws) --> { event =>
-          drawing.update(
-            _.map(
-              _ ++ movesOf(event).map(move => drawnPoint(element.ref, move))
-            )
-          )
-        },
-        onPointerUp.filter(draws) --> { _ =>
-          drawing.now().foreach(strokeEnded)
-          drawing.set(None)
-        },
-        onPointerCancel --> { _ => drawing.set(None) }
-      )
-    }
+    PenStrokes(drawing, () => !ended.now(), strokeEnded)
   )
 
   private def refusal(index: Int, verdict: StrokeVerdict): String = {

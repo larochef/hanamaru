@@ -1,6 +1,6 @@
 # 06 — Curriculum and lessons
 
-**Status:** the curriculum's format and its first 14 points built; lessons with reading texts, exercises, placement and sessions
+**Status:** built: units (a point, a theme, its words), 66 points covering N5 and N4, lessons with vocabulary, reading texts, exercises, placement and sessions
 
 ## Intent
 
@@ -33,10 +33,52 @@ can be repeated with fresh content until it is acquired.
   point and no point that comes after it, the examples analysed by Sudachi
   (the test needs its dictionary in the cache, else it says so and skips
   them). A point relies only on points before it.
+- **Units**: grammar and vocabulary go together. Each point is a unit with a
+  theme (the town, the family, numbers and the hour, colours, the weather…)
+  and 10 to 18 words, written in the curriculum file as they are written
+  (`上|うえ` when the form alone is ambiguous, `コップ#1050390` when not even
+  the reading is: homonyms in kana, the glass and not the cop), found in
+  JMdict (a test checks every one, and prints which entry each found, to be
+  read for such homonyms). The lesson shows its words; its texts are asked to use
+  them; the vocabulary series practise the unit under way
+  ([`08`](08-vocabulary-practice.md)). A unit is **acquired** once its point
+  is practised (its card past its first steps), 80% of its words are
+  stable and its kanji learned (below); the next unit's words open only then. The units' words, as
+  written, hold every kanji of the first two school grades (240), so that
+  each can be learned through a word already known (a test checks it).
+- **A unit's kanji** (built): those of the first two grades, in the order the
+  units' words bring them, each in the first unit whose words have it, four
+  per unit at most, the rest carried on to the next units: the first units'
+  words bring far more (13 in the first) than later ones (none in some). The
+  first two units bring none, while the kana are still being settled; theirs
+  start with the third. So a kanji comes some units after its words, which
+  are first learned in kana; all 240 are placed by the last unit.
+  A unit is acquired once its kanji are learned too, each read and written
+  past its first steps; they are practised in My lesson
+  ([`09`](09-sessions.md)).
 - **Granularity**: one point per particle or form a beginner meets as one
-  thing (は, の, ます, ません and ました together, じゃありません…). The first
-  14 points cover the start of N5: です, は, か, の, も, これ/この/ここ, ます,
-  を, へ/に, ません/ました/でした, じゃありません, the い and な adjectives, で.
+  thing (は, の, ます, ません and ました together, ではありません…). The 66
+  points: です, は, か, の, も, これ/この/ここ, ます, を, へ/に,
+  ません/ました/でした, ではありません, the い and な adjectives, で, ある/いる
+  (and が), the hour (に), the adjectives' negative and past, くて/で, たい,
+  ましょう/ませんか, the て form and てください, ている, the dictionary form
+  and ことができる, the ない form and ないでください, the た form and
+  たことがある, the plain style (だ, ね, よ), から/まで, から (because), と/や,
+  comparison (より, のほうが, いちばん), とき, まえに/あとで, てもいい/てはいけない,
+  あげる/もらう/くれる, つもり, なる; と思う, と言う, でしょう/かもしれない,
+  the potential form, the volitional form and ようと思う, たら, なければならない,
+  たほうがいい, てしまう, てみる, ておく, そう (looks), ながら, ので; てある,
+  the passive, the causative, すぎる, やすい/にくい, ば, と (whenever), のに,
+  けど/が, ために, ように, ようになる/ようにする, たり, なくてもいい,
+  そう (hearsay), ようだ/みたい/らしい.
+- **Placement answers in kana** may mislead the analyser (よめ, ねよう): a
+  question then gives its answer as written (`written`: 読め), for the test.
+- **What a point names is grammar**: once a point is learned, the words its
+  signature names by their form (できる, しまう, みる, the potential verbs
+  listed) are not unknown words in a text; what it describes by kind (any
+  adjective) still is.
+  The negation taught is ではありません, as written; じゃありません is shown
+  as its spoken contraction, and accepted in exercises with a remark.
   を and へ/に come right after ます: without them, verbs make no text.
 - **The lesson page** (built): the explanation, the Japanese in it set apart,
   then the examples laid out in kana by the analyser, words spaced, the
@@ -53,7 +95,12 @@ can be repeated with fresh content until it is acquired.
     sentence with a blank, its French, four choices (the particle, and others
     learned first, then others; never another form of the same point, に for
     へ);
-  - **the sentence translated** from French, typed in kana.
+  - **the sentence translated** from French, typed in kana, the script
+    expected said under it ("in hiragana, with one word in katakana"); the
+    kana field has a switch, あ or ア, for the script it types in; or written
+    with the stylus, kana after kana, each recognised and put in the field
+    ([`05`](05-writing.md)). Right in
+    the other script, the answer is right, and the words in katakana named.
 
   Four of each at most, particles first. The code judges what it can: the
   particle expected; the sentence expected, whatever its spaces, punctuation
@@ -66,8 +113,8 @@ can be repeated with fresh content until it is acquired.
   point ([`03`](03-learner-model.md)). Judged in 1.5 to 2 s; the exercises
   take as long as a text to prepare, about 6 s.
 - **Kanji follow the school grades** (80 in grade 1, then the next grades),
-  spread across lessons. A kanji can be pulled forward when a lesson's
-  vocabulary needs it.
+  spread across the units by their words (above). The grades after the
+  second come with the units still to write, towards N3.
 - **A lesson** is:
   - **Grammar**: the point explained in French, with examples.
   - **Vocabulary**: 5 to 15 new words, added to the learner model.
@@ -89,12 +136,12 @@ can be repeated with fresh content until it is acquired.
 - The rest of the curriculum, towards N3: written in batches, the learner
   reading each batch for clarity (the order is not theirs to judge).
 - What the signatures do not tell apart yet, found writing the first points:
-  では is read as the particles で and は, so it shows the points で and は;
   いい is an い adjective the analyser calls dependent (非自立可能), and 元気 or
   便利 are nouns that can be adjectives (形状詞可能), so the adjective
   signatures miss them and the examples avoid them; に is any に, not only
-  where one goes.
-- The kanji each point introduces, once kanji start.
+  where one goes. では, which the analyser reads as the particles で and は,
+  is told apart by its context: a pattern may say what must not follow it
+  (the で of a place is not followed by は then ある).
 - Exercises still to come: translation into French, free answers, kanji
   dictation, listening; and an exercise for the points that are not a
   particle beyond translation (a conjugation chosen, for ます).

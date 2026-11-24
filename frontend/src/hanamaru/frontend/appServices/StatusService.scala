@@ -24,6 +24,7 @@ class StatusService(bus: AppBus, apiClient: ApiClient) {
           status.strokes == ReferenceDataState.Preparing ||
           status.dictionary == ReferenceDataState.Preparing ||
           status.analyser == ReferenceDataState.Preparing ||
+          status.kanji == ReferenceDataState.Preparing ||
           status.model == ModelState.Starting
         ) {
           setTimeout(pollMillis)(check(command))

@@ -66,7 +66,7 @@ final class ExpressSessions(
             at,
             studySession = Some(id)
           )
-          Some(ReadingResult(character, right, kana.romaji))
+          Some(ReadingResult(character, right, Kana.shownReading(kana)))
         case SessionAnswer.Writing(attempt) =>
           attempts.record(attempt)
           writing.reviewed(attempt, at, Some(id))
@@ -122,7 +122,10 @@ final class ExpressSessions(
       session.stylus,
       summary.introduced.size,
       SessionPlanner.newKanaFor(session.minutes),
-      last
+      last,
+      session.script.fold(Kana.all)(script =>
+        Kana.all.filter(_.script == script)
+      )
     )
     sessions.asking(session.id, next, at)
     SessionState(session.id, next, session.endsAt, summary, lastReading)

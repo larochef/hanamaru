@@ -15,6 +15,7 @@ class StatusApi(reference: ReferenceData, model: LlamaServer) {
       reference.strokes,
       reference.dictionaryData,
       reference.analyserData,
+      reference.kanjiData,
       model.state
     )
 

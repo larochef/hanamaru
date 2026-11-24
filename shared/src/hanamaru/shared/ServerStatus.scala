@@ -20,6 +20,7 @@ final case class ServerStatus(
     strokes: ReferenceDataState,
     dictionary: ReferenceDataState,
     analyser: ReferenceDataState,
+    kanji: ReferenceDataState,
     model: ModelState
 )
 

@@ -16,6 +16,9 @@ final case class Places(data: Path, cache: Path, config: Path) {
     */
   def writingAttempts: Path = data.resolve("writing-attempts.jsonl")
 
+  /** The kana written in the pad, kept to tune its recogniser. */
+  def padCharacters: Path = data.resolve("pad-characters.jsonl")
+
   /** The open datasets, as downloaded. */
   def reference: Path = cache.resolve("reference")
 

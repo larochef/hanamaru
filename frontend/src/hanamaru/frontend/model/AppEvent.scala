@@ -2,6 +2,7 @@ package hanamaru.frontend.model
 
 import hanamaru.shared.ServerStatus
 import hanamaru.shared.dictionary.DictionaryWord
+import hanamaru.shared.kanji.*
 import hanamaru.shared.learner.*
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
@@ -18,6 +19,10 @@ object AppEvent {
   final case class PageShown(page: Page) extends AppEvent
 
   final case class StrokesLoaded(strokes: CharacterStrokes) extends AppEvent
+  final case class ManyStrokesLoaded(
+      characters: String,
+      strokes: List[CharacterStrokes]
+  ) extends AppEvent
 
   /** A character written once was kept; written from memory, it was a review
     * too, with this outcome.
@@ -83,4 +88,24 @@ object AppEvent {
       extends AppEvent
 
   final case class LessonPlanLoaded(plan: LessonPlan) extends AppEvent
+
+  final case class UnitLoaded(unit: Option[UnitProgress]) extends AppEvent
+
+  final case class KanjiGradeLoaded(grade: Int, kanji: List[Kanji])
+      extends AppEvent
+
+  final case class KanjiLoaded(detail: KanjiDetail) extends AppEvent
+
+  final case class KanjiPracticeLoaded(exercises: List[KanjiExercise])
+      extends AppEvent
+
+  final case class KanjiReadingJudged(
+      answer: KanjiReadingAnswer,
+      verdict: KanjiReadingVerdict
+  ) extends AppEvent
+
+  final case class KanjiWritingRecorded(
+      attempt: WritingAttempt,
+      outcome: Option[ReviewOutcome]
+  ) extends AppEvent
 }

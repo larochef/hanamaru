@@ -70,6 +70,44 @@ final class Dictionary(database: Database) {
     )
   }
 
+  /** Words of the core vocabulary written with a character, the most basic
+    * first, `count` of them.
+    */
+  def writtenWith(character: String, count: Int): List[DictionaryWord] =
+    database.read { session =>
+      val ids = session.query(
+        """SELECT DISTINCT core_word.word_id, core_word.level, word.rank FROM form
+          |JOIN core_word ON core_word.word_id = form.word_id
+          |JOIN word ON word.id = form.word_id
+          |WHERE form.kana = 0 AND form.position = 0 AND instr(form.text, ?) > 0
+          |AND form.text NOT GLOB '*[0-9０-９]*'
+          |ORDER BY core_word.level DESC, word.rank IS NULL, word.rank
+          |LIMIT ?""".stripMargin,
+        character,
+        count
+      )(_.long("word_id"))
+      described(session, ids)
+    }
+
+  /** The words one of whose forms or readings is among `texts`, looked up at
+    * once.
+    */
+  def withForms(texts: List[String]): List[DictionaryWord] =
+    if (texts.isEmpty) Nil
+    else
+      database.read { session =>
+        val ids = texts.distinct
+          .grouped(500)
+          .toList
+          .flatMap(some =>
+            session.query(
+              s"SELECT DISTINCT word_id FROM form WHERE text IN (${some.map(_ => "?").mkString(",")})",
+              some*
+            )(_.long("word_id"))
+          )
+        described(session, ids.distinct)
+      }
+
   // each word with its shown forms, its senses, and the JLPT level of its
   // list (0 when it is in none)
   private def described(

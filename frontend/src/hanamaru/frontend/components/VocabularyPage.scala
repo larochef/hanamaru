@@ -72,6 +72,12 @@ class VocabularyPage(bus: AppBus) extends ReactiveElement {
 
   override lazy val node: HtmlElement = div(
     cls := "vocabulary-page",
+    UnitBanner(
+      bus,
+      bus.events.events.collect { case AppEvent.PageShown(Page.Vocabulary) =>
+        ()
+      }
+    ),
     div(
       cls := "review-bar",
       h1(Tr("Vocabulary", "Vocabulaire")),

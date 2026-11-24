@@ -16,7 +16,11 @@ export default defineConfig({
     alias: [
       {
         find: /^scalajs:(.*)$/,
-        replacement: `/../out/frontend/${scalajsMode}LinkJS.dest/$1`
+        // where the build linked it (it may build in another output folder),
+        // else Mill's usual output folder
+        replacement: process.env.SCALAJS_OUTPUT
+          ? `${process.env.SCALAJS_OUTPUT}/$1`
+          : `/../out/frontend/${scalajsMode}LinkJS.dest/$1`
       }
     ]
   }

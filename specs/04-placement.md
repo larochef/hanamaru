@@ -19,7 +19,8 @@ tailored to a particular learner.
   failures dominate. A learner who knows nothing of a domain answers very few
   questions about it. "I don't know" is always an answer, and it counts as a
   failure without penalty.
-- **Kana** (built, its own page, offered on the chart until it is over):
+- **Kana** (built, its own page, offered on the Today page and the chart
+  until it is over):
   hiragana then katakana, from the easiest rows to the hardest (basic sounds,
   voiced, small kana), by **blocks of three rows whose kana come in a random
   order**, different from one test and one script to the next: the chart's

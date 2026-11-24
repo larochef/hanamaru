@@ -77,6 +77,66 @@ object Kana {
 
   def find(character: String): Option[Kana] = all.find(_.character == character)
 
+  // each kana that has a small form, then that form
+  private val smallForms =
+    "あぁいぃうぅえぇおぉつっやゃゆゅよょわゎアァイィウゥエェオォツッヤャユュヨョワヮ"
+      .grouped(2)
+      .toList
+
+  /** A kana's small form, or a small kana's usual one (や and ゃ); the character
+    * itself when it has none.
+    */
+  def smallOrLarge(character: String): String =
+    toggled(smallForms, character).getOrElse(character)
+
+  // each kana voiced by a dakuten, then voiced; those with a handakuten
+  private val voicedForms =
+    ("かがきぎくぐけげこごさざしじすずせぜそぞただちぢつづてでとどはばひびふぶへべほぼ" +
+      "カガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドハバヒビフブヘベホボ")
+      .grouped(2)
+      .toList
+  private val halfVoicedForms =
+    "はぱひぴふぷへぺほぽハパヒピフプヘペホポ".grouped(2).toList
+
+  private def toggled(pairs: List[String], character: String) =
+    pairs.collectFirst {
+      case pair if pair.take(1) == character => pair.drop(1)
+      case pair if pair.drop(1) == character => pair.take(1)
+    }
+
+  /** A kana with a dakuten added (か to が, ぱ to ば), or taken away (が to か); the
+    * character itself when it can have none.
+    */
+  def withDakuten(character: String): String =
+    toggled(voicedForms, character)
+      .orElse(toggled(halfVoicedForms, character).map(withDakuten))
+      .getOrElse(character)
+
+  /** A kana with a handakuten added (は to ぱ, ば to ぱ), or taken away (ぱ to は);
+    * the character itself when it can have none.
+    */
+  def withHandakuten(character: String): String =
+    toggled(halfVoicedForms, character)
+      .orElse(
+        voicedForms
+          .find(_.drop(1) == character)
+          .flatMap(pair => toggled(halfVoicedForms, pair.take(1)))
+      )
+      .getOrElse(character)
+
+  /** A kana written as another with marks: が as か and a dakuten's two strokes,
+    * ぱ as は and a handakuten's circle.
+    */
+  def marksOf(character: String): Option[(String, Int)] =
+    voicedForms
+      .find(_.drop(1) == character)
+      .map(_.take(1) -> 2)
+      .orElse(halfVoicedForms.find(_.drop(1) == character).map(_.take(1) -> 1))
+
+  /** Whether a character is a small kana (ゃ, ッ, ァ). */
+  def isSmall(character: String): Boolean =
+    smallForms.exists(_.drop(1) == character)
+
   // Other romanisations of the same sound, as other systems or keyboards
   // write it; a small kana can be typed as its keyboard input.
   private val variants: Map[String, Set[String]] = Map(
@@ -90,9 +150,22 @@ object Kana {
     "n" -> Set("nn")
   )
 
+  /** A kana's reading as shown: its romaji, and for ぢ and づ, read as じ and ず
+    * are, the romaji they are typed with too ("ji (di)", "zu (du)"), so that
+    * asked to write "ji", the learner knows which of the two is meant.
+    */
+  def shownReading(kana: Kana): String =
+    if (kana.character == "ぢ" || kana.character == "ヂ") s"${kana.romaji} (di)"
+    else if (kana.character == "づ" || kana.character == "ヅ")
+      s"${kana.romaji} (du)"
+    else kana.romaji
+
   /** Every reading accepted for a kana typed in romaji, in lower case. */
   def readings(kana: Kana): Set[String] = {
-    val sounds = variants.getOrElse(kana.romaji, Set.empty) + kana.romaji
+    // di and du are ぢ and づ only, not じ and ず
+    val typedApart = Map("di" -> Set("ぢ", "ヂ"), "du" -> Set("づ", "ヅ"))
+    val sounds = (variants.getOrElse(kana.romaji, Set.empty) + kana.romaji)
+      .filter(sound => typedApart.get(sound).forall(_.contains(kana.character)))
     kana.group match {
       case KanaGroup.Small =>
         sounds ++ sounds.flatMap(sound => Set("x" + sound, "l" + sound))

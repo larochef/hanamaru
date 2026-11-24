@@ -146,7 +146,7 @@ final class KanaPlacementTest(
           ReadingResult(
             character,
             correct,
-            Kana.find(character).fold("")(_.romaji)
+            Kana.find(character).fold("")(Kana.shownReading)
           )
       }
     )

@@ -132,11 +132,12 @@ object Romaji {
         index += 1
       } else if (
         character == 'n' && next.exists(letter =>
-          roman(letter) && !vowels
-            .contains(letter) && letter != 'y' && letter != 'n'
+          if (roman(letter))
+            !vowels.contains(letter) && letter != 'y' && letter != 'n'
+          else letter != '\''
         )
       ) {
-        // n before another consonant
+        // n before another consonant, a space or a punctuation mark
         output ++= "ん"
         index += 1
       } else if (
@@ -166,6 +167,19 @@ object Romaji {
     }
     output.result()
   }
+
+  /** Hiragana written as katakana, the rest left as it is. */
+  def asKatakana(text: String): String =
+    text.map(character =>
+      if (character >= 'ぁ' && character <= 'ゖ') (character + 0x60).toChar
+      else character
+    )
+
+  /** Whether a text is written in katakana (ー included), and only in them. */
+  def isKatakana(text: String): Boolean =
+    text.nonEmpty && text.forall(character =>
+      (character >= 'ァ' && character <= 'ヶ') || character == 'ー'
+    )
 
   /** Hiragana and katakana made alike, to compare answers whatever the script
     * they are typed or written in.

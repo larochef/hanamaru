@@ -106,7 +106,7 @@ hiragana and katakana.
       rapid series;
    5. (done) words in sentences written by the tutor and checked by code,
       Sudachi as the analyser; Tatoeba left for reading texts.
-4. **Lessons** (done), in five deliveries:
+4. **Lessons** (done), in six deliveries:
    1. (done) the curriculum's format and its first points, a lesson page with
       the explanation and the examples;
    2. (done) the grammar of a sentence told by code, reading texts held to
@@ -114,9 +114,16 @@ hiragana and katakana.
    3. (done) exercises (a particle chosen, a sentence translated) and
       corrections by the tutor, recorded as reviews of the point;
    4. (done) grammar placement, two questions per point written by hand;
-   5. (done) the Lesson session: grammar reviews due, then the next lesson.
+   5. (done) the Lesson session: grammar reviews due, then the next lesson;
+   6. (done) My lesson: the units' grammar, vocabulary and kanji in one
+      session ([`09`](09-sessions.md)).
 5. **Kanji**: grade by grade, writing and recognition, progressive kanji in
-   texts.
+   texts. Started, ahead of the learner (who starts once the kana are
+   back): KANJIDIC2 imported, the kanji pages built (each school year's kanji,
+   the most frequent first; a kanji's meanings, readings, strokes shown and
+   written, words written with it); the first two grades' kanji in the
+   learner model, spread across the units and practised in My lesson. Still
+   to come: the next grades, and kanji in texts as they are learned.
 6. **Speech**: synthesis for texts and words, then recognition for reading
    aloud.
 7. **Conversation**: spoken dialogue with the tutor on what has been learned.

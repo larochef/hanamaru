@@ -1,16 +1,19 @@
 package hanamaru.backend.reference
 
+import hanamaru.shared.kana.Romaji
 import hanamaru.shared.text.{PartWord, SentencePart}
 
 /** A sentence laid out for a learner who reads kana only: each word in kana,
   * words spaced as in books for beginners (particles, auxiliaries, suffixes,
-  * the する of a verb made of a noun and the ある of じゃありません kept with the word
+  * the する of a verb made of a noun and the ある of ではありません kept with the word
   * before them, prefixes with the word after).
   */
 object SentenceLayout {
 
-  // the readings the analyser gives in a formal register, for the everyday ones
-  private val everyday = Map("私" -> "わたし", "明日" -> "あした", "日本" -> "にほん")
+  // the readings the analyser gives in a formal register, or rarely meant (何時
+  // is いつ in kana, and なんじ in kanji), for the everyday ones
+  private val everyday =
+    Map("私" -> "わたし", "明日" -> "あした", "日本" -> "にほん", "何時" -> "なんじ")
 
   /** A word's everyday reading, where the analyser gives a formal one. */
   def everydayReading(token: Token): Option[String] =
@@ -32,7 +35,10 @@ object SentenceLayout {
     tokens.zipWithIndex.map { (token, index) =>
       val previous = tokens.lift(index - 1)
       SentencePart(
-        shown(token, reading(token)),
+        shown(
+          token,
+          readIn(token, tokens.lift(index + 1)).orElse(reading(token))
+        ),
         marked(index),
         word = word(token),
         spaceBefore = index > 0 && !token.isGrammar &&
@@ -42,10 +48,28 @@ object SentenceLayout {
               (token.dictionaryForm == "する" && before.partOfSpeech.contains(
                 "サ変可能"
               )) ||
-              // ある after じゃ: じゃありません
-              (token.dictionaryForm == "ある" && before.dictionaryForm == "だ")
+              // a counter after its number: しちじ
+              (before.partOfSpeech.take(2) == List("名詞", "数詞") &&
+                token.partOfSpeech.contains("助数詞可能")) ||
+              // ある after では or じゃ: ではありません, じゃありません
+              (token.dictionaryForm == "ある" &&
+                (before.dictionaryForm == "だ" ||
+                  (before.dictionaryForm == "は" &&
+                    tokens
+                      .lift(index - 2)
+                      .exists(token => Set("で", "だ")(token.dictionaryForm)))))
           )
       )
+    }
+
+  // A reading that depends on the word after: 何 is なん before a t, d or n
+  // sound (なんですか, なんじ, なんの), なに otherwise (なにを, なにも).
+  private def readIn(token: Token, next: Option[Token]): Option[String] =
+    Option.when(token.surface == "何") {
+      val after =
+        next.map(word => Romaji.asHiragana(word.reading)).getOrElse("")
+      if (after.headOption.exists("たちつてとだぢづでどなにぬねの".contains(_))) "なん"
+      else "なに"
     }
 
   // As written when written in kana; otherwise the reading given, the

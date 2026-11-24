@@ -3,7 +3,7 @@ package hanamaru.frontend
 import hanamaru.frontend.api.ApiClient
 import hanamaru.frontend.appServices.*
 import hanamaru.frontend.components.*
-import hanamaru.frontend.i18n.{Language, Tr}
+import hanamaru.frontend.i18n.Language
 import hanamaru.frontend.model.*
 
 import com.raquo.laminar.api.L.*
@@ -24,7 +24,7 @@ object Application {
   private val page: Signal[Page] =
     bus.events.events
       .collect { case AppEvent.PageShown(now) => now }
-      .startWith(Page.Chart)
+      .startWith(Page.Home)
 
   // Every page stays mounted, the others hidden: what each shows follows the
   // bus's events, which a page away would miss.
@@ -34,23 +34,19 @@ object Application {
       cls := "top-bar",
       PageLink(
         bus,
-        Page.Chart,
+        Page.Home,
         cls := "title",
         img(cls := "logo", src := "/assets/hanamaru.svg", alt := ""),
         span(lang := "ja", "花丸"),
         " Hanamaru"
       ),
-      navTag(
-        cls := "main-nav",
-        PageLink(bus, Page.Chart, Tr("Kana", "Kana")),
-        PageLink(bus, Page.Vocabulary, Tr("Vocabulary", "Vocabulaire")),
-        PageLink(bus, Page.Grammar, Tr("Grammar", "Grammaire"))
-      ),
+      MainNav(bus, page),
       TutorIndicator(bus),
       LanguageChoice()
     ),
     ServerNotice(bus),
     mainTag(
+      div(hidden <-- page.map(_ != Page.Home), HomePage(bus)),
       div(hidden <-- page.map(_ != Page.Chart), KanaChart(bus)),
       div(
         hidden <-- page.map(!_.isInstanceOf[Page.Character]),
@@ -73,6 +69,11 @@ object Application {
       div(
         hidden <-- page.map(_ != Page.LessonSession),
         LessonSessionPage(bus)
+      ),
+      div(hidden <-- page.map(_ != Page.KanjiChart), KanjiChart(bus)),
+      div(
+        hidden <-- page.map(!_.isInstanceOf[Page.KanjiCharacter]),
+        KanjiPage(bus)
       )
     ),
     Credits()
@@ -92,6 +93,7 @@ object Application {
     DictionaryService(bus, apiClient)
     VocabularyService(bus, apiClient)
     LessonService(bus, apiClient)
+    KanjiService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)
     navigation.showAddressed()

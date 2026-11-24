@@ -13,6 +13,7 @@ import sttp.tapir.server.ServerEndpoint
 class WritingApi(
     reference: ReferenceData,
     attempts: WritingAttempts,
+    padCharacters: PadCharacters,
     review: WritingReview
 ) {
 
@@ -25,6 +26,14 @@ class WritingApi(
           .toRight(s"KanjiVG has no strokes for $character")
     }
 
+  def manyStrokes(characters: String): Either[String, List[CharacterStrokes]] =
+    reference.kanjiVg
+      .toRight("The reference data is not ready")
+      .map(archive =>
+        characters.codePoints.toArray.toList.distinct
+          .flatMap(point => archive.strokes(String(Character.toChars(point))))
+      )
+
   def recorded(attempt: WritingAttempt): Option[ReviewOutcome] = {
     attempts.record(attempt)
     review.reviewed(attempt, Instant.now())
@@ -32,6 +41,8 @@ class WritingApi(
 
   val endpoints: List[ServerEndpoint[Any, Identity]] = List(
     WritingRoutes.strokes.handle(strokes),
-    WritingRoutes.recordAttempt.handleSuccess(recorded)
+    WritingRoutes.manyStrokes.handle(manyStrokes),
+    WritingRoutes.recordAttempt.handleSuccess(recorded),
+    WritingRoutes.recordPadCharacters.handleSuccess(padCharacters.record)
   )
 }

@@ -33,7 +33,7 @@ class GrammarPage(bus: AppBus) extends ReactiveElement {
         bus,
         Page.LessonSession,
         cls := "button primary",
-        Tr("Lesson session", "Séance Leçon")
+        Tr("My lesson", "Ma leçon")
       ),
       PageLink(
         bus,

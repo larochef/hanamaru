@@ -38,7 +38,11 @@ final class Glosses(dictionary: Dictionary) {
           .map(entry =>
             PartWord(
               token.dictionaryForm,
-              entry.readings.headOption.getOrElse(token.reading),
+              // the reading the token is read with, if it is the entry's
+              read
+                .filter(entry.readings.map(Romaji.asHiragana).contains)
+                .orElse(entry.readings.headOption)
+                .getOrElse(token.reading),
               entry.meanings
                 .filter(_.language == "fre")
                 .flatMap(_.glosses)

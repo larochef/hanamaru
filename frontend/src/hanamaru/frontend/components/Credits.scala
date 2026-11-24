@@ -51,6 +51,18 @@ class Credits extends ReactiveElement {
         " et son dictionnaire, Works Applications, "
       ),
       a(href := "https://www.apache.org/licenses/LICENSE-2.0", "Apache 2.0")
+    ),
+    p(
+      Tr("Kanji: ", "Kanji : "),
+      a(
+        href := "https://www.edrdg.org/wiki/index.php/KANJIDIC_Project",
+        "KANJIDIC2"
+      ),
+      " © Electronic Dictionary Research and Development Group, ",
+      a(
+        href := "https://creativecommons.org/licenses/by-sa/4.0/",
+        "CC BY-SA 4.0"
+      )
     )
   )
 }

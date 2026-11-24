@@ -1,5 +1,6 @@
 package hanamaru.backend
 
+import hanamaru.backend.kanji.{KanjiPractice, KanjiPracticeApi}
 import hanamaru.backend.learner.{LearnerApi, LearnerStore}
 import hanamaru.backend.lessons.*
 import hanamaru.backend.models.*
@@ -49,13 +50,30 @@ object Main extends OxApp {
     releaseAfterScope(model.stop())
     forkUnsupervised(model.run()).discard
     val tutor = LlamaClient(model, http)
+    val units = Units(
+      Curriculum.points,
+      () => reference.dictionary,
+      learner,
+      () =>
+        reference.kanji.map(book =>
+          literal => book.kanji(literal).flatMap(_.grade)
+        )
+    )
     val vocabulary = VocabularyPractice(
       () => reference.dictionary,
       learner,
       MeaningJudge(tutor),
       attempts,
       writingReview,
-      SentenceWriter(tutor, () => reference.analyser)
+      SentenceWriter(tutor, () => reference.analyser),
+      units
+    )
+    val kanji = KanjiPractice(
+      () => reference.kanji,
+      learner,
+      units,
+      attempts,
+      writingReview
     )
     val server = NettySyncServer()
       // a restart does not have to wait for the previous run's port; and
@@ -65,6 +83,8 @@ object Main extends OxApp {
       .modifyConfig(
         _.socketConfig(NettySocketConfig.default.withReuseAddress)
           .withGracefulShutdownTimeout(2.seconds)
+          // the tutor may take a while: a text is written in up to three tries
+          .requestTimeout(2.minutes)
       )
       // the page and its models are on this machine, nowhere else
       .host("localhost")
@@ -74,11 +94,14 @@ object Main extends OxApp {
         WritingApi(
           reference,
           attempts,
+          PadCharacters(places.padCharacters),
           writingReview
         ).endpoints
       )
       .addEndpoints(LearnerApi(learner).endpoints)
       .addEndpoints(DictionaryApi(reference).endpoints)
+      .addEndpoints(KanjiApi(reference).endpoints)
+      .addEndpoints(KanjiPracticeApi(kanji).endpoints)
       .addEndpoints(VocabularyApi(vocabulary).endpoints)
       .addEndpoints(
         LessonApi(
@@ -86,9 +109,12 @@ object Main extends OxApp {
             () => reference.analyser,
             () => reference.dictionary,
             learner,
-            TextWriter(tutor)
+            TextWriter(tutor),
+            units
           ),
-          ExerciseJudge(tutor, () => reference.analyser)
+          ExerciseJudge(tutor, () => reference.analyser),
+          vocabulary,
+          kanji
         ).endpoints
       )
       .addEndpoints(

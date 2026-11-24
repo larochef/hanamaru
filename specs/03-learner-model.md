@@ -1,6 +1,6 @@
 # 03 — Learner model and spaced repetition
 
-**Status:** built for kana, words and grammar points
+**Status:** built for kana, words, grammar points and the units' kanji
 
 ## Intent
 
@@ -14,7 +14,10 @@ what it may use.
 - **Items** are kana, kanji, words and grammar points. Each has several
   **cards**, one per way of testing it, for example:
   - word: reading → meaning, meaning → word (typed), audio → meaning
-  - kanji: kanji → reading and meaning, meaning → kanji written with the stylus
+  - kanji (built for the units' kanji, [`09`](09-sessions.md)): `reading`, a
+    word the learner knows shown written with it, its reading typed in kana;
+    `writing`, the word's reading and meaning given, the kanji written from
+    memory with the stylus, graded by its strokes as a kana is
   - kana: kana → reading, sound → kana written
   - grammar point: one card, `usage`, its exercises in a lesson graded together
     (built): four answers in five right is Good, half is Hard, less is Again

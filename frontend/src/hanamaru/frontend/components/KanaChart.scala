@@ -78,7 +78,7 @@ class KanaChart(bus: AppBus) extends ReactiveElement {
         cls("is-known") <-- status(kana).map(_ == ItemStatus.Known),
         cls("is-due") <-- due(kana),
         span(cls := "kana", lang := "ja", kana.character),
-        span(cls := "romaji", kana.romaji)
+        span(cls := "romaji", Kana.shownReading(kana))
       ).node
     case None => div(cls := "kana-cell is-gap")
   }

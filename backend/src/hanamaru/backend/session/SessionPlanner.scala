@@ -11,10 +11,12 @@ import hanamaru.shared.session.SessionExercise
   *   2. the first reading of the kana met but never read;
   *   3. a few new kana, in the chart's order, only once nothing is due: a busy
   *      day's reviews are not buried under new kana;
-  *   4. the cards being learned, before they are due, the soonest first: kana
-  *      just met are worth practising again rather than ending early.
-  * Writing is asked only with the stylus at hand, and the same card never twice
-  * in a row when there is another. Nothing once the time is up.
+  *   4. the cards before they are due, those being learned first, then the
+  *      soonest due: a session asked for is not ended early, even on a day with
+  *      nothing due, and each card asked comes back only after the others.
+  * Only the session's `kana` are asked (a script's, or all). Writing is asked
+  * only with the stylus at hand, and the same card never twice in a row when
+  * there is another. Nothing once the time is up.
   */
 object SessionPlanner {
 
@@ -31,9 +33,14 @@ object SessionPlanner {
       stylus: Boolean,
       introduced: Int,
       maxNew: Int,
-      last: Option[SessionExercise]
+      last: Option[SessionExercise],
+      kana: List[Kana] = Kana.all
   ): Option[SessionExercise] = {
-    val allowed = cards.filter(card => stylus || card.kind == CardKind.Reading)
+    // the session's kana only: a script, or both
+    val inPlay = kana.map(_.character).toSet
+    val allowed = cards.filter(card =>
+      inPlay(card.character) && (stylus || card.kind == CardKind.Reading)
+    )
     def exercise(card: KanaCard): SessionExercise = card.kind match {
       case CardKind.Reading => SessionExercise.Reading(card.character)
       case CardKind.Writing => SessionExercise.Writing(card.character)
@@ -53,7 +60,7 @@ object SessionPlanner {
       allowed.filter(_.due <= now).sortBy(card => (!learning(card), card.due))
     )(exercise)
     lazy val unread = notJustAsked(
-      Kana.all
+      kana
         .map(_.character)
         .filter(character =>
           cards.exists(_.character == character) &&
@@ -63,13 +70,15 @@ object SessionPlanner {
         )
     )(SessionExercise.Reading(_))
     val taught = if (stylus) CardKind.Writing else CardKind.Reading
-    lazy val unmet = Kana.all.find(kana =>
+    lazy val unmet = kana.find(each =>
       !cards.exists(card =>
-        card.character == kana.character && card.kind == taught
+        card.character == each.character && card.kind == taught
       )
     )
     lazy val early =
-      notJustAsked(allowed.filter(learning).sortBy(_.due))(exercise)
+      notJustAsked(
+        allowed.sortBy(card => (!learning(card), card.due))
+      )(exercise)
     if (now >= endsAt) {
       None
     } else {

@@ -36,11 +36,21 @@ a {
   display: none !important;
 }
 
+/* the title, the tutor and the language on one line; the menu on its own
+   below, wide enough in either language */
 .top-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  row-gap: 0.5rem;
   padding: 1rem 0;
+}
+
+.top-bar .main-nav {
+  order: 1;
+  flex-basis: 100%;
+  margin-left: 0;
 }
 
 .top-bar .title {
@@ -516,8 +526,14 @@ button:disabled {
 /* the main sections, beside the title */
 .main-nav {
   display: flex;
+  align-items: baseline;
   gap: 1.25rem;
-  margin-left: 2rem;
+  margin-left: 1.5rem;
+}
+
+.main-nav a,
+.nav-label {
+  white-space: nowrap;
 }
 
 .main-nav a {
@@ -525,8 +541,57 @@ button:disabled {
   color: var(--muted);
 }
 
-.main-nav a:hover {
+.main-nav a:hover,
+.main-nav a.is-current {
   color: var(--ink);
+}
+
+.main-nav a.is-current {
+  border-bottom: 2px solid var(--accent);
+}
+
+/* what is looked up or practised freely, quieter than where one goes on */
+.nav-more {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  margin-left: 1rem;
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--faint);
+  font-size: 0.9rem;
+}
+
+.nav-label {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* today */
+.home-card {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid var(--faint);
+}
+
+.home-card h2 {
+  margin-top: 0;
+  font-size: 1.3rem;
+}
+
+.home-free {
+  margin-top: 2rem;
+  color: var(--muted);
+}
+
+.home-free h2 {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.home-free li {
+  margin: 0.3rem 0;
 }
 
 .credits p {
@@ -615,6 +680,33 @@ button:disabled {
   width: 14rem;
 }
 
+/* the script kana are typed in: katakana tinted, the switch beside */
+.kana-field {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.kana-input.is-katakana {
+  background: #eef3fb;
+}
+
+.script-switch {
+  min-width: 2.6rem;
+  font-size: 1.3rem;
+}
+
+/* the script an answer is expected in */
+.expected-script {
+  margin: 0.25rem 0;
+  color: var(--muted);
+}
+
+.expected-script .script-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .last-answer.is-near {
   color: #b26a00;
 }
@@ -642,11 +734,26 @@ button:disabled {
 }
 
 .character-place {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 2.4rem;
+  height: 2.4rem;
   border: 1px solid var(--faint);
   border-radius: 0.2rem;
   background: #fff;
+}
+
+/* the character written, small, in its place */
+.character-ink {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.character-ink polyline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .character-place.is-current {
@@ -654,8 +761,39 @@ button:disabled {
 }
 
 .character-place.is-done {
-  background: var(--ink);
   border-color: var(--ink);
+}
+
+/* kana written one after the other in one box */
+.kana-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  align-self: stretch;
+}
+
+.kana-pad .writing-box {
+  max-width: 20rem;
+}
+
+.sentence-pad {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-self: stretch;
+}
+
+.pad-candidates {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pad-candidates button[lang="ja"] {
+  min-width: 3rem;
+  font-size: 1.4rem;
 }
 
 /* writing from memory: the controls, then the correction */
@@ -881,7 +1019,7 @@ button:disabled {
   font-size: 1.4rem;
 }
 
-.sentence-input {
+.sentence-input .kana-input {
   width: 24rem;
 }
 
@@ -894,4 +1032,100 @@ button:disabled {
   padding: 0.5rem 0.75rem;
   border-left: 3px solid var(--accent);
   background: var(--faint);
+}
+
+/* the unit under way, and a unit's words */
+.unit-banner {
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--accent);
+}
+
+.unit-banner p {
+  margin: 0.2rem 0;
+}
+
+.unit-theme {
+  font-weight: 600;
+}
+
+.unit-next {
+  color: var(--accent);
+}
+
+.unit-words {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.4rem 1.2rem;
+}
+
+.unit-word {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.5rem;
+  align-items: baseline;
+}
+
+.unit-word .word-reading {
+  font-size: 1.25rem;
+}
+
+.unit-meaning {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* the kanji */
+.kanji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.4rem;
+}
+
+.kanji-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid var(--faint);
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.kanji-cell:hover {
+  border-color: var(--ink);
+}
+
+.kanji-cell .kanji {
+  font-size: 2rem;
+}
+
+.kanji-meaning {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanji-heading {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.kanji-model {
+  font-size: 5rem;
+  line-height: 1;
+}
+
+.kanji-meanings {
+  font-size: 1.2rem;
+}
+
+.kanji-readings {
+  font-size: 1.2rem;
 }

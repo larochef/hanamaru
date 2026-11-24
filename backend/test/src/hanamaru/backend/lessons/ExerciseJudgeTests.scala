@@ -57,15 +57,36 @@ object ExerciseJudgeTests extends TestSuite {
       val verdict = judge.judged(ExerciseAnswer(particle, "も"))
       assert(!verdict.right, !verdict.byTutor)
     }
-    test(
-      "a translation as expected, whatever its spaces, punctuation and script"
-    ) {
-      assert(judge.judged(ExerciseAnswer(translation, "わたしは がくせいです")).right)
-      assert(judge.judged(ExerciseAnswer(translation, "ワタシハ ガクセイデス。")).right)
+    test("a translation as expected, whatever its spaces and punctuation") {
+      assert(
+        judge.judged(ExerciseAnswer(translation, "わたしは がくせいです")) ==
+          ExerciseVerdict(right = true, byTutor = false, None, None)
+      )
+    }
+    test("in the other script, right, and the script said") {
+      val verdict = judge.judged(ExerciseAnswer(translation, "ワタシハ ガクセイデス。"))
+      assert(verdict.right, verdict.explanation.exists(_.contains("hiragana")))
+      val bread = translation.copy(
+        parts = List(
+          SentencePart("パン", false, false),
+          SentencePart("です", false, false)
+        ),
+        expected = "パンです"
+      )
+      val inHiragana = judge.judged(ExerciseAnswer(bread, "ぱんです"))
+      assert(
+        inHiragana.right,
+        inHiragana.explanation.exists(_.contains("パン s'écrit en katakana"))
+      )
     }
     test("は typed as it sounds is right, and said so") {
       val verdict = judge.judged(ExerciseAnswer(translation, "わたしわがくせいです"))
       assert(verdict.right, verdict.explanation.exists(_.contains("は")))
+    }
+    test("じゃありません for ではありません is right, the written form said") {
+      val negation = translation.copy(expected = "がくせいではありません。")
+      val verdict = judge.judged(ExerciseAnswer(negation, "がくせいじゃありません"))
+      assert(verdict.right, verdict.explanation.exists(_.contains("ではありません")))
     }
     test("nothing typed is not right, and the tutor is not asked") {
       assert(

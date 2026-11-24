@@ -2,8 +2,10 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
+import hanamaru.shared.kana.*
 import hanamaru.shared.lessons.*
 import hanamaru.shared.text.SentencePart
+import hanamaru.shared.writing.{CharacterRecognizer, PadCharacter}
 
 import com.raquo.laminar.api.L.*
 
@@ -33,6 +35,8 @@ class LessonExercises(
   private val right = Var(0)
   private val loads = EventBus[Unit]()
   private val answers = EventBus[ExerciseAnswer]()
+  // sentences written with the stylus, besides the keyboard
+  private val stylus = Var(true)
 
   private def submit(index: Int, answer: String): Unit = {
     step.set(Step.Judging(index))
@@ -89,16 +93,53 @@ class LessonExercises(
         )
       case ExerciseKind.Translation =>
         val field = KanaInput()
+        // the kana written in the pad, in the order they are in the field
+        val padded = Var(List.empty[KanaPad.Written])
+        val inKatakana =
+          exercise.parts.count(part => Romaji.isKatakana(part.text))
         div(
           p(
             cls := "placement-prompt",
             Tr("Say it in Japanese, in kana:", "Dis-le en japonais, en kana :")
           ),
           div(cls := "series-meaning", exercise.french),
+          p(
+            cls := "expected-script",
+            Tr("Written in ", "Écrit en "),
+            span(cls := "script-name", "hiragana"),
+            Option.when(inKatakana > 0)(
+              List[Modifier[HtmlElement]](
+                if (inKatakana == 1)
+                  Tr(", with one word in ", ", avec un mot en ")
+                else
+                  Tr(
+                    s", with $inKatakana words in ",
+                    s", avec $inKatakana mots en "
+                  ),
+                span(cls := "script-name", "katakana"),
+                Tr(" (switch: あ / ア)", " (bouton あ / ア)")
+              )
+            )
+          ),
           form(
-            onSubmit.preventDefault --> (_ => submit(index, field.value)),
+            onSubmit.preventDefault --> { _ =>
+              keptForTuning(field.value, padded.now())
+              submit(index, field.value)
+            },
             field.node.amend(cls := "sentence-input"),
             button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
+          ),
+          label(
+            cls := "stylus-choice",
+            input(
+              typ := "checkbox",
+              checked <-- stylus.signal,
+              onInput.mapToChecked --> stylus.writer
+            ),
+            Tr("Write with the stylus", "Écrire au stylet")
+          ),
+          child <-- stylus.signal.map(on =>
+            if (on) sentencePad(field, padded) else emptyNode
           ),
           button(
             Tr("I don't know", "Je ne sais pas"),
@@ -106,6 +147,132 @@ class LessonExercises(
           )
         )
     }
+
+  // Kana written with the stylus, each put at the end of the field once
+  // recognised, in the script the field is in; the kana the last one may be
+  // instead, to choose from.
+  // The kana of an answer written in the pad, each with the kana it is in the
+  // answer, as the learner left it: only when the whole answer was written in
+  // the pad, so that each drawing is known to be the kana in its place.
+  private def keptForTuning(
+      answer: String,
+      padded: List[KanaPad.Written]
+  ): Unit =
+    if (padded.nonEmpty && answer.length == padded.size) {
+      bus.send(
+        AppCommand.RecordPadCharacters(
+          answer.toList
+            .map(_.toString)
+            .zip(padded)
+            .map((character, written) =>
+              PadCharacter(
+                if (Kana.isSmall(character)) Kana.smallOrLarge(character)
+                else character,
+                written.strokes,
+                written.candidates
+              )
+            )
+        )
+      )
+    }
+
+  private def sentencePad(
+      field: KanaInput,
+      padded: Var[List[KanaPad.Written]]
+  ): HtmlElement = {
+    val others = Var(List.empty[String])
+    // a button that changes the last kana: made small, a dakuten added…
+    def changeOfLast(
+        sign: String,
+        meaning: String,
+        changed: String => String
+    ) = button(
+      typ := "button",
+      lang := "ja",
+      cls := "kana-change",
+      title := meaning,
+      sign,
+      onClick --> { _ =>
+        field.last.foreach(last => field.replaceLast(changed(last)))
+        others.set(Nil)
+      }
+    )
+    ManyStrokesOf(
+      bus,
+      CharacterRecognizer.kana,
+      strokes => {
+        // a small kana is made with its button: recognised by its size
+        // alone, it was often taken for its large one, and the other way
+        val pad = KanaPad(
+          strokes.filterNot(character => Kana.isSmall(character.character)),
+          () => if (field.inKatakanaNow) Script.Katakana else Script.Hiragana
+        )
+        div(
+          cls := "sentence-pad",
+          pad.node.amend(pad.written --> { character =>
+            padded.update(_ :+ character)
+            character.candidates.headOption.foreach(field.append)
+            others.set(character.candidates.drop(1))
+          }),
+          div(
+            cls := "pad-candidates",
+            child.maybe <-- others.signal.map(candidates =>
+              Option.when(candidates.nonEmpty)(
+                span(Tr("Or else: ", "Ou bien : "))
+              )
+            ),
+            children <-- others.signal.map(
+              _.map(candidate =>
+                button(
+                  typ := "button",
+                  lang := "ja",
+                  candidate,
+                  onClick --> { _ =>
+                    val written = field.value.takeRight(1)
+                    field.replaceLast(candidate)
+                    others.update(_.filterNot(_ == candidate) :+ written)
+                  }
+                )
+              )
+            ),
+            changeOfLast(
+              "小",
+              Tr(
+                "The last kana small, or back to its usual size (ゃ, っ)",
+                "Le dernier kana en petit, ou revenu à sa taille (ゃ, っ)"
+              ),
+              Kana.smallOrLarge
+            ),
+            changeOfLast(
+              "゛",
+              Tr(
+                "A dakuten on the last kana, or taken away (が)",
+                "Un tenten sur le dernier kana, ou retiré (が)"
+              ),
+              Kana.withDakuten
+            ),
+            changeOfLast(
+              "゜",
+              Tr(
+                "A handakuten on the last kana, or taken away (ぱ)",
+                "Un maru sur le dernier kana, ou retiré (ぱ)"
+              ),
+              Kana.withHandakuten
+            ),
+            button(
+              typ := "button",
+              Tr("Erase the last character", "Effacer le dernier caractère"),
+              onClick --> { _ =>
+                field.deleteLast()
+                padded.update(_.dropRight(1))
+                others.set(Nil)
+              }
+            )
+          )
+        )
+      }
+    ).node
+  }
 
   private def judged(
       index: Int,

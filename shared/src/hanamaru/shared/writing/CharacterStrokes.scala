@@ -21,6 +21,7 @@ object CharacterStrokes {
   val boxSize: Int = 109
 
   given JsonValueCodec[CharacterStrokes] = JsonCodecMaker.make
+  given JsonValueCodec[List[CharacterStrokes]] = JsonCodecMaker.make
   given Schema[Point] = Schema.derived
   given Schema[Stroke] = Schema.derived
   given Schema[CharacterStrokes] = Schema.derived

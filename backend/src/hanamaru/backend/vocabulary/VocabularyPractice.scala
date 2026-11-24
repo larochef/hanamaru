@@ -1,6 +1,7 @@
 package hanamaru.backend.vocabulary
 
 import hanamaru.backend.learner.*
+import hanamaru.backend.lessons.Units
 import hanamaru.backend.reference.Dictionary
 import hanamaru.backend.writing.{WritingAttempts, WritingReview}
 import hanamaru.shared.learner.Grade
@@ -21,7 +22,8 @@ final class VocabularyPractice(
     judge: MeaningJudge,
     attempts: WritingAttempts,
     writing: WritingReview,
-    sentences: SentenceWriter
+    sentences: SentenceWriter,
+    units: Units
 ) {
   private val largestSeries = 10
   private val mostNew = 5
@@ -30,7 +32,10 @@ final class VocabularyPractice(
     dictionaryReady().toRight("The dictionary is not ready")
 
   /** The words of a series: those due first, the most overdue first, then new
-    * ones in the order they are learned, fewer when many are due.
+    * ones, fewer when many are due: the words of the unit under way, then, once
+    * they are all met, those of them not stable yet; past the last unit, the
+    * core vocabulary in the order it is learned. A unit's words all met, no new
+    * word comes until the unit is acquired, its lesson included.
     */
   def series(at: Instant): Either[String, List[SeriesWord]] = dictionary.map {
     words =>
@@ -39,20 +44,28 @@ final class VocabularyPractice(
         .flatMap(_.toLongOption)
       val met = learner.metKeys(ItemKind.Word).flatMap(_.toLongOption)
       val newCount = (largestSeries - due.size).min(mostNew).max(0)
-      words
-        .words(due)
-        .map(word =>
-          SeriesWord(word, isNew = false, inSentence = stable(word.id))
-        ) ++
-        words.nextWords(met, newCount).map(SeriesWord(_, isNew = true))
+      val dueWords = words.words(due)
+      val fresh = units.current match {
+        case Some((_, unitWords)) =>
+          val unmet = unitWords.filterNot(word => met(word.id))
+          val unsettled = unitWords.filter(word =>
+            met(word.id) && !due.contains(word.id) && !stable(word.id)
+          )
+          unmet.take(newCount).map(SeriesWord(_, isNew = true)) ++
+            unsettled
+              .take((newCount - unmet.size).max(0))
+              .map(SeriesWord(_, isNew = false))
+        case None =>
+          words.nextWords(met, newCount).map(SeriesWord(_, isNew = true))
+      }
+      dueWords.map(word =>
+        SeriesWord(word, isNew = false, inSentence = stable(word.id))
+      ) ++ fresh
   }
 
   // A word is asked in a sentence once its production has passed its first
   // steps: context too early takes attention from the word itself.
-  private def stable(word: Long): Boolean =
-    learner
-      .memory(ItemKind.Word, word.toString, CardKind.Production)
-      .exists(_.phase == Phase.Review)
+  private def stable(word: Long): Boolean = units.stable(word)
 
   /** A sentence for a word, made of the words the learner has met. */
   def sentence(word: Long): Either[String, Option[WordSentence]] =

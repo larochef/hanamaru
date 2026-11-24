@@ -1,5 +1,6 @@
 package hanamaru.shared.lessons
 
+import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.text.SentencePart
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
@@ -23,8 +24,8 @@ final case class LessonExample(parts: List[SentencePart], french: String)
 
 /** A grammar point's lesson: the point, the points it relies on, its
   * explanation (in French, paragraph by paragraph), its examples, the points
-  * before and after it in the curriculum, and whether reading texts are written
-  * for it.
+  * before and after it in the curriculum, whether reading texts are written for
+  * it, and its unit's theme and words.
   */
 final case class GrammarLesson(
     point: GrammarPoint,
@@ -33,20 +34,46 @@ final case class GrammarLesson(
     examples: List[LessonExample],
     previous: Option[GrammarPoint],
     next: Option[GrammarPoint],
-    hasText: Boolean
+    hasText: Boolean,
+    theme: String,
+    vocabulary: List[DictionaryWord]
 )
+
+/** The unit under way: its point, its theme, its words, how many of them are
+  * stable, whether its point is practised, its kanji and how many of them are
+  * learned; the next unit opens once the point is, most words are, and every
+  * kanji is.
+  */
+final case class UnitProgress(
+    point: GrammarPoint,
+    theme: String,
+    words: List[DictionaryWord],
+    stable: Int,
+    practised: Boolean,
+    kanji: List[String],
+    kanjiLearned: Int
+)
+
+object UnitProgress {
+  given JsonValueCodec[Option[UnitProgress]] = JsonCodecMaker.make
+  given Schema[UnitProgress] = Schema.derived
+}
 
 /** A reading text written for a lesson: its sentences, each laid out as an
   * example is.
   */
 final case class LessonText(sentences: List[LessonExample])
 
-/** A lesson session planned: the points whose review is due, first, then the
-  * next point to learn (none once the curriculum is learned).
+/** A lesson session planned: the points whose review is due, first; then
+  * whether there are words to practise in a series; then the lesson to learn,
+  * the unit under way's when its point was never practised (none once the
+  * curriculum is learned); then whether there are kanji to practise.
   */
 final case class LessonPlan(
     reviews: List[GrammarPoint],
-    next: Option[GrammarPoint]
+    series: Boolean,
+    next: Option[GrammarPoint],
+    kanji: Boolean
 )
 
 object LessonPlan {

@@ -1,5 +1,6 @@
 package hanamaru.shared.session
 
+import hanamaru.shared.kana.Script
 import hanamaru.shared.placement.ReadingResult
 import hanamaru.shared.writing.WritingAttempt
 
@@ -7,10 +8,15 @@ import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import sttp.tapir.Schema
 
-/** What the learner declares as a session starts: the minutes available, and
-  * whether the stylus is at hand.
+/** What the learner declares as a session starts: the minutes available,
+  * whether the stylus is at hand, and the kana script to work on (none for
+  * both).
   */
-final case class SessionStart(minutes: Int, stylus: Boolean)
+final case class SessionStart(
+    minutes: Int,
+    stylus: Boolean,
+    script: Option[Script] = None
+)
 
 /** An exercise of a session. */
 enum SessionExercise {

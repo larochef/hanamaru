@@ -17,7 +17,8 @@
       { "japanese": "日本人です。", "french": "Je suis japonaise." },
       { "japanese": "本です。", "french": "C'est un livre." }
     ],
-    "words": [],
+    "theme": "Les gens et les métiers",
+    "words": ["学生", "先生", "医者", "会社員", "日本人", "人|ひと", "友達", "男", "女", "子供", "大人", "留学生", "大学", "本"],
     "placement": [
       { "sentence": "学生＿。", "french": "Je suis étudiant.", "choices": ["です", "ます", "を"], "answer": "です" },
       { "sentence": "先生＿。", "french": "C'est le professeur.", "choices": ["です", "を", "の"], "answer": "です" }
@@ -42,7 +43,8 @@
       { "japanese": "田中さんは先生です。", "french": "Monsieur Tanaka est professeur." },
       { "japanese": "父は医者です。", "french": "Mon père est médecin." }
     ],
-    "words": ["わたし", "さん"],
+    "theme": "Se présenter",
+    "words": ["私|わたし", "あなた", "名前", "国", "日本", "日本語", "英語", "言葉", "大学生", "家族", "仕事", "会社", "銀行", "さん#1005340"],
     "placement": [
       { "sentence": "私＿学生です。", "french": "Je suis étudiant.", "choices": ["は", "を", "へ"], "answer": "は" },
       { "sentence": "田中さん＿医者です。", "french": "Monsieur Tanaka est médecin.", "choices": ["は", "で", "を"], "answer": "は" }
@@ -67,7 +69,8 @@
       { "japanese": "田中さんは先生ですか。", "french": "Monsieur Tanaka est-il professeur ?" },
       { "japanese": "だれですか。", "french": "Qui est-ce ?" }
     ],
-    "words": ["はい", "いいえ", "だれ", "なん"],
+    "theme": "Les questions",
+    "words": ["何|なに", "誰", "いつ", "どこ", "どう", "いくら", "はい", "いいえ", "そう#2137720", "本当", "答え", "分かる"],
     "placement": [
       { "sentence": "学生です＿。", "french": "Vous êtes étudiant ?", "choices": ["か", "は", "の"], "answer": "か" },
       { "sentence": "田中さんは先生です＿。", "french": "Monsieur Tanaka est-il professeur ?", "choices": ["か", "を", "へ"], "answer": "か" }
@@ -92,7 +95,8 @@
       { "japanese": "田中さんの車ですか。", "french": "C'est la voiture de monsieur Tanaka ?" },
       { "japanese": "私の父は医者です。", "french": "Mon père est médecin." }
     ],
-    "words": ["あなた"],
+    "theme": "La famille",
+    "words": ["父", "母", "兄", "姉", "弟", "妹", "両親", "兄弟", "お父さん", "お母さん", "お兄さん", "お姉さん", "車"],
     "placement": [
       { "sentence": "私＿本です。", "french": "C'est mon livre.", "choices": ["の", "は", "を"], "answer": "の" },
       { "sentence": "日本語＿先生です。", "french": "C'est le professeur de japonais.", "choices": ["の", "を", "か"], "answer": "の" }
@@ -114,7 +118,8 @@
       { "japanese": "山田さんも日本人です。", "french": "Madame Yamada aussi est japonaise." },
       { "japanese": "田中さんも先生ですか。", "french": "Monsieur Tanaka est professeur, lui aussi ?" }
     ],
-    "words": [],
+    "theme": "Les animaux et la nature",
+    "words": ["犬", "猫", "鳥", "魚", "動物", "花", "木", "山", "川", "海", "空|そら", "池", "森|もり", "林|はやし", "石|いし", "虫|むし", "馬|うま", "羽|はね"],
     "placement": [
       { "sentence": "私＿学生です。", "french": "Moi aussi, je suis étudiant.", "choices": ["も", "は", "の"], "answer": "も" },
       { "sentence": "山田さん＿日本人です。", "french": "Madame Yamada aussi est japonaise.", "choices": ["も", "を", "へ"], "answer": "も" }
@@ -139,7 +144,8 @@
       { "japanese": "この人は先生です。", "french": "Cette personne est professeur." },
       { "japanese": "トイレはどこですか。", "french": "Où sont les toilettes ?" }
     ],
-    "words": [],
+    "theme": "Les objets",
+    "words": ["傘", "鞄", "時計", "鉛筆", "ペン", "机", "椅子", "辞書", "新聞", "雑誌", "写真", "手紙", "電話", "ノート", "財布"],
     "placement": [
       { "sentence": "＿は本です。", "french": "Ceci est un livre.", "choices": ["これ", "この", "ここ"], "answer": "これ" },
       { "sentence": "＿人は先生です。", "french": "Cette personne est professeur.", "choices": ["この", "これ", "ここ"], "answer": "この" }
@@ -164,7 +170,8 @@
       { "japanese": "田中さんは毎日来ます。", "french": "Monsieur Tanaka vient tous les jours." },
       { "japanese": "明日は休みます。", "french": "Demain, je me repose." }
     ],
-    "words": ["来る", "行く", "毎日"],
+    "theme": "La journée",
+    "words": ["起きる", "寝る", "行く", "来る", "帰る", "休む", "働く", "勉強", "毎日", "毎朝", "毎晩", "朝", "晩", "夜", "そして", "それから", "よく", "夕方"],
     "text": false,
     "placement": [
       { "sentence": "明日、行き＿。", "french": "Demain, j'y vais.", "choices": ["ます", "です", "か"], "answer": "ます" },
@@ -190,7 +197,8 @@
       { "japanese": "私は毎朝パンを食べます。", "french": "Je mange du pain tous les matins." },
       { "japanese": "なにを買いますか。", "french": "Qu'est-ce que vous achetez ?" }
     ],
-    "words": ["読む", "飲む", "食べる"],
+    "theme": "Manger et boire",
+    "words": ["食べる", "飲む", "買う", "読む", "水", "お茶", "コーヒー", "パン", "ご飯", "肉", "野菜", "果物", "牛乳", "卵", "料理", "麦茶"],
     "placement": [
       { "sentence": "水＿飲みます。", "french": "Je bois de l'eau.", "choices": ["を", "へ", "の"], "answer": "を" },
       { "sentence": "本＿読みます。", "french": "Je lis un livre.", "choices": ["を", "に", "か"], "answer": "を" }
@@ -215,7 +223,8 @@
       { "japanese": "私は家に帰ります。", "french": "Je rentre à la maison." },
       { "japanese": "どこへ行きますか。", "french": "Où allez-vous ?" }
     ],
-    "words": ["帰る", "学校"],
+    "theme": "La ville",
+    "words": ["学校", "駅", "病院", "郵便局", "図書館", "店", "家|いえ", "公園", "デパート", "喫茶店", "映画館", "ホテル", "町", "道", "市|し", "工場"],
     "placement": [
       { "sentence": "学校＿行きます。", "french": "Je vais à l'école.", "choices": ["へ", "を", "の"], "answer": "へ" },
       { "sentence": "私は家＿帰ります。", "french": "Je rentre à la maison.", "choices": ["に", "の", "を"], "answer": "に" }
@@ -243,7 +252,8 @@
       { "japanese": "私は行きませんでした。", "french": "Moi, je n'y suis pas allé." },
       { "japanese": "田中さんも来ましたか。", "french": "Monsieur Tanaka est venu, lui aussi ?" }
     ],
-    "words": ["昨日", "明日", "今日"],
+    "theme": "Les jours et les semaines",
+    "words": ["昨日", "今日", "明日", "今|いま", "先週", "今週", "来週", "去年", "今年", "来年", "週末", "毎週", "昼"],
     "placement": [
       { "sentence": "昨日、学校へ行き＿。", "french": "Hier, je suis allé à l'école.", "choices": ["ました", "ます", "ません"], "answer": "ました" },
       { "sentence": "肉を食べ＿。", "french": "Je ne mange pas de viande.", "choices": ["ません", "ます", "ました"], "answer": "ません" }
@@ -255,31 +265,33 @@
     ]
   },
   {
-    "id": "ja-arimasen",
+    "id": "dewa-arimasen",
     "level": 5,
-    "title": "じゃありません : ce n'est pas",
-    "pattern": "〜じゃありません",
+    "title": "ではありません : ce n'est pas",
+    "pattern": "〜ではありません",
     "requires": ["desu", "masen-mashita"],
     "explanation": [
-      "La négation de です est じゃありません : がくせいじゃありません, « je ne suis pas étudiant ».",
-      "ありません est la forme en ません du verbe ある, « il y a », « exister » ; じゃ relie le nom à ce verbe.",
-      "ではありません veut dire la même chose, en plus soigné ; じゃ en est la contraction, courante à l'oral. Dans では, は se lit « wa ».",
-      "Pour répondre non : いいえ、がくせいじゃありません."
+      "La négation de です est ではありません : がくせいではありません, « je ne suis pas étudiant ».",
+      "ありません est la forme en ません du verbe ある, « il y a », « exister » ; では relie le nom à ce verbe. Dans では, は se lit « wa » : « dé wa arimasen ».",
+      "À l'oral, では se contracte souvent en じゃ : がくせいじゃありません veut dire la même chose, en moins soigné. On l'entend partout ; ではありません reste la forme à écrire.",
+      "Pour répondre non : いいえ、がくせいではありません."
     ],
     "examples": [
-      { "japanese": "学生じゃありません。", "french": "Je ne suis pas étudiant." },
-      { "japanese": "これは私の本じゃありません。", "french": "Ce n'est pas mon livre." },
-      { "japanese": "いいえ、日本人じゃありません。", "french": "Non, je ne suis pas japonais." },
-      { "japanese": "田中さんは先生じゃありません。", "french": "Monsieur Tanaka n'est pas professeur." }
+      { "japanese": "学生ではありません。", "french": "Je ne suis pas étudiant." },
+      { "japanese": "これは私の本ではありません。", "french": "Ce n'est pas mon livre." },
+      { "japanese": "いいえ、日本人ではありません。", "french": "Non, je ne suis pas japonais." },
+      { "japanese": "田中さんは先生ではありません。", "french": "Monsieur Tanaka n'est pas professeur." }
     ],
-    "words": [],
+    "theme": "Les pays et les langues",
+    "words": ["外国", "外国人", "アメリカ", "中国", "フランス", "イギリス", "ドイツ", "中国語", "日本人", "国", "言葉", "アメリカ人", "フランス人", "中国人"],
     "placement": [
-      { "sentence": "学生＿。", "french": "Je ne suis pas étudiant.", "choices": ["じゃありません", "です", "ません"], "answer": "じゃありません" },
-      { "sentence": "これは私の本＿。", "french": "Ce n'est pas mon livre.", "choices": ["じゃありません", "です", "ですか"], "answer": "じゃありません" }
+      { "sentence": "学生＿。", "french": "Je ne suis pas étudiant.", "choices": ["ではありません", "です", "ません"], "answer": "ではありません" },
+      { "sentence": "これは私の本＿。", "french": "Ce n'est pas mon livre.", "choices": ["ではありません", "です", "ですか"], "answer": "ではありません" }
     ],
     "signature": [
-      [{ "form": "だ", "conjugation": "連用形-融合" }, { "form": "ある" }, { "form": "ます" }, { "form": "ぬ" }],
-      [{ "form": "で", "pos": "助詞,格助詞" }, { "form": "は", "pos": "助詞,係助詞" }, { "form": "ある" }, { "form": "ます" }, { "form": "ぬ" }]
+      [{ "form": "で", "pos": "助詞,格助詞" }, { "form": "は", "pos": "助詞,係助詞" }, { "form": "ある" }, { "form": "ます" }, { "form": "ぬ" }],
+      [{ "form": "だ", "conjugation": "連用形-一般" }, { "form": "は", "pos": "助詞,係助詞" }, { "form": "ある" }, { "form": "ます" }, { "form": "ぬ" }],
+      [{ "form": "だ", "conjugation": "連用形-融合" }, { "form": "ある" }, { "form": "ます" }, { "form": "ぬ" }]
     ]
   },
   {
@@ -300,7 +312,8 @@
       { "japanese": "日本語は難しいですか。", "french": "Le japonais, c'est difficile ?" },
       { "japanese": "今日は寒いです。", "french": "Il fait froid aujourd'hui." }
     ],
-    "words": [],
+    "theme": "Les adjectifs en い",
+    "words": ["大きい", "小さい", "高い", "安い", "低い", "新しい", "古い", "いい", "悪い", "面白い", "つまらない", "難しい", "易しい", "美味しい", "忙しい", "楽しい", "とても", "少し"],
     "placement": [
       { "sentence": "＿車です。", "french": "C'est une grande voiture.", "choices": ["おおきい", "おおきいな", "おおきいの"], "answer": "おおきい" },
       { "sentence": "この本は＿。", "french": "Ce livre est intéressant.", "choices": ["おもしろいです", "おもしろいな", "おもしろいを"], "answer": "おもしろいです" }
@@ -312,20 +325,21 @@
     "level": 5,
     "title": "Les adjectifs en な",
     "pattern": "〜な・〜です",
-    "requires": ["i-adjectives", "ja-arimasen"],
+    "requires": ["i-adjectives", "dewa-arimasen"],
     "explanation": [
       "Les adjectifs de la deuxième sorte se comportent comme des noms : しずか (calme), きれい (joli, propre), ゆうめい (célèbre).",
       "Devant un nom, ils prennent な : しずかな へや, « une pièce calme ».",
-      "En fin de phrase, ils prennent です, comme un nom : この へやは しずかです. Leur négation est donc celle des noms : しずかじゃありません.",
+      "En fin de phrase, ils prennent です, comme un nom : この へやは しずかです. Leur négation est donc celle des noms : しずかではありません.",
       "Le dictionnaire les donne sans な : on l'ajoute seulement devant un nom."
     ],
     "examples": [
       { "japanese": "静かな部屋です。", "french": "C'est une pièce calme." },
       { "japanese": "この町はきれいです。", "french": "Cette ville est jolie." },
       { "japanese": "有名な人です。", "french": "C'est quelqu'un de célèbre." },
-      { "japanese": "ここは静かじゃありません。", "french": "Ici, ce n'est pas calme." }
+      { "japanese": "ここは静かではありません。", "french": "Ici, ce n'est pas calme." }
     ],
-    "words": [],
+    "theme": "Les adjectifs en な",
+    "words": ["静か", "賑やか", "綺麗", "有名", "親切", "元気", "便利", "暇", "好き", "嫌い", "上手", "下手", "大切", "大丈夫"],
     "placement": [
       { "sentence": "＿部屋です。", "french": "C'est une pièce calme.", "choices": ["しずかな", "しずか", "しずかの"], "answer": "しずかな" },
       { "sentence": "有名＿人です。", "french": "C'est quelqu'un de célèbre.", "choices": ["な", "い", "を"], "answer": "な" }
@@ -352,11 +366,1428 @@
       { "japanese": "レストランで昼ご飯を食べます。", "french": "Je déjeune au restaurant." },
       { "japanese": "箸で食べます。", "french": "Je mange avec des baguettes." }
     ],
-    "words": [],
+    "theme": "Les transports",
+    "words": ["電車", "バス", "車", "自転車", "飛行機", "タクシー", "地下鉄", "船", "歩く", "乗る", "降りる", "箸", "手", "汽車"],
     "placement": [
       { "sentence": "図書館＿勉強します。", "french": "J'étudie à la bibliothèque.", "choices": ["で", "を", "の"], "answer": "で" },
       { "sentence": "電車＿来ました。", "french": "Je suis venu en train.", "choices": ["で", "の", "を"], "answer": "で" }
     ],
-    "signature": [[{ "form": "で", "pos": "助詞,格助詞" }]]
+    "signature": [[{ "form": "で", "pos": "助詞,格助詞", "notFollowedBy": [{ "form": "は", "pos": "助詞,係助詞" }, { "form": "ある" }] }]]
+  },
+  {
+    "id": "aru-iru",
+    "level": 5,
+    "title": "あります, います : il y a",
+    "pattern": "〜に〜があります・います",
+    "requires": ["ni-he", "masu"],
+    "explanation": [
+      "Pour dire qu'une chose ou un être se trouve quelque part, on emploie ある pour les choses et les plantes, いる pour les personnes et les animaux : ほんが あります, « il y a un livre » ; ねこが います, « il y a un chat ».",
+      "Ce qui se trouve là est marqué par が : c'est le sujet, ce dont on annonce la présence. は, lui, parlerait de quelque chose de déjà connu : ほんは つくえの うえに あります, « le livre, il est sur la table ».",
+      "Le lieu est marqué par に : へやに ねこが います, « il y a un chat dans la chambre ». L'ordre habituel est : le lieu, ce qui s'y trouve, le verbe.",
+      "Pour préciser où, on relie un nom de position par の : つくえの うえ (sur la table), いえの まえ (devant la maison), かばんの なか (dans le sac)."
+    ],
+    "examples": [
+      { "japanese": "部屋に猫がいます。", "french": "Il y a un chat dans la chambre." },
+      { "japanese": "机の上に本があります。", "french": "Il y a un livre sur la table." },
+      { "japanese": "庭に木があります。", "french": "Il y a un arbre dans le jardin." },
+      { "japanese": "駅の前に銀行があります。", "french": "Il y a une banque devant la gare." }
+    ],
+    "theme": "La maison",
+    "words": ["部屋", "台所", "窓", "ドア", "庭", "階段", "ベッド", "テレビ", "冷蔵庫", "上|うえ", "下|した", "中|なか", "外|そと", "前|まえ", "後ろ", "隣", "ある", "いる#1577980"],
+    "placement": [
+      { "sentence": "部屋に猫が＿。", "french": "Il y a un chat dans la chambre.", "choices": ["います", "あります", "です"], "answer": "います" },
+      { "sentence": "机の上に本が＿。", "french": "Il y a un livre sur la table.", "choices": ["あります", "います", "です"], "answer": "あります" }
+    ],
+    "signature": [
+      [{ "form": "が", "pos": "助詞,格助詞" }, { "forms": ["ある", "いる"] }],
+      [{ "form": "が", "pos": "助詞,格助詞" }]
+    ]
+  },
+  {
+    "id": "time",
+    "level": 5,
+    "title": "Les nombres et l'heure : 〜じに",
+    "pattern": "〜じに〜ます",
+    "requires": ["masu", "ni-he"],
+    "explanation": [
+      "Les nombres se construisent comme en chinois : いち, に, さん, よん (ou し), ご, ろく, なな (ou しち), はち, きゅう, じゅう. Onze se dit じゅういち (dix-un), vingt にじゅう (deux-dix), vingt-trois にじゅうさん. Cent se dit ひゃく, mille せん.",
+      "L'heure se dit avec じ : いちじ (une heure), くじ (neuf heures). Quatre heures se dit よじ, sept heures しちじ, neuf heures くじ : ce sont des formes à retenir. La demie se dit はん : さんじはん, « trois heures et demie ».",
+      "Le moment où l'on fait quelque chose est marqué par に : しちじに おきます, « je me lève à sept heures ». C'est un autre emploi de に, à côté de celui de la destination.",
+      "Pour demander l'heure : いま なんじですか, « quelle heure est-il ? » ; pour demander quand : なんじに ねますか, « à quelle heure vous couchez-vous ? »."
+    ],
+    "examples": [
+      { "japanese": "毎朝七時に起きます。", "french": "Je me lève à sept heures tous les matins." },
+      { "japanese": "九時に学校へ行きます。", "french": "Je vais à l'école à neuf heures." },
+      { "japanese": "三時半に帰ります。", "french": "Je rentre à trois heures et demie." },
+      { "japanese": "何時に寝ますか。", "french": "À quelle heure vous couchez-vous ?" }
+    ],
+    "theme": "Les nombres et l'heure",
+    "words": ["一|いち", "二|に", "三|さん", "四|よん", "五|ご", "六|ろく", "七|なな", "八|はち", "九|きゅう", "十|じゅう", "百", "千", "時間", "半", "午前", "午後", "何時", "万|まん"],
+    "placement": [
+      { "sentence": "毎朝七時＿起きます。", "french": "Je me lève à sept heures tous les matins.", "choices": ["に", "を", "で"], "answer": "に" },
+      { "sentence": "九時＿学校へ行きます。", "french": "Je vais à l'école à neuf heures.", "choices": ["に", "の", "を"], "answer": "に" }
+    ],
+    "signature": [
+      [{ "pos": "名詞,数詞" }, { "forms": ["時", "時半", "分", "半"] }, { "form": "に", "pos": "助詞,格助詞" }],
+      [{ "form": "何時" }, { "form": "に", "pos": "助詞,格助詞" }]
+    ]
+  },
+  {
+    "id": "adjective-tenses",
+    "level": 5,
+    "title": "Les adjectifs au négatif et au passé",
+    "pattern": "〜くないです・〜かったです",
+    "requires": ["i-adjectives", "na-adjectives"],
+    "explanation": [
+      "Les adjectifs en い changent leur い final. Au négatif, い devient くない : さむい → さむくないです, « il ne fait pas froid ». Au passé, い devient かった : さむい → さむかったです, « il faisait froid ».",
+      "Le passé négatif combine les deux : さむくなかったです, « il ne faisait pas froid ». です reste à la fin, inchangé, pour la politesse.",
+      "いい (bon) est irrégulier : il se conjugue à partir de よい. よくないです, « ce n'est pas bien » ; よかったです, « c'était bien ».",
+      "Les adjectifs en な, eux, se conjuguent comme les noms : しずかでした (c'était calme), しずかではありません (ce n'est pas calme), しずかではありませんでした (ce n'était pas calme)."
+    ],
+    "examples": [
+      { "japanese": "今日は寒くないです。", "french": "Aujourd'hui, il ne fait pas froid." },
+      { "japanese": "昨日は暑かったです。", "french": "Hier, il faisait chaud." },
+      { "japanese": "テストは難しくなかったです。", "french": "Le contrôle n'était pas difficile." },
+      { "japanese": "その映画は面白かったですか。", "french": "Ce film était intéressant ?" }
+    ],
+    "theme": "Le temps qu'il fait et les saisons",
+    "words": ["天気", "雨", "雪", "風", "晴れ", "曇り", "春", "夏", "秋", "冬", "暑い", "寒い", "暖かい", "涼しい", "降る", "あまり", "でも", "良い|よい"],
+    "placement": [
+      { "sentence": "昨日は＿です。", "french": "Hier, il faisait chaud.", "choices": ["あつかった", "あつい", "あつくない"], "answer": "あつかった" },
+      { "sentence": "今日は＿です。", "french": "Aujourd'hui, il ne fait pas froid.", "choices": ["さむくない", "さむい", "さむかった"], "answer": "さむくない" }
+    ],
+    "signature": [
+      [{ "pos": "形容詞,一般", "conjugation": "連用形" }, { "form": "ない" }],
+      [{ "pos": "形容詞", "conjugation": "連用形-促音便" }, { "form": "た" }]
+    ]
+  },
+  {
+    "id": "kute",
+    "level": 5,
+    "title": "〜くて, 〜で : relier des adjectifs",
+    "pattern": "〜くて・〜で",
+    "requires": ["adjective-tenses"],
+    "explanation": [
+      "Pour enchaîner deux adjectifs, le premier prend une forme de liaison, comme un « et ». Pour les adjectifs en い, い devient くて : あかるい → あかるくて. この へやは あかるくて、ひろいです, « cette chambre est claire et grande ».",
+      "Les adjectifs en な, et les noms, prennent で : しずかで、きれいです, « c'est calme et joli ».",
+      "La forme de liaison ne dit ni le temps ni la politesse : c'est la fin de la phrase qui les porte. あかるくて、ひろかったです, « c'était clair et grand ».",
+      "いい devient よくて, comme pour ses autres formes."
+    ],
+    "examples": [
+      { "japanese": "この部屋は明るくて、広いです。", "french": "Cette chambre est claire et grande." },
+      { "japanese": "赤くて大きい車です。", "french": "C'est une grande voiture rouge." },
+      { "japanese": "ここは静かで、きれいです。", "french": "Ici, c'est calme et joli." },
+      { "japanese": "この鞄は安くて、軽いです。", "french": "Ce sac est bon marché et léger." }
+    ],
+    "theme": "Les couleurs et les formes",
+    "words": ["色", "赤い", "青い", "白い", "黒い", "黄色い", "茶色", "緑", "明るい", "暗い", "長い", "短い", "広い", "狭い", "軽い", "重い", "赤", "丸い"],
+    "placement": [
+      { "sentence": "この部屋は＿広いです。", "french": "Cette chambre est claire et grande.", "choices": ["あかるくて", "あかるい", "あかるいで"], "answer": "あかるくて" },
+      { "sentence": "ここは静か＿きれいです。", "french": "Ici, c'est calme et joli.", "choices": ["で", "と", "な"], "answer": "で" }
+    ],
+    "signature": [
+      [{ "pos": "形容詞", "conjugation": "連用形" }, { "form": "て", "pos": "助詞,接続助詞" }],
+      [{ "pos": "形状詞,一般" }, { "form": "だ", "conjugation": "連用形-一般", "notFollowedBy": [{ "form": "は", "pos": "助詞,係助詞" }] }]
+    ]
+  },
+  {
+    "id": "tai",
+    "level": 5,
+    "title": "〜たい : vouloir faire",
+    "pattern": "〜たいです",
+    "requires": ["masen-mashita", "adjective-tenses"],
+    "explanation": [
+      "Pour dire ce qu'on veut faire, on remplace ます par たい : みます → みたいです, « je veux voir » ; いきます → いきたいです, « je veux y aller ».",
+      "たい se conjugue comme un adjectif en い : みたくないです (je ne veux pas voir), みたかったです (je voulais voir).",
+      "Il dit l'envie de celui qui parle, ou la demande à celui qui écoute : なにを たべたいですか, « que voulez-vous manger ? ». Pour l'envie d'une autre personne, le japonais emploie d'autres tournures, plus loin.",
+      "Pour vouloir une chose (et non une action), on emploie ほしい : くるまが ほしいです, « je veux une voiture »."
+    ],
+    "examples": [
+      { "japanese": "映画を見たいです。", "french": "Je veux voir un film." },
+      { "japanese": "日本へ行きたいです。", "french": "Je veux aller au Japon." },
+      { "japanese": "何を食べたいですか。", "french": "Qu'est-ce que vous voulez manger ?" },
+      { "japanese": "今日は泳ぎたくないです。", "french": "Aujourd'hui, je n'ai pas envie de nager." }
+    ],
+    "theme": "Les loisirs",
+    "words": ["映画", "音楽", "歌", "旅行", "買い物", "スポーツ", "泳ぐ", "遊ぶ", "見る", "聞く", "撮る", "歌う", "休み", "趣味", "欲しい", "たくさん", "もっと", "番組"],
+    "placement": [
+      { "sentence": "映画を見＿です。", "french": "Je veux voir un film.", "choices": ["たい", "ます", "ました"], "answer": "たい" },
+      { "sentence": "日本へ行き＿です。", "french": "Je veux aller au Japon.", "choices": ["たい", "ましょう", "ます"], "answer": "たい" }
+    ],
+    "signature": [[{ "form": "たい", "pos": "助動詞" }]]
+  },
+  {
+    "id": "mashou",
+    "level": 5,
+    "title": "〜ましょう, 〜ませんか : proposer",
+    "pattern": "〜ましょう・〜ませんか",
+    "requires": ["masen-mashita", "ka"],
+    "explanation": [
+      "ましょう remplace ます pour proposer de faire quelque chose ensemble : いっしょに かえりましょう, « rentrons ensemble ».",
+      "ませんか, la négation suivie de か, invite poliment : コーヒーを のみませんか, « vous ne voulez pas boire un café ? ». C'est plus délicat que ましょう : on laisse à l'autre la liberté de refuser.",
+      "On répond souvent à ませんか par ええ、〜ましょう : ええ、のみましょう, « oui, buvons-en un ».",
+      "ましょうか propose son aide ou demande l'avis : まどを あけましょうか, « voulez-vous que j'ouvre la fenêtre ? »."
+    ],
+    "examples": [
+      { "japanese": "一緒に帰りましょう。", "french": "Rentrons ensemble." },
+      { "japanese": "コーヒーを飲みませんか。", "french": "Vous ne voulez pas boire un café ?" },
+      { "japanese": "週末、散歩しませんか。", "french": "Si on se promenait ce week-end ?" },
+      { "japanese": "三時に会いましょう。", "french": "Retrouvons-nous à trois heures." }
+    ],
+    "theme": "Les sorties",
+    "words": ["一緒", "会う", "待つ", "散歩", "今晩", "誕生日", "パーティー", "約束", "晩ご飯", "朝ご飯", "昼ご飯", "ええ", "ちょっと"],
+    "placement": [
+      { "sentence": "一緒に帰り＿。", "french": "Rentrons ensemble.", "choices": ["ましょう", "ません", "たいです"], "answer": "ましょう" },
+      { "sentence": "コーヒーを飲み＿。", "french": "Vous ne voulez pas boire un café ?", "choices": ["ませんか", "ます", "ました"], "answer": "ませんか" }
+    ],
+    "signature": [
+      [{ "form": "ます", "conjugation": "意志推量形" }],
+      [{ "form": "ます" }, { "form": "ぬ" }, { "form": "か", "pos": "助詞,終助詞" }]
+    ]
+  },
+  {
+    "id": "te-kudasai",
+    "level": 5,
+    "title": "La forme en て, 〜てください : demander",
+    "pattern": "〜てください",
+    "requires": ["masu", "wo"],
+    "explanation": [
+      "La forme en て est une forme du verbe qui sert à le relier à la suite : demander, enchaîner, dire ce qui est en cours. Elle se forme à partir de la forme en ます, selon le groupe du verbe.",
+      "Les verbes se partagent en groupes. Dans le premier, ます est simplement remplacé par て : たべます → たべて, みます → みて, おきます → おきて. La plupart des verbes dont la forme en ます finit par un son en « é » (たべます, ねます, あけます) en sont, mais pas tous : il faut le retenir avec le verbe. Deux verbes sont irréguliers : します → して, きます → きて.",
+      "Dans l'autre groupe, la fin change selon la dernière syllabe avant ます : き → いて (かきます → かいて), ぎ → いで (いそぎます → いそいで), ち, り, い → って (まちます → まって, かえります → かえって, かいます → かって), み, び, に → んで (のみます → のんで, よびます → よんで), し → して (はなします → はなして). Une exception : いきます → いって.",
+      "Suivie de ください, elle demande poliment : ここに なまえを かいてください, « écrivez votre nom ici, s'il vous plaît ». C'est l'« impératif » poli : le vrai impératif japonais est brusque, et rare."
+    ],
+    "examples": [
+      { "japanese": "ここに名前を書いてください。", "french": "Écrivez votre nom ici, s'il vous plaît." },
+      { "japanese": "ゆっくり話してください。", "french": "Parlez lentement, s'il vous plaît." },
+      { "japanese": "窓を開けてください。", "french": "Ouvrez la fenêtre, s'il vous plaît." },
+      { "japanese": "ちょっと待ってください。", "french": "Attendez un instant, s'il vous plaît." }
+    ],
+    "theme": "En classe",
+    "words": ["書く", "言う", "話す", "教える", "見せる", "座る", "立つ", "開ける", "閉める", "宿題", "教室", "練習", "質問", "ゆっくり", "もう一度", "紙", "漢字"],
+    "placement": [
+      { "sentence": "ここに名前を書いて＿。", "french": "Écrivez votre nom ici, s'il vous plaît.", "choices": ["ください", "です", "ました"], "answer": "ください" },
+      { "sentence": "ちょっと＿ください。", "french": "Attendez un instant, s'il vous plaît.", "choices": ["まって", "まち", "まつ"], "answer": "まって" }
+    ],
+    "signature": [[{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "くださる" }]]
+  },
+  {
+    "id": "te-iru",
+    "level": 5,
+    "title": "〜ています : en cours, ou un état",
+    "pattern": "〜ています",
+    "requires": ["te-kudasai"],
+    "explanation": [
+      "La forme en て suivie de います dit d'abord une action en cours : いま、あめが ふっています, « il pleut en ce moment » ; ほんを よんでいます, « je suis en train de lire ».",
+      "Elle dit aussi un état qui dure, résultat d'une action passée : けっこんしています, « je suis marié » ; とうきょうに すんでいます, « j'habite à Tokyo ».",
+      "Elle dit enfin une habitude, un métier : ぎんこうで はたらいています, « je travaille dans une banque ».",
+      "しる (connaître) s'emploie à cette forme : しっていますか, « vous connaissez ? ». La réponse négative, elle, est しりません."
+    ],
+    "examples": [
+      { "japanese": "田中さんは東京に住んでいます。", "french": "Monsieur Tanaka habite à Tokyo." },
+      { "japanese": "今、雨が降っています。", "french": "Il pleut en ce moment." },
+      { "japanese": "姉は銀行で働いています。", "french": "Ma grande sœur travaille dans une banque." },
+      { "japanese": "あの人を知っていますか。", "french": "Vous connaissez cette personne ?" }
+    ],
+    "theme": "La vie de tous les jours",
+    "words": ["住む", "知る", "結婚", "持つ", "着る", "使う", "作る", "売る", "住所", "東京", "社長", "生活", "服"],
+    "placement": [
+      { "sentence": "田中さんは東京に住んで＿。", "french": "Monsieur Tanaka habite à Tokyo.", "choices": ["います", "あります", "ください"], "answer": "います" },
+      { "sentence": "今、雨が降って＿。", "french": "Il pleut en ce moment.", "choices": ["います", "あります", "です"], "answer": "います" }
+    ],
+    "signature": [[{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "いる" }]]
+  },
+  {
+    "id": "dekiru",
+    "level": 5,
+    "title": "La forme du dictionnaire, 〜ことができます : savoir, pouvoir",
+    "pattern": "〜ことができます",
+    "requires": ["te-kudasai"],
+    "explanation": [
+      "Chaque verbe a une forme simple, celle qu'on trouve dans le dictionnaire : いく, たべる, みる, する, くる. C'est la forme en ます sans politesse, et elle sert à construire beaucoup de tournures.",
+      "Pour la retrouver depuis la forme en ます : dans le groupe de たべます, on remplace ます par る (たべる, みる, おきる) ; dans l'autre, la syllabe en « i » devient la syllabe en « ou » de la même ligne : かきます → かく, のみます → のむ, かえります → かえる, かいます → かう, まちます → まつ, はなします → はなす. します → する, きます → くる.",
+      "Suivie de ことが できます, elle dit ce qu'on sait ou peut faire : およぐことが できます, « je sais nager ». こと fait du verbe un nom : « la chose de nager est possible ».",
+      "Avec un nom, できます suffit : にほんごが できます, « je parle japonais » (le japonais m'est possible)."
+    ],
+    "examples": [
+      { "japanese": "私は泳ぐことができます。", "french": "Je sais nager." },
+      { "japanese": "田中さんはピアノを弾くことができます。", "french": "Monsieur Tanaka sait jouer du piano." },
+      { "japanese": "日本語を話すことができますか。", "french": "Savez-vous parler japonais ?" },
+      { "japanese": "車を運転することができません。", "french": "Je ne sais pas conduire." }
+    ],
+    "theme": "Ce qu'on sait faire",
+    "words": ["できる", "運転", "ピアノ", "ギター", "弾く", "走る", "スキー", "テニス", "サッカー", "自分", "一人", "外国語", "天才"],
+    "placement": [
+      { "sentence": "私は泳ぐ＿できます。", "french": "Je sais nager.", "choices": ["ことが", "のを", "が"], "answer": "ことが" },
+      { "sentence": "日本語を話す＿ができます。", "french": "Je sais parler japonais.", "choices": ["こと", "もの", "ところ"], "answer": "こと" }
+    ],
+    "signature": [[{ "pos": "動詞", "conjugation": "連体形" }, { "form": "こと" }, { "form": "が", "pos": "助詞,格助詞" }, { "form": "できる" }]]
+  },
+  {
+    "id": "nai",
+    "level": 5,
+    "title": "La forme en ない, 〜ないでください : ne pas",
+    "pattern": "〜ない・〜ないでください",
+    "requires": ["dekiru"],
+    "explanation": [
+      "La forme en ない est le négatif simple, sans politesse : いかない (je ne vais pas), たべない (je ne mange pas). Elle se forme sur la forme du dictionnaire.",
+      "Dans le groupe de たべる, on remplace る par ない : たべない, みない, おきない. Dans l'autre, la syllabe en « ou » devient la syllabe en « a » de la même ligne : かく → かかない, のむ → のまない, まつ → またない ; mais une fin en う devient わ : かう → かわない. する → しない, くる → こない, et ある → ない.",
+      "Suivie de でください, elle demande poliment de ne pas faire : ここで たばこを すわないでください, « ne fumez pas ici, s'il vous plaît ».",
+      "ない se conjugue comme un adjectif en い : いかなかった (je ne suis pas allé), en style simple."
+    ],
+    "examples": [
+      { "japanese": "ここで煙草を吸わないでください。", "french": "Ne fumez pas ici, s'il vous plaît." },
+      { "japanese": "心配しないでください。", "french": "Ne vous inquiétez pas." },
+      { "japanese": "薬を忘れないでください。", "french": "N'oubliez pas vos médicaments." },
+      { "japanese": "無理をしないでください。", "french": "N'en faites pas trop." }
+    ],
+    "theme": "La santé",
+    "words": ["病気", "薬", "風邪", "熱", "頭", "お腹", "痛い", "煙草", "吸う", "心配", "無理", "危ない", "忘れる", "気分"],
+    "placement": [
+      { "sentence": "ここで煙草を吸わ＿ください。", "french": "Ne fumez pas ici, s'il vous plaît.", "choices": ["ないで", "て", "なくて"], "answer": "ないで" },
+      { "sentence": "心配し＿ください。", "french": "Ne vous inquiétez pas.", "choices": ["ないで", "て", "ます"], "answer": "ないで" }
+    ],
+    "signature": [[{ "pos": "動詞", "conjugation": "未然形" }, { "form": "ない", "pos": "助動詞" }]]
+  },
+  {
+    "id": "ta",
+    "level": 5,
+    "title": "La forme en た, 〜たことがあります : avoir déjà fait",
+    "pattern": "〜たことがあります",
+    "requires": ["nai"],
+    "explanation": [
+      "La forme en た est le passé simple, sans politesse : いった (je suis allé), たべた (j'ai mangé). Elle se forme exactement comme la forme en て, avec た au lieu de て : たべて → たべた, かいて → かいた, のんで → のんだ, いって → いった.",
+      "Suivie de ことが あります, elle dit une expérience : ふじさんに のぼったことが あります, « je suis déjà monté sur le mont Fuji ». Au négatif : 〜たことが ありません, « je n'ai jamais… ».",
+      "Pour demander à quelqu'un s'il a déjà fait quelque chose : 〜たことが ありますか.",
+      "Elle sert aussi, seule, au style familier entre amis : きのう、えいがを みた, « hier, j'ai vu un film » (au lieu de みました)."
+    ],
+    "examples": [
+      { "japanese": "富士山に登ったことがあります。", "french": "Je suis déjà monté sur le mont Fuji." },
+      { "japanese": "京都へ行ったことがありますか。", "french": "Êtes-vous déjà allé à Kyoto ?" },
+      { "japanese": "すしを食べたことがありません。", "french": "Je n'ai jamais mangé de sushis." },
+      { "japanese": "日本の旅館に泊まったことがあります。", "french": "J'ai déjà dormi dans une auberge japonaise." }
+    ],
+    "theme": "Les voyages",
+    "words": ["海外", "島", "お寺", "神社", "登る", "初めて", "一度", "地図", "切符", "空港", "荷物", "泊まる", "寿司", "旅館", "一回", "門|もん"],
+    "placement": [
+      { "sentence": "富士山に登った＿があります。", "french": "Je suis déjà monté sur le mont Fuji.", "choices": ["こと", "もの", "の"], "answer": "こと" },
+      { "sentence": "すしを食べ＿ことがありません。", "french": "Je n'ai jamais mangé de sushis.", "choices": ["た", "て", "ます"], "answer": "た" }
+    ],
+    "signature": [[{ "pos": "動詞", "conjugation": "連用形" }, { "forms": ["た", "だ"], "pos": "助動詞" }]]
+  },
+  {
+    "id": "plain",
+    "level": 5,
+    "title": "Le style familier : だ, ね, よ",
+    "pattern": "〜だ・〜る・〜ね",
+    "requires": ["ta"],
+    "explanation": [
+      "Entre amis et en famille, on laisse de côté です et ます : les verbes prennent leur forme simple (いく, いかない, いった, いかなかった) et les adjectifs en い restent seuls (あつい, あつかった).",
+      "です devient だ après un nom ou un adjectif en な : がくせいだ, しずかだ. Dans une question, だ disparaît : がくせい？ Et après un adjectif en い, rien : あつい.",
+      "Deux petites particules de fin de phrase, très fréquentes : ね cherche l'accord (« n'est-ce pas ? », « hein ») ; よ apporte une information à l'autre (« tu sais », « je te dis »).",
+      "Le style familier est celui des amis, de la famille, des enfants. Avec un inconnu, un aîné ou au travail, on garde です et ます."
+    ],
+    "examples": [
+      { "japanese": "今日は暑いね。", "french": "Il fait chaud aujourd'hui, hein ?" },
+      { "japanese": "これは私の本だ。", "french": "C'est mon livre." },
+      { "japanese": "明日、学校に行く？", "french": "Tu vas à l'école demain ?" },
+      { "japanese": "この映画はおもしろいよ。", "french": "Il est bien, ce film, tu sais." }
+    ],
+    "theme": "Entre amis",
+    "words": ["僕", "君", "うん", "すごい", "じゃあ", "また", "皆", "話", "メール", "返事", "遅い", "早い"],
+    "placement": [
+      { "sentence": "今日は暑い＿。", "french": "Il fait chaud aujourd'hui, hein ? (entre amis)", "choices": ["ね", "を", "に"], "answer": "ね" },
+      { "sentence": "明日、学校に＿？", "french": "Tu vas à l'école demain ? (entre amis)", "choices": ["いく", "いった", "いって"], "answer": "いく" }
+    ],
+    "signature": [
+      [{ "form": "だ", "conjugation": "終止形" }],
+      [{ "pos": "動詞", "conjugation": "終止形" }, { "pos": "補助記号" }],
+      [{ "forms": ["ね", "よ"], "pos": "助詞,終助詞" }]
+    ]
+  },
+  {
+    "id": "kara-made",
+    "level": 5,
+    "title": "から, まで : depuis, jusqu'à",
+    "pattern": "〜から〜まで",
+    "requires": ["time"],
+    "explanation": [
+      "から marque le point de départ, dans le temps comme dans l'espace : くじから, « à partir de neuf heures » ; えきから, « depuis la gare ».",
+      "まで marque le point d'arrivée, la limite : ごじまで, « jusqu'à cinq heures » ; いえまで, « jusqu'à la maison ».",
+      "Les deux vont souvent ensemble : くじから ごじまで はたらきます, « je travaille de neuf heures à cinq heures ».",
+      "Ils peuvent finir la phrase avec です : じゅぎょうは なんじからですか, « le cours commence à quelle heure ? »."
+    ],
+    "examples": [
+      { "japanese": "九時から五時まで働きます。", "french": "Je travaille de neuf heures à cinq heures." },
+      { "japanese": "駅から家まで歩きます。", "french": "Je marche de la gare jusqu'à la maison." },
+      { "japanese": "授業は何時からですか。", "french": "À quelle heure commence le cours ?" },
+      { "japanese": "夏休みは八月までです。", "french": "Les vacances d'été durent jusqu'en août." }
+    ],
+    "theme": "Les horaires et les distances",
+    "words": ["始まる", "終わる", "授業", "会議", "夏休み", "遠い", "近い", "分|ふん", "時々", "閉まる", "開く|あく", "月|がつ"],
+    "placement": [
+      { "sentence": "九時＿五時まで働きます。", "french": "Je travaille de neuf heures à cinq heures.", "choices": ["から", "に", "で"], "answer": "から" },
+      { "sentence": "駅から家＿歩きます。", "french": "Je marche de la gare jusqu'à la maison.", "choices": ["まで", "の", "が"], "answer": "まで" }
+    ],
+    "signature": [
+      [{ "form": "から", "pos": "助詞,格助詞" }],
+      [{ "form": "まで", "pos": "助詞,副助詞" }]
+    ]
+  },
+  {
+    "id": "kara-because",
+    "level": 5,
+    "title": "〜から : parce que",
+    "pattern": "〜から、〜",
+    "requires": ["kara-made"],
+    "explanation": [
+      "Placé après une proposition entière, から donne la raison : つかれましたから、はやく ねます, « je suis fatigué, alors je me couche tôt ».",
+      "L'ordre est l'inverse du français : la raison d'abord, avec から, puis la conséquence.",
+      "On peut répondre à どうして (pourquoi) par une raison seule, terminée par から : どうして きませんでしたか。— あめでしたから, « parce qu'il pleuvait ».",
+      "Ce から-là suit un verbe ou un adjectif (ou です) ; celui de la leçon précédente suit un nom de lieu ou de moment."
+    ],
+    "examples": [
+      { "japanese": "疲れましたから、早く寝ます。", "french": "Je suis fatigué, alors je me couche tôt." },
+      { "japanese": "雨が降っていますから、出かけません。", "french": "Il pleut, alors je ne sors pas." },
+      { "japanese": "暇ですから、映画を見ます。", "french": "J'ai du temps, alors je regarde un film." },
+      { "japanese": "おいしいですから、たくさん食べました。", "french": "C'était bon, alors j'en ai mangé beaucoup." }
+    ],
+    "theme": "Les raisons et les sentiments",
+    "words": ["どうして", "疲れる", "眠い", "寂しい", "嬉しい", "悲しい", "困る", "怖い", "出かける", "早く"],
+    "placement": [
+      { "sentence": "疲れました＿、早く寝ます。", "french": "Je suis fatigué, alors je me couche tôt.", "choices": ["から", "まで", "と"], "answer": "から" },
+      { "sentence": "雨が降っています＿、出かけません。", "french": "Il pleut, alors je ne sors pas.", "choices": ["から", "まで", "は"], "answer": "から" }
+    ],
+    "signature": [[{ "form": "から", "pos": "助詞,接続助詞" }]]
+  },
+  {
+    "id": "to-ya",
+    "level": 5,
+    "title": "と, や : et, avec",
+    "pattern": "〜と〜・〜や〜",
+    "requires": ["wo"],
+    "explanation": [
+      "と relie des noms, comme « et », quand la liste est complète : パンと ぎゅうにゅう, « du pain et du lait » (rien d'autre).",
+      "や relie des noms quand la liste n'est qu'un exemple : りんごや みかん, « des pommes, des mandarines… ». On ajoute parfois など à la fin : « etc. ».",
+      "と dit aussi « avec quelqu'un » : ともだちと えいがを みました, « j'ai vu un film avec un ami ».",
+      "Ni と ni や ne relient des verbes ou des phrases : pour cela, on emploie la forme en て."
+    ],
+    "examples": [
+      { "japanese": "友達と映画を見ました。", "french": "J'ai vu un film avec un ami." },
+      { "japanese": "りんごやみかんを買いました。", "french": "J'ai acheté des pommes, des mandarines…" },
+      { "japanese": "パンと牛乳をください。", "french": "Du pain et du lait, s'il vous plaît." },
+      { "japanese": "母と買い物に行きます。", "french": "Je vais faire les courses avec ma mère." }
+    ],
+    "theme": "Les courses",
+    "words": ["スーパー", "円", "りんご", "蜜柑", "バナナ", "砂糖", "塩", "醤油", "箱", "全部", "一つ", "二つ", "三つ", "八百屋", "米|こめ", "玉ねぎ", "貝|かい"],
+    "placement": [
+      { "sentence": "友達＿映画を見ました。", "french": "J'ai vu un film avec un ami.", "choices": ["と", "を", "へ"], "answer": "と" },
+      { "sentence": "りんご＿みかんを買いました。", "french": "J'ai acheté des pommes, des mandarines, etc.", "choices": ["や", "を", "で"], "answer": "や" }
+    ],
+    "signature": [
+      [{ "form": "と", "pos": "助詞,格助詞" }],
+      [{ "form": "や", "pos": "助詞,副助詞" }]
+    ]
+  },
+  {
+    "id": "comparison",
+    "level": 5,
+    "title": "より, のほうが, いちばん : comparer",
+    "pattern": "〜より〜・〜のほうが〜",
+    "requires": ["to-ya", "aru-iru"],
+    "explanation": [
+      "より marque ce à quoi on compare : あには わたしより せが たかいです, « mon grand frère est plus grand que moi ». L'adjectif ne change pas : より suffit à dire « plus… que ».",
+      "Pour demander lequel de deux : Aと Bと、どちらが 〜ですか. On répond avec のほうが : ねこの ほうが すきです, « je préfère les chats ».",
+      "Pour le plus de tous : いちばん, « le plus », « en premier » : かぞくの なかで、ちちが いちばん せが たかいです.",
+      "Le domaine de la comparaison se marque par の なかで : « parmi… »."
+    ],
+    "examples": [
+      { "japanese": "兄は私より背が高いです。", "french": "Mon grand frère est plus grand que moi." },
+      { "japanese": "犬と猫と、どちらが好きですか。", "french": "Tu préfères les chiens ou les chats ?" },
+      { "japanese": "猫のほうが好きです。", "french": "Je préfère les chats." },
+      { "japanese": "家族の中で、父が一番背が高いです。", "french": "Dans ma famille, c'est mon père le plus grand." }
+    ],
+    "theme": "Le corps",
+    "words": ["背", "若い", "目", "耳", "口", "鼻", "足", "体", "顔", "髪", "どちら", "一番", "方|ほう", "首|くび", "毛|け"],
+    "placement": [
+      { "sentence": "兄は私＿背が高いです。", "french": "Mon grand frère est plus grand que moi.", "choices": ["より", "から", "まで"], "answer": "より" },
+      { "sentence": "猫の＿が好きです。", "french": "Je préfère les chats.", "choices": ["ほう", "もの", "こと"], "answer": "ほう" }
+    ],
+    "signature": [
+      [{ "form": "より", "pos": "助詞,格助詞" }],
+      [{ "forms": ["方", "ほう"] }, { "form": "が", "pos": "助詞,格助詞" }],
+      [{ "form": "一番" }],
+      [{ "form": "どちら", "pos": "代名詞" }]
+    ]
+  },
+  {
+    "id": "toki",
+    "level": 5,
+    "title": "〜とき : quand",
+    "pattern": "〜とき、〜",
+    "requires": ["plain", "na-adjectives"],
+    "explanation": [
+      "とき (le moment) relie une circonstance à la suite : こどもの とき, « quand j'étais enfant » ; ひまな とき, « quand j'ai du temps ».",
+      "Devant とき, on met ce qui se met devant un nom : un nom avec の (こどもの とき), un adjectif en な avec な (ひまな とき), un adjectif en い tel quel (さむい とき), un verbe à la forme simple (いく とき, いった とき).",
+      "Le temps se dit à la fin de la phrase : こどもの とき、よく およぎました.",
+      "とき s'écrit souvent en kana : on le reconnaît mieux ainsi."
+    ],
+    "examples": [
+      { "japanese": "子供のとき、よく川で泳ぎました。", "french": "Quand j'étais enfant, je nageais souvent dans la rivière." },
+      { "japanese": "暇なとき、本を読みます。", "french": "Quand j'ai du temps, je lis." },
+      { "japanese": "寒いとき、お茶を飲みます。", "french": "Quand il fait froid, je bois du thé." },
+      { "japanese": "日本へ行くとき、カメラを買いました。", "french": "Quand je suis parti au Japon, j'ai acheté un appareil photo." }
+    ],
+    "theme": "L'enfance et les souvenirs",
+    "words": ["小学校", "中学校", "高校", "昔", "思い出す", "覚える", "生まれる", "頃", "カメラ", "王様", "絵|え", "日記", "弓|ゆみ", "矢|や", "刀|かたな"],
+    "placement": [
+      { "sentence": "子供の＿、よく川で泳ぎました。", "french": "Quand j'étais enfant, je nageais souvent dans la rivière.", "choices": ["とき", "ほう", "こと"], "answer": "とき" },
+      { "sentence": "暇な＿、本を読みます。", "french": "Quand j'ai du temps, je lis.", "choices": ["とき", "こと", "ほう"], "answer": "とき" }
+    ],
+    "signature": [[{ "form": "とき", "pos": "名詞" }]]
+  },
+  {
+    "id": "mae-ato",
+    "level": 5,
+    "title": "〜まえに, 〜たあとで : avant, après",
+    "pattern": "〜まえに・〜たあとで",
+    "requires": ["toki"],
+    "explanation": [
+      "まえに dit « avant » : après un verbe à la forme du dictionnaire, ねる まえに, « avant de me coucher » ; après un nom avec の, しょくじの まえに, « avant le repas ».",
+      "あとで dit « après » : après un verbe à la forme en た, たべた あとで, « après avoir mangé » ; après un nom avec の, じゅぎょうの あとで.",
+      "Attention au temps : avant まえ, le verbe est toujours au présent, même dans un récit passé ; avant あと, toujours au passé.",
+      "Comme pour とき, ce qui se passe d'abord est dit en premier."
+    ],
+    "examples": [
+      { "japanese": "寝る前に、歯を磨きます。", "french": "Avant de me coucher, je me brosse les dents." },
+      { "japanese": "ご飯を食べた後で、散歩します。", "french": "Après avoir mangé, je me promène." },
+      { "japanese": "出かける前に、シャワーを浴びます。", "french": "Avant de sortir, je prends une douche." },
+      { "japanese": "授業の後で、図書館へ行きました。", "french": "Après le cours, je suis allé à la bibliothèque." }
+    ],
+    "theme": "La routine",
+    "words": ["歯", "磨く", "洗う", "シャワー", "浴びる", "風呂", "入る|はいる", "着替える", "準備", "掃除", "洗濯", "後|あと"],
+    "placement": [
+      { "sentence": "寝る＿に、歯を磨きます。", "french": "Avant de me coucher, je me brosse les dents.", "choices": ["まえ", "あと", "なか"], "answer": "まえ" },
+      { "sentence": "ご飯を食べた＿で、散歩します。", "french": "Après avoir mangé, je me promène.", "choices": ["あと", "まえ", "なか"], "answer": "あと" }
+    ],
+    "signature": [
+      [{ "pos": "動詞", "conjugation": "連体形" }, { "forms": ["前", "まえ"] }, { "form": "に", "pos": "助詞,格助詞" }],
+      [{ "forms": ["た", "だ"], "pos": "助動詞" }, { "forms": ["後", "あと"] }, { "form": "で", "pos": "助詞,格助詞" }],
+      [{ "form": "の", "pos": "助詞,格助詞" }, { "forms": ["後", "あと"] }, { "form": "で", "pos": "助詞,格助詞" }]
+    ]
+  },
+  {
+    "id": "temo-ii",
+    "level": 4,
+    "title": "〜てもいい, 〜てはいけません : permis, interdit",
+    "pattern": "〜てもいいです・〜てはいけません",
+    "requires": ["te-iru"],
+    "explanation": [
+      "La forme en て suivie de もいいです demande ou donne une permission : しゃしんを とっても いいですか, « puis-je prendre une photo ? » ; ええ、とっても いいですよ, « oui, vous pouvez ».",
+      "La forme en て suivie de は いけません interdit : ここで たばこを すっては いけません, « il est interdit de fumer ici ». C'est ferme : on l'entend dans les règlements.",
+      "Pour refuser une permission avec douceur, on dit plutôt すみません、ちょっと… : « désolé, c'est que… ».",
+      "Le は de ては se lit « wa »."
+    ],
+    "examples": [
+      { "japanese": "ここで写真を撮ってもいいですか。", "french": "Puis-je prendre une photo ici ?" },
+      { "japanese": "ここで煙草を吸ってはいけません。", "french": "Il est interdit de fumer ici." },
+      { "japanese": "窓を開けてもいいですか。", "french": "Puis-je ouvrir la fenêtre ?" },
+      { "japanese": "この部屋に入ってはいけません。", "french": "Il est interdit d'entrer dans cette pièce." }
+    ],
+    "theme": "Les règles",
+    "words": ["駐車場", "規則", "入口", "出口", "止める", "置く", "触る", "駄目", "すみません", "危険"],
+    "placement": [
+      { "sentence": "ここで写真を撮って＿いいですか。", "french": "Puis-je prendre une photo ici ?", "choices": ["も", "は", "を"], "answer": "も" },
+      { "sentence": "ここで煙草を吸って＿いけません。", "french": "Il est interdit de fumer ici.", "choices": ["は", "を", "が"], "answer": "は" }
+    ],
+    "signature": [
+      [{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "も", "pos": "助詞,係助詞" }, { "form": "いい" }],
+      [{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "は", "pos": "助詞,係助詞" }, { "form": "いける" }]
+    ]
+  },
+  {
+    "id": "give-receive",
+    "level": 4,
+    "title": "あげる, もらう, くれる : donner, recevoir",
+    "pattern": "〜にあげます・〜にもらいます・〜がくれます",
+    "requires": ["masen-mashita", "aru-iru"],
+    "explanation": [
+      "Le japonais a trois verbes pour donner et recevoir, selon qui donne à qui. あげる : je donne (ou quelqu'un donne) à un autre : ともだちに はなを あげました, « j'ai offert des fleurs à un ami ».",
+      "もらう : je reçois. Celui qui donne est marqué par に : ははに とけいを もらいました, « j'ai reçu une montre de ma mère ».",
+      "くれる : quelqu'un me donne, à moi ou à quelqu'un de mon côté (ma famille). Celui qui donne est le sujet, avec が : あねが わたしに ほんを くれました, « ma grande sœur m'a donné un livre ».",
+      "On ne dit jamais あげる pour un don qu'on reçoit soi-même : c'est くれる."
+    ],
+    "examples": [
+      { "japanese": "友達に花をあげました。", "french": "J'ai offert des fleurs à un ami." },
+      { "japanese": "母に時計をもらいました。", "french": "J'ai reçu une montre de ma mère." },
+      { "japanese": "姉が私に本をくれました。", "french": "Ma grande sœur m'a donné un livre." },
+      { "japanese": "誕生日にプレゼントをもらいました。", "french": "J'ai reçu un cadeau pour mon anniversaire." }
+    ],
+    "theme": "Les cadeaux et les fêtes",
+    "words": ["プレゼント", "お祝い", "送る", "あげる", "もらう", "くれる", "クリスマス", "正月", "カード", "お土産", "人形", "ネクタイ"],
+    "placement": [
+      { "sentence": "友達に花を＿ました。", "french": "J'ai offert des fleurs à un ami.", "choices": ["あげ", "もらい", "くれ"], "answer": "あげ" },
+      { "sentence": "母に時計を＿ました。", "french": "J'ai reçu une montre de ma mère.", "choices": ["もらい", "あげ", "くれ"], "answer": "もらい" }
+    ],
+    "signature": [[{ "forms": ["あげる", "もらう", "くれる"] }]]
+  },
+  {
+    "id": "tsumori",
+    "level": 4,
+    "title": "〜つもりです : avoir l'intention",
+    "pattern": "〜つもりです",
+    "requires": ["nai"],
+    "explanation": [
+      "つもり dit une intention décidée : après un verbe à la forme du dictionnaire, にほんへ りゅうがくする つもりです, « j'ai l'intention d'aller étudier au Japon ».",
+      "Après la forme en ない, une intention de ne pas faire : なにも たべない つもりです, « je compte ne rien manger ».",
+      "つもり est plus ferme que l'envie de たい : c'est un projet, pas un souhait.",
+      "Pour demander ses projets à quelqu'un : なにを する つもりですか, « qu'est-ce que vous comptez faire ? »."
+    ],
+    "examples": [
+      { "japanese": "来年、日本へ留学するつもりです。", "french": "J'ai l'intention d'aller étudier au Japon l'an prochain." },
+      { "japanese": "今日は何も食べないつもりです。", "french": "Aujourd'hui, je compte ne rien manger." },
+      { "japanese": "夏休みに何をするつもりですか。", "french": "Que comptez-vous faire pendant les vacances d'été ?" },
+      { "japanese": "来月、引っ越すつもりです。", "french": "Je compte déménager le mois prochain." }
+    ],
+    "theme": "Les projets",
+    "words": ["将来", "夢", "予定", "計画", "卒業", "就職", "留学", "引っ越す", "試験", "来月"],
+    "placement": [
+      { "sentence": "来年、日本へ留学する＿です。", "french": "J'ai l'intention d'aller étudier au Japon l'an prochain.", "choices": ["つもり", "こと", "とき"], "answer": "つもり" },
+      { "sentence": "今日は何も食べない＿です。", "french": "Aujourd'hui, je compte ne rien manger.", "choices": ["つもり", "とき", "ほう"], "answer": "つもり" }
+    ],
+    "signature": [[{ "form": "つもり" }]]
+  },
+  {
+    "id": "naru",
+    "level": 4,
+    "title": "〜になる, 〜くなる : devenir",
+    "pattern": "〜になります・〜くなります",
+    "requires": ["adjective-tenses"],
+    "explanation": [
+      "なる veut dire « devenir ». Après un nom ou un adjectif en な, on met に : はるに なりました, « le printemps est arrivé » ; じょうずに なりました, « je suis devenu bon ».",
+      "Après un adjectif en い, le い devient く : あたたかく なりました, « il fait plus doux ».",
+      "Au passé, なりました dit souvent un changement constaté maintenant : « c'est devenu… », « voilà que… ».",
+      "Avec たい : いしゃに なりたいです, « je veux devenir médecin »."
+    ],
+    "examples": [
+      { "japanese": "春になりました。", "french": "Le printemps est arrivé." },
+      { "japanese": "暖かくなりましたね。", "french": "Il fait plus doux, hein ?" },
+      { "japanese": "妹は医者になりたいです。", "french": "Ma petite sœur veut devenir médecin." },
+      { "japanese": "日本語が上手になりました。", "french": "Je suis devenu bon en japonais." }
+    ],
+    "theme": "Changer, grandir",
+    "words": ["なる", "変わる", "増える", "減る", "太る", "痩せる", "季節", "急に", "だんだん#1597350", "もう", "まだ"],
+    "placement": [
+      { "sentence": "春＿なりました。", "french": "Le printemps est arrivé.", "choices": ["に", "を", "が"], "answer": "に" },
+      { "sentence": "＿なりましたね。", "french": "Il fait plus doux, hein ?", "choices": ["あたたかく", "あたたかい", "あたたかに"], "answer": "あたたかく" }
+    ],
+    "signature": [
+      [{ "form": "に", "pos": "助詞,格助詞" }, { "form": "なる" }],
+      [{ "form": "だ", "conjugation": "連用形-ニ" }, { "form": "なる" }],
+      [{ "pos": "形容詞", "conjugation": "連用形" }, { "form": "なる" }]
+    ]
+  },
+  {
+    "id": "to-omou",
+    "level": 4,
+    "title": "〜と思います : je pense que",
+    "pattern": "〜と思います",
+    "requires": ["plain"],
+    "explanation": [
+      "Pour dire son avis, on met la pensée à la forme simple, puis と おもいます : あしたは あめが ふると おもいます, « je pense qu'il pleuvra demain ».",
+      "と marque ce qui est pensé, comme des guillemets. Devant, tout est à la forme simple : ふる, ふらない, ふった ; おもしろい ; しずかだ, がくせいだ (avec だ pour les noms et les adjectifs en な).",
+      "Pour un avis négatif, le japonais met la négation dans la pensée, pas dans おもう : こないと おもいます, « je pense qu'il ne viendra pas ».",
+      "Pour demander l'avis de quelqu'un : どう おもいますか, « qu'en pensez-vous ? »."
+    ],
+    "examples": [
+      { "japanese": "明日は雨が降ると思います。", "french": "Je pense qu'il pleuvra demain." },
+      { "japanese": "この本はおもしろいと思います。", "french": "Je trouve ce livre intéressant." },
+      { "japanese": "田中さんは来ないと思います。", "french": "Je pense que monsieur Tanaka ne viendra pas." },
+      { "japanese": "日本語は簡単ではないと思います。", "french": "Je ne pense pas que le japonais soit facile." }
+    ],
+    "theme": "Les opinions",
+    "words": ["思う", "考える", "意見", "多分", "きっと", "正しい", "違う", "同じ", "簡単", "大変"],
+    "placement": [
+      { "sentence": "明日は雨が降る＿思います。", "french": "Je pense qu'il pleuvra demain.", "choices": ["と", "を", "に"], "answer": "と" },
+      { "sentence": "田中さんは来ない＿思います。", "french": "Je pense que monsieur Tanaka ne viendra pas.", "choices": ["と", "が", "で"], "answer": "と" }
+    ],
+    "signature": [[{ "form": "と", "pos": "助詞,格助詞" }, { "form": "思う" }]]
+  },
+  {
+    "id": "to-iu",
+    "level": 4,
+    "title": "〜と言いました : rapporter des paroles",
+    "pattern": "〜と言いました",
+    "requires": ["to-omou"],
+    "explanation": [
+      "Pour rapporter ce que quelqu'un a dit, on met ses paroles devant と いいました. Au discours indirect, à la forme simple : せんせいは あした やすむと いいました, « le professeur a dit qu'il serait absent demain ».",
+      "Au discours direct, entre guillemets japonais 「」, les paroles restent telles qu'elles ont été dites : ははは「はやく かえって」と いいました.",
+      "Pour demander ce qui a été dit : なんと いいましたか, « qu'a-t-il dit ? ».",
+      "〜と いっていました (forme en ている) rapporte une parole entendue plus tôt, qu'on transmet : « il disait que… »."
+    ],
+    "examples": [
+      { "japanese": "先生は明日休むと言いました。", "french": "Le professeur a dit qu'il serait absent demain." },
+      { "japanese": "母は「早く帰って」と言いました。", "french": "Ma mère a dit : « Rentre vite. »" },
+      { "japanese": "田中さんは何と言いましたか。", "french": "Qu'a dit monsieur Tanaka ?" },
+      { "japanese": "友達は来週日本へ行くと言っていました。", "french": "Mon ami disait qu'il partait au Japon la semaine prochaine." }
+    ],
+    "theme": "Rapporter des paroles",
+    "words": ["伝える", "説明", "意味", "嘘", "ニュース", "聞こえる", "呼ぶ", "答える", "頼む"],
+    "placement": [
+      { "sentence": "先生は明日休む＿言いました。", "french": "Le professeur a dit qu'il serait absent demain.", "choices": ["と", "を", "が"], "answer": "と" },
+      { "sentence": "田中さんは何＿言いましたか。", "french": "Qu'a dit monsieur Tanaka ?", "choices": ["と", "に", "で"], "answer": "と" }
+    ],
+    "signature": [[{ "form": "と", "pos": "助詞,格助詞" }, { "form": "言う" }]]
+  },
+  {
+    "id": "deshou",
+    "level": 4,
+    "title": "でしょう, かもしれません : probablement, peut-être",
+    "pattern": "〜でしょう・〜かもしれません",
+    "requires": ["to-omou"],
+    "explanation": [
+      "でしょう dit une supposition assez sûre : あしたは はれるでしょう, « demain, il fera sans doute beau ». C'est le ton des bulletins météo.",
+      "かもしれません dit une possibilité : たなかさんは もう かえったかもしれません, « monsieur Tanaka est peut-être déjà rentré ».",
+      "Devant, la forme simple, comme pour と おもいます ; mais sans だ après un nom ou un adjectif en な : あめでしょう, ひまかもしれません.",
+      "Avec une intonation montante, でしょう demande une confirmation : いいでしょう？, « c'est bien, non ? »."
+    ],
+    "examples": [
+      { "japanese": "明日は晴れるでしょう。", "french": "Demain, il fera sans doute beau." },
+      { "japanese": "田中さんはもう帰ったかもしれません。", "french": "Monsieur Tanaka est peut-être déjà rentré." },
+      { "japanese": "この店は高いかもしれません。", "french": "Ce magasin est peut-être cher." },
+      { "japanese": "午後は雨が降るでしょう。", "french": "Il pleuvra sans doute cet après-midi." }
+    ],
+    "theme": "Prévoir le temps",
+    "words": ["天気予報", "晴れる", "曇る", "台風", "気温", "明後日", "星", "月|つき", "太陽", "雲|くも"],
+    "placement": [
+      { "sentence": "明日は晴れる＿。", "french": "Demain, il fera sans doute beau.", "choices": ["でしょう", "ます", "ましょう"], "answer": "でしょう" },
+      { "sentence": "田中さんはもう帰った＿しれません。", "french": "Monsieur Tanaka est peut-être déjà rentré.", "choices": ["かも", "でも", "から"], "answer": "かも" }
+    ],
+    "signature": [
+      [{ "form": "です", "conjugation": "意志推量形" }],
+      [{ "form": "か", "pos": "助詞,副助詞" }, { "form": "も" }, { "form": "しれる" }]
+    ]
+  },
+  {
+    "id": "potential",
+    "level": 4,
+    "title": "La forme potentielle : pouvoir faire",
+    "pattern": "〜える・〜られる",
+    "requires": ["dekiru"],
+    "explanation": [
+      "La forme potentielle dit en un mot ce que dit ことが できます : よめます, « je sais lire » ; およげません, « je ne sais pas nager ».",
+      "Dans le groupe de たべる, る devient られる : たべられる, みられる, おきられる. Dans l'autre, la syllabe en « ou » devient la syllabe en « é » de la même ligne, plus る : よむ → よめる, はなす → はなせる, およぐ → およげる, かう → かえる.",
+      "くる devient こられる, et する devient できる.",
+      "La forme potentielle est elle-même un verbe du groupe de たべる : よめます, よめない, よめた. Ce qu'on peut faire prend souvent が plutôt que を : かんじが よめます."
+    ],
+    "examples": [
+      { "japanese": "私は漢字が読めます。", "french": "Je sais lire les kanji." },
+      { "japanese": "日本語が少し話せます。", "french": "Je parle un peu japonais." },
+      { "japanese": "明日は来られますか。", "french": "Pourrez-vous venir demain ?" },
+      { "japanese": "私は泳げません。", "french": "Je ne sais pas nager." }
+    ],
+    "theme": "Les langues",
+    "words": ["平仮名", "片仮名", "発音", "文法", "単語", "文", "作文", "会話", "翻訳"],
+    "placement": [
+      { "sentence": "私は漢字が＿ます。", "french": "Je sais lire les kanji.", "choices": ["よめ", "よみ", "よま"], "answer": "よめ", "written": "読め" },
+      { "sentence": "明日は来＿ますか。", "french": "Pourrez-vous venir demain ?", "choices": ["られ", "たい", "て"], "answer": "られ" }
+    ],
+    "signature": [
+      [{ "form": "られる", "pos": "助動詞" }],
+      [{ "forms": ["読める", "話せる", "泳げる", "書ける", "行ける", "飲める", "歩ける", "帰れる", "待てる", "使える", "会える", "歌える", "弾ける", "乗れる", "眠れる", "買える", "作れる", "撮れる", "走れる", "聞ける", "休める", "働ける", "住める", "出せる", "取れる", "見せられる"] }]
+    ]
+  },
+  {
+    "id": "volitional",
+    "level": 4,
+    "title": "〜ようと思います : je pense faire",
+    "pattern": "〜（よ）うと思います",
+    "requires": ["to-omou", "mashou"],
+    "explanation": [
+      "La forme volitive est la forme simple de ましょう : いこう (allons-y), たべよう (mangeons). Entre amis, elle propose : いっしょに いこう.",
+      "Dans le groupe de たべる, る devient よう : たべよう, ねよう. Dans l'autre, la syllabe en « ou » devient la syllabe en « o » allongée : いく → いこう, のむ → のもう, かえる → かえろう. する → しよう, くる → こよう.",
+      "Suivie de と おもいます, elle dit une intention qu'on a en tête : らいねん、にほんへ いこうと おもいます, « je pense aller au Japon l'an prochain ».",
+      "〜ようと おもっています dit une intention qui dure depuis un moment, plus mûrie."
+    ],
+    "examples": [
+      { "japanese": "来年、日本へ行こうと思います。", "french": "Je pense aller au Japon l'an prochain." },
+      { "japanese": "今晩、早く寝ようと思います。", "french": "Ce soir, je pense me coucher tôt." },
+      { "japanese": "もっと勉強しようと思っています。", "french": "J'ai l'intention de travailler davantage." },
+      { "japanese": "毎日運動しようと思います。", "french": "Je pense faire du sport tous les jours." }
+    ],
+    "theme": "Les bonnes résolutions",
+    "words": ["決める", "始める", "止める|やめる", "続ける", "頑張る", "運動", "ダイエット", "習う", "貯金"],
+    "placement": [
+      { "sentence": "来年、日本へ＿と思います。", "french": "Je pense aller au Japon l'an prochain.", "choices": ["いこう", "いきます", "いきましょう"], "answer": "いこう", "written": "行こう" },
+      { "sentence": "今晩、早く＿と思います。", "french": "Ce soir, je pense me coucher tôt.", "choices": ["ねよう", "ねます", "ねましょう"], "answer": "ねよう", "written": "寝よう" }
+    ],
+    "signature": [[{ "pos": "動詞", "conjugation": "意志推量形" }, { "form": "と", "pos": "助詞,格助詞" }, { "form": "思う" }]]
+  },
+  {
+    "id": "tara",
+    "level": 4,
+    "title": "〜たら : si, quand",
+    "pattern": "〜たら、〜",
+    "requires": ["ta"],
+    "explanation": [
+      "La forme en た suivie de ら pose une condition : あめが ふったら、でかけません, « s'il pleut, je ne sors pas ».",
+      "Elle dit aussi « une fois que », pour ce qui arrivera sûrement : えきに ついたら、でんわしてください, « quand vous serez à la gare, appelez-moi ».",
+      "Elle se forme sur toutes les formes en た : いったら, たべたら, やすかったら (adjectifs en い), ひまだったら et あめだったら (noms et adjectifs en な).",
+      "La suite peut être une demande, une envie, une proposition : c'est la condition la plus souple du japonais."
+    ],
+    "examples": [
+      { "japanese": "雨が降ったら、出かけません。", "french": "S'il pleut, je ne sors pas." },
+      { "japanese": "日本へ行ったら、富士山に登りたいです。", "french": "Si je vais au Japon, je veux monter sur le mont Fuji." },
+      { "japanese": "安かったら、買います。", "french": "Si c'est bon marché, je l'achète." },
+      { "japanese": "駅に着いたら、電話してください。", "french": "Quand vous serez à la gare, appelez-moi." }
+    ],
+    "theme": "Les imprévus",
+    "words": ["遅れる", "間に合う", "無くす", "探す", "見つける", "連絡", "急ぐ", "迷う", "着く", "もし#1012500"],
+    "placement": [
+      { "sentence": "雨が降っ＿、出かけません。", "french": "S'il pleut, je ne sors pas.", "choices": ["たら", "たり", "ない"], "answer": "たら" },
+      { "sentence": "安かっ＿、買います。", "french": "Si c'est bon marché, je l'achète.", "choices": ["たら", "て", "ない"], "answer": "たら" }
+    ],
+    "signature": [[{ "forms": ["た", "だ"], "pos": "助動詞", "conjugation": "仮定形" }]]
+  },
+  {
+    "id": "nakereba",
+    "level": 4,
+    "title": "〜なければなりません : devoir",
+    "pattern": "〜なければなりません",
+    "requires": ["nai", "naru"],
+    "explanation": [
+      "Pour dire une obligation, on part de la forme en ない : ない devient なければ (« si on ne… pas »), suivi de なりません (« ça ne va pas ») : しゅくだいを ださなければ なりません, « je dois rendre mes devoirs ».",
+      "C'est long, mais régulier : いかなければ, たべなければ, しなければ, こなければ.",
+      "À l'oral, on entend souvent la contraction なきゃ : いかなきゃ, « faut que j'y aille ».",
+      "Pour dire qu'on n'est pas obligé : 〜なくても いいです, « ce n'est pas la peine de… » (plus loin)."
+    ],
+    "examples": [
+      { "japanese": "宿題を出さなければなりません。", "french": "Je dois rendre mes devoirs." },
+      { "japanese": "明日は早く起きなければなりません。", "french": "Demain, je dois me lever tôt." },
+      { "japanese": "お金を払わなければなりませんか。", "french": "Faut-il payer ?" },
+      { "japanese": "本を返さなければなりません。", "french": "Je dois rendre le livre." }
+    ],
+    "theme": "Les obligations",
+    "words": ["出す", "払う", "返す", "守る", "レポート", "締め切り", "書類", "必要", "お金"],
+    "placement": [
+      { "sentence": "宿題を出さ＿なりません。", "french": "Je dois rendre mes devoirs.", "choices": ["なければ", "なくて", "ないで"], "answer": "なければ" },
+      { "sentence": "明日は早く起き＿。", "french": "Demain, je dois me lever tôt.", "choices": ["なければなりません", "ましょう", "たいです"], "answer": "なければなりません" }
+    ],
+    "signature": [[{ "form": "ない", "conjugation": "仮定形" }, { "form": "ば" }, { "form": "なる" }]]
+  },
+  {
+    "id": "hou-ga-ii",
+    "level": 4,
+    "title": "〜たほうがいい : il vaut mieux",
+    "pattern": "〜たほうがいいです",
+    "requires": ["ta", "comparison"],
+    "explanation": [
+      "Pour conseiller, on met le verbe à la forme en た, puis ほうが いいです : くすりを のんだ ほうが いいです, « vous devriez prendre un médicament ».",
+      "La forme en た ne dit pas ici le passé : c'est une tournure figée. Mot à mot : « le côté où l'on a pris le médicament est le bon ».",
+      "Pour conseiller de ne pas faire, on emploie la forme en ない (sans た) : むりを しない ほうが いいです, « vous feriez mieux de ne pas forcer ».",
+      "Le conseil est assez direct : on l'adoucit souvent par よ ou par と おもいます."
+    ],
+    "examples": [
+      { "japanese": "薬を飲んだほうがいいです。", "french": "Vous devriez prendre un médicament." },
+      { "japanese": "早く寝たほうがいいですよ。", "french": "Tu ferais mieux de te coucher tôt." },
+      { "japanese": "歯医者に行ったほうがいいですよ。", "french": "Vous devriez aller chez le dentiste." },
+      { "japanese": "少し休んだほうがいいです。", "french": "Vous devriez vous reposer un peu." }
+    ],
+    "theme": "Les conseils",
+    "words": ["健康", "注意", "歯医者", "休憩", "寝坊", "薬局", "相談", "具合"],
+    "placement": [
+      { "sentence": "薬を飲んだ＿がいいです。", "french": "Vous devriez prendre un médicament.", "choices": ["ほう", "こと", "もの"], "answer": "ほう" },
+      { "sentence": "早く寝た＿いいですよ。", "french": "Tu ferais mieux de te coucher tôt.", "choices": ["ほうが", "ことが", "ものが"], "answer": "ほうが" }
+    ],
+    "signature": [[{ "forms": ["た", "だ"], "pos": "助動詞" }, { "forms": ["ほう", "方"] }, { "form": "が", "pos": "助詞,格助詞" }, { "form": "いい" }]]
+  },
+  {
+    "id": "te-shimau",
+    "level": 4,
+    "title": "〜てしまいました : c'est fait (hélas)",
+    "pattern": "〜てしまいました",
+    "requires": ["te-iru"],
+    "explanation": [
+      "La forme en て suivie de しまう dit qu'une action est faite jusqu'au bout, et souvent qu'on le regrette : さいふを おとしてしまいました, « j'ai perdu mon portefeuille (zut) ».",
+      "Avec une action voulue, elle dit qu'on l'a terminée entièrement : しゅくだいを やってしまいました, « j'ai fini mes devoirs, c'est fait ».",
+      "À l'oral, 〜てしまう se contracte en 〜ちゃう, et 〜でしまう en 〜じゃう : わすれちゃった, « j'ai oublié ».",
+      "Le ton dépend du contexte : un objet perdu, c'est un regret ; un travail fini, un soulagement."
+    ],
+    "examples": [
+      { "japanese": "財布を落としてしまいました。", "french": "J'ai perdu mon portefeuille." },
+      { "japanese": "宿題を忘れてしまいました。", "french": "J'ai oublié mes devoirs." },
+      { "japanese": "コップを割ってしまいました。", "french": "J'ai cassé un verre." },
+      { "japanese": "電車に遅れてしまいました。", "french": "J'ai raté le train." }
+    ],
+    "theme": "Les petits accidents",
+    "words": ["落とす", "壊す", "壊れる", "間違える", "割る", "汚す", "遅刻", "転ぶ", "怪我", "コップ#1050390", "直す"],
+    "placement": [
+      { "sentence": "財布を落として＿ました。", "french": "J'ai perdu mon portefeuille.", "choices": ["しまい", "おき", "み"], "answer": "しまい" },
+      { "sentence": "宿題を忘れて＿ました。", "french": "J'ai oublié mes devoirs.", "choices": ["しまい", "み", "あげ"], "answer": "しまい" }
+    ],
+    "signature": [[{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "しまう" }]]
+  },
+  {
+    "id": "te-miru",
+    "level": 4,
+    "title": "〜てみます : essayer",
+    "pattern": "〜てみます",
+    "requires": ["te-iru"],
+    "explanation": [
+      "La forme en て suivie de みる (voir) dit qu'on essaie, pour voir ce que ça donne : この ケーキを たべてみます, « je vais goûter ce gâteau ».",
+      "Ce みる s'écrit en kana : il ne veut plus dire « regarder ».",
+      "Avec たい : きものを きてみたいです, « j'aimerais essayer un kimono ».",
+      "Avec てもいい : はいてみても いいですか, « puis-je les essayer ? », en magasin."
+    ],
+    "examples": [
+      { "japanese": "このケーキを食べてみます。", "french": "Je vais goûter ce gâteau." },
+      { "japanese": "着物を着てみたいです。", "french": "J'aimerais essayer un kimono." },
+      { "japanese": "この靴を履いてみてもいいですか。", "french": "Puis-je essayer ces chaussures ?" },
+      { "japanese": "日本の料理を作ってみました。", "french": "J'ai essayé de faire de la cuisine japonaise." }
+    ],
+    "theme": "Essayer, goûter",
+    "words": ["試す", "味", "着物", "靴", "履く", "帽子", "眼鏡", "似合う", "サイズ", "ケーキ", "甘い"],
+    "placement": [
+      { "sentence": "このケーキを食べて＿ます。", "french": "Je vais goûter ce gâteau.", "choices": ["み", "おき", "しまい"], "answer": "み" },
+      { "sentence": "着物を着て＿たいです。", "french": "J'aimerais essayer un kimono.", "choices": ["み", "しまい", "あげ"], "answer": "み" }
+    ],
+    "signature": [[{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "みる" }]]
+  },
+  {
+    "id": "te-oku",
+    "level": 4,
+    "title": "〜ておきます : faire à l'avance",
+    "pattern": "〜ておきます",
+    "requires": ["te-iru"],
+    "explanation": [
+      "La forme en て suivie de おく (poser) dit qu'on fait quelque chose à l'avance, en vue de la suite : ホテルを よやくしておきます, « je réserve l'hôtel (pour être tranquille) ».",
+      "Elle dit aussi qu'on laisse les choses en l'état : まどを あけておいてください, « laissez la fenêtre ouverte ».",
+      "Ce おく s'écrit en kana. À l'oral, 〜ておく se contracte en 〜とく : よんどく, « je le lirai d'ici là ».",
+      "Elle va bien avec まえに : りょこうの まえに、〜ておきます."
+    ],
+    "examples": [
+      { "japanese": "旅行の前に、ホテルを予約しておきます。", "french": "Avant le voyage, je réserve l'hôtel." },
+      { "japanese": "ビールを冷やしておきました。", "french": "J'ai mis la bière au frais." },
+      { "japanese": "会議の前に、資料を読んでおきます。", "french": "Avant la réunion, je lis les documents." },
+      { "japanese": "パスポートを用意しておいてください。", "french": "Préparez votre passeport, s'il vous plaît." }
+    ],
+    "theme": "Préparer un voyage",
+    "words": ["予約", "調べる", "用意", "パスポート", "冷やす", "ビール", "資料", "両替", "案内"],
+    "placement": [
+      { "sentence": "旅行の前に、ホテルを予約して＿ます。", "french": "Avant le voyage, je réserve l'hôtel.", "choices": ["おき", "み", "しまい"], "answer": "おき" },
+      { "sentence": "ビールを冷やして＿ました。", "french": "J'ai mis la bière au frais.", "choices": ["おき", "あげ", "くれ"], "answer": "おき" }
+    ],
+    "signature": [[{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "おく" }]]
+  },
+  {
+    "id": "sou",
+    "level": 4,
+    "title": "〜そうです : avoir l'air",
+    "pattern": "〜そうです",
+    "requires": ["adjective-tenses", "masu"],
+    "explanation": [
+      "そう, placé après la base d'un adjectif ou d'un verbe, dit ce qu'on devine à l'aspect : おいしそうです, « ça a l'air bon » ; あめが ふりそうです, « on dirait qu'il va pleuvoir ».",
+      "Pour un adjectif en い, on enlève le い : おいしい → おいしそう. Pour un adjectif en な, on ajoute そう tel quel : げんきそう. Pour un verbe, on part de la forme en ます sans ます : ふります → ふりそう.",
+      "いい devient よさそう, et ない devient なさそう.",
+      "Ce そう se conjugue comme un adjectif en な : おいしそうな ケーキ, « un gâteau qui a l'air bon »."
+    ],
+    "examples": [
+      { "japanese": "このケーキはおいしそうです。", "french": "Ce gâteau a l'air bon." },
+      { "japanese": "雨が降りそうです。", "french": "On dirait qu'il va pleuvoir." },
+      { "japanese": "元気そうですね。", "french": "Tu as l'air en forme." },
+      { "japanese": "この料理は辛そうですね。", "french": "Ce plat a l'air épicé." }
+    ],
+    "theme": "Les goûts et les apparences",
+    "words": ["辛い", "苦い", "熱い", "冷たい", "柔らかい", "硬い", "強い", "弱い", "優しい"],
+    "placement": [
+      { "sentence": "このケーキはおいし＿です。", "french": "Ce gâteau a l'air bon.", "choices": ["そう", "い", "く"], "answer": "そう" },
+      { "sentence": "雨が降り＿です。", "french": "On dirait qu'il va pleuvoir.", "choices": ["そう", "たい", "ます"], "answer": "そう" }
+    ],
+    "signature": [[{ "form": "そう", "pos": "形状詞,助動詞語幹" }]]
+  },
+  {
+    "id": "nagara",
+    "level": 4,
+    "title": "〜ながら : tout en",
+    "pattern": "〜ながら、〜",
+    "requires": ["te-iru"],
+    "explanation": [
+      "ながら relie deux actions faites en même temps par la même personne : おんがくを ききながら、べんきょうします, « j'étudie en écoutant de la musique ».",
+      "Il se met après la forme en ます sans ます : ききます → ききながら, あるきます → あるきながら.",
+      "L'action principale est la dernière ; celle avec ながら l'accompagne.",
+      "ながら dit aussi une activité menée de front, sur la durée : アルバイトを しながら、だいがくに かよっています, « je vais à l'université tout en travaillant »."
+    ],
+    "examples": [
+      { "japanese": "音楽を聞きながら、勉強します。", "french": "J'étudie en écoutant de la musique." },
+      { "japanese": "歩きながら話しましょう。", "french": "Parlons en marchant." },
+      { "japanese": "テレビを見ながら、ご飯を食べます。", "french": "Je mange en regardant la télé." },
+      { "japanese": "アルバイトをしながら、大学に通っています。", "french": "Je vais à l'université tout en ayant un petit boulot." }
+    ],
+    "theme": "Faire deux choses à la fois",
+    "words": ["ラジオ", "食事", "アルバイト", "通う", "手伝う", "片付ける", "留守"],
+    "placement": [
+      { "sentence": "音楽を聞き＿、勉強します。", "french": "J'étudie en écoutant de la musique.", "choices": ["ながら", "たら", "ます"], "answer": "ながら" },
+      { "sentence": "歩き＿話しましょう。", "french": "Parlons en marchant.", "choices": ["ながら", "たい", "て"], "answer": "ながら" }
+    ],
+    "signature": [[{ "form": "ながら", "pos": "助詞,接続助詞" }]]
+  },
+  {
+    "id": "node",
+    "level": 4,
+    "title": "〜ので : comme, étant donné que",
+    "pattern": "〜ので、〜",
+    "requires": ["kara-because", "potential"],
+    "explanation": [
+      "ので donne une raison, comme から, mais plus doucement : on présente la raison comme un fait, sans insister. あめが ふっているので、タクシーで いきます.",
+      "C'est la tournure polie pour s'excuser ou demander : ようじが あるので、おさきに しつれいします, « comme j'ai une course à faire, je vous laisse ».",
+      "Devant ので, la forme simple ; mais un nom ou un adjectif en な prend な : しずかなので, びょうきなので.",
+      "Dans ce cas, préférer ので à から évite de paraître se justifier."
+    ],
+    "examples": [
+      { "japanese": "雨が降っているので、タクシーで行きます。", "french": "Comme il pleut, j'y vais en taxi." },
+      { "japanese": "熱があるので、休みます。", "french": "Comme j'ai de la fièvre, je reste chez moi." },
+      { "japanese": "静かなので、よく眠れます。", "french": "Comme c'est calme, je dors bien." },
+      { "japanese": "用事があるので、お先に失礼します。", "french": "Comme j'ai une course à faire, je vous laisse." }
+    ],
+    "theme": "S'excuser",
+    "words": ["謝る", "失礼", "都合", "用事", "残念", "理由", "許す", "断る", "お先に"],
+    "placement": [
+      { "sentence": "熱がある＿、休みます。", "french": "Comme j'ai de la fièvre, je reste chez moi.", "choices": ["ので", "まで", "より"], "answer": "ので" },
+      { "sentence": "雨が降っている＿、タクシーで行きます。", "french": "Comme il pleut, j'y vais en taxi.", "choices": ["ので", "まで", "より"], "answer": "ので" }
+    ],
+    "signature": [
+      [{ "form": "の", "pos": "助詞,準体助詞" }, { "form": "だ", "conjugation": "連用形-一般" }],
+      [{ "form": "だ", "conjugation": "連体形" }, { "form": "の", "pos": "助詞,準体助詞" }, { "form": "だ", "conjugation": "連用形-一般" }]
+    ]
+  },
+  {
+    "id": "te-aru",
+    "level": 4,
+    "title": "〜てあります : c'est fait, et ça reste",
+    "pattern": "〜てあります",
+    "requires": ["te-iru", "aru-iru"],
+    "explanation": [
+      "La forme en て d'un verbe d'action suivie de あります dit l'état laissé par une action faite exprès : まどが あけてあります, « la fenêtre a été ouverte (et l'est restée) ».",
+      "Ce qui est dans cet état prend が : かべに カレンダーが はってあります, « un calendrier est accroché au mur ».",
+      "Comparer avec ている sur un verbe qui dit un changement de lui-même : まどが あいています, « la fenêtre est ouverte » (simple constat), et まどが あけてあります, « quelqu'un l'a ouverte, exprès ».",
+      "Beaucoup de verbes vont par paires : l'un pour agir (あける, ouvrir quelque chose), l'autre pour ce qui change (あく, s'ouvrir) ; de même つける / つく, けす / きえる, しめる / しまる."
+    ],
+    "examples": [
+      { "japanese": "窓が開けてあります。", "french": "La fenêtre a été laissée ouverte." },
+      { "japanese": "机の上に花が飾ってあります。", "french": "Des fleurs ont été mises sur la table." },
+      { "japanese": "壁にカレンダーが貼ってあります。", "french": "Un calendrier est accroché au mur." },
+      { "japanese": "ビールが冷やしてあります。", "french": "La bière a été mise au frais." }
+    ],
+    "theme": "Ranger la maison",
+    "words": ["電気", "つける#1610400", "消す", "開く|ひらく", "飾る", "貼る", "並べる", "棚", "壁", "ポスター", "カレンダー", "消える"],
+    "placement": [
+      { "sentence": "窓が開けて＿。", "french": "La fenêtre a été laissée ouverte.", "choices": ["あります", "ください", "みます"], "answer": "あります" },
+      { "sentence": "壁にカレンダーが貼って＿。", "french": "Un calendrier est accroché au mur.", "choices": ["あります", "しまいます", "ください"], "answer": "あります" }
+    ],
+    "signature": [[{ "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "ある" }]]
+  },
+  {
+    "id": "passive",
+    "level": 4,
+    "title": "Le passif : 〜れる, 〜られる",
+    "pattern": "〜（ら）れます",
+    "requires": ["potential", "give-receive"],
+    "explanation": [
+      "Le passif dit ce qu'on subit. Dans le groupe de たべる, る devient られる (たべられる, comme le potentiel) ; dans l'autre, la syllabe en « ou » devient celle en « a », plus れる : よぶ → よばれる, しかる → しかられる. する → される, くる → こられる.",
+      "L'auteur de l'action est marqué par に : せんせいに よばれました, « j'ai été appelé par le professeur ».",
+      "Le passif japonais dit souvent un désagrément, même quand on ne subit rien directement : あめに ふられました, « j'ai été surpris par la pluie » (la pluie m'est tombée dessus).",
+      "Pour un objet qu'on vous prend : さいふを ぬすまれました, « on m'a volé mon portefeuille » ; celui qui subit reste le sujet."
+    ],
+    "examples": [
+      { "japanese": "先生に呼ばれました。", "french": "J'ai été appelé par le professeur." },
+      { "japanese": "財布を盗まれました。", "french": "On m'a volé mon portefeuille." },
+      { "japanese": "雨に降られました。", "french": "J'ai été surpris par la pluie." },
+      { "japanese": "母に叱られました。", "french": "Je me suis fait gronder par ma mère." }
+    ],
+    "theme": "Les mésaventures",
+    "words": ["盗む", "叱る", "褒める", "踏む", "笑う", "泥棒", "警察", "起こす", "噛む", "捕まえる"],
+    "placement": [
+      { "sentence": "先生に呼ば＿ました。", "french": "J'ai été appelé par le professeur.", "choices": ["れ", "せ", "せられ"], "answer": "れ" },
+      { "sentence": "財布を盗ま＿ました。", "french": "On m'a volé mon portefeuille.", "choices": ["れ", "せ", "い"], "answer": "れ" }
+    ],
+    "signature": [[{ "form": "れる", "pos": "助動詞" }]]
+  },
+  {
+    "id": "causative",
+    "level": 4,
+    "title": "Le causatif : 〜せる, 〜させる",
+    "pattern": "〜（さ）せます",
+    "requires": ["passive"],
+    "explanation": [
+      "Le causatif dit qu'on fait faire, ou qu'on laisse faire. Dans le groupe de たべる, る devient させる : たべさせる. Dans l'autre, la syllabe en « ou » devient celle en « a », plus せる : よむ → よませる, はらう → はらわせる. する → させる, くる → こさせる.",
+      "Celui qu'on fait agir est marqué par に quand il y a un complément : こどもに やさいを たべさせます, « je fais manger des légumes à mon enfant ».",
+      "Avec てください, il demande poliment la permission d'agir soi-même : わたしに はらわせてください, « laissez-moi payer ».",
+      "Le causatif part de celui qui a autorité : on ne l'emploie pas envers un supérieur."
+    ],
+    "examples": [
+      { "japanese": "子供に野菜を食べさせます。", "french": "Je fais manger des légumes à mon enfant." },
+      { "japanese": "先生は学生に本を読ませました。", "french": "Le professeur a fait lire un livre aux élèves." },
+      { "japanese": "私に払わせてください。", "french": "Laissez-moi payer." },
+      { "japanese": "部長は部下を早く帰らせました。", "french": "Le chef a laissé ses employés rentrer tôt." }
+    ],
+    "theme": "Au travail",
+    "words": ["生徒", "部長", "部下", "社員", "運ぶ", "残業", "早退", "会社員"],
+    "placement": [
+      { "sentence": "子供に野菜を食べ＿ます。", "french": "Je fais manger des légumes à mon enfant.", "choices": ["させ", "られ", "たい"], "answer": "させ" },
+      { "sentence": "私に払わ＿てください。", "french": "Laissez-moi payer.", "choices": ["せ", "れ", "ない"], "answer": "せ" }
+    ],
+    "signature": [[{ "forms": ["せる", "させる"], "pos": "助動詞" }]]
+  },
+  {
+    "id": "sugiru",
+    "level": 4,
+    "title": "〜すぎる : trop",
+    "pattern": "〜すぎます",
+    "requires": ["sou"],
+    "explanation": [
+      "すぎる, accolé à un verbe ou à un adjectif, dit l'excès : たべすぎました, « j'ai trop mangé » ; たかすぎます, « c'est trop cher ».",
+      "On l'attache à la forme en ます sans ます (たべ, のみ), ou à la base d'un adjectif, sans い ni な (たか, しずか).",
+      "すぎる se conjugue comme たべる : すぎます, すぎました, すぎない.",
+      "いい devient よすぎる, et ない devient なさすぎる."
+    ],
+    "examples": [
+      { "japanese": "食べすぎました。", "french": "J'ai trop mangé." },
+      { "japanese": "このかばんは高すぎます。", "french": "Ce sac est trop cher." },
+      { "japanese": "この部屋は狭すぎます。", "french": "Cette chambre est trop petite." },
+      { "japanese": "昨日は飲みすぎました。", "french": "Hier, j'ai trop bu." }
+    ],
+    "theme": "Les excès",
+    "words": ["多い", "少ない", "太い", "細い", "うるさい", "汚い", "濃い", "薄い"],
+    "placement": [
+      { "sentence": "このかばんは高＿ます。", "french": "Ce sac est trop cher.", "choices": ["すぎ", "そう", "く"], "answer": "すぎ" },
+      { "sentence": "この部屋は狭＿ます。", "french": "Cette chambre est trop petite.", "choices": ["すぎ", "かった", "そう"], "answer": "すぎ" }
+    ],
+    "signature": [
+      [{ "form": "すぎる" }],
+      [{ "formEndsWith": "すぎる", "pos": "動詞" }]
+    ]
+  },
+  {
+    "id": "yasui-nikui",
+    "level": 4,
+    "title": "〜やすい, 〜にくい : facile, difficile à",
+    "pattern": "〜やすい・〜にくい",
+    "requires": ["sugiru"],
+    "explanation": [
+      "やすい, accolé à un verbe, dit qu'une chose est facile à faire : かきやすい ペン, « un stylo agréable pour écrire ». にくい dit le contraire : おぼえにくい かんじ, « un kanji difficile à retenir ».",
+      "On les attache à la forme en ます sans ます : かき, おぼえ.",
+      "Le résultat se conjugue comme un adjectif en い : かきやすいです, かきやすかった.",
+      "Ce やすい n'est pas l'adjectif やすい (bon marché) : seul le sens et la place les distinguent."
+    ],
+    "examples": [
+      { "japanese": "このペンは書きやすいです。", "french": "Ce stylo est agréable pour écrire." },
+      { "japanese": "この漢字は覚えにくいです。", "french": "Ce kanji est difficile à retenir." },
+      { "japanese": "この靴は歩きやすいです。", "french": "Ces chaussures sont confortables pour marcher." },
+      { "japanese": "先生の説明は分かりやすいです。", "french": "Les explications du professeur sont faciles à comprendre." }
+    ],
+    "theme": "Les objets du quotidien",
+    "words": ["道具", "鋏", "機械", "パソコン", "形", "軽い", "持つ", "糸|いと", "戸|と", "線|せん"],
+    "placement": [
+      { "sentence": "このペンは書き＿です。", "french": "Ce stylo est agréable pour écrire.", "choices": ["やすい", "たい", "そう"], "answer": "やすい" },
+      { "sentence": "この漢字は覚え＿です。", "french": "Ce kanji est difficile à retenir.", "choices": ["にくい", "たい", "ない"], "answer": "にくい" }
+    ],
+    "signature": [[{ "forms": ["やすい", "にくい"], "pos": "接尾辞" }]]
+  },
+  {
+    "id": "ba",
+    "level": 4,
+    "title": "〜ば : si",
+    "pattern": "〜ば、〜",
+    "requires": ["tara", "nakereba"],
+    "explanation": [
+      "La forme en ば pose une condition : やすければ、かいます, « si c'est bon marché, je l'achète ». La suite ne se réalise que si la condition est remplie.",
+      "Pour les verbes, la syllabe en « ou » devient celle en « é », plus ば : いく → いけば, ある → あれば, たべる → たべれば. する → すれば, くる → くれば.",
+      "Pour les adjectifs en い, い devient ければ : やすい → やすければ, いい → よければ. Pour les noms et les adjectifs en な : 〜なら (ひまなら).",
+      "ば insiste sur la condition elle-même ; たら, plus souple, se dit aussi pour « une fois que ». Les deux sont souvent possibles."
+    ],
+    "examples": [
+      { "japanese": "安ければ、買います。", "french": "Si c'est bon marché, je l'achète." },
+      { "japanese": "春になれば、暖かくなります。", "french": "Quand vient le printemps, il fait plus doux." },
+      { "japanese": "時間があれば、行きます。", "french": "Si j'ai le temps, j'irai." },
+      { "japanese": "毎日練習すれば、上手になりますよ。", "french": "Si tu t'entraînes tous les jours, tu vas progresser." }
+    ],
+    "theme": "Les études",
+    "words": ["合格", "成績", "点", "受ける", "落ちる", "問題", "復習", "予習", "数学", "計算", "科学"],
+    "placement": [
+      { "sentence": "安けれ＿、買います。", "french": "Si c'est bon marché, je l'achète.", "choices": ["ば", "て", "と"], "answer": "ば" },
+      { "sentence": "時間が＿ば、行きます。", "french": "Si j'ai le temps, j'irai.", "choices": ["あれ", "ある", "あり"], "answer": "あれ" }
+    ],
+    "signature": [
+      [{ "pos": "動詞", "conjugation": "仮定形" }, { "form": "ば" }],
+      [{ "pos": "形容詞", "conjugation": "仮定形" }, { "form": "ば" }]
+    ]
+  },
+  {
+    "id": "to-condition",
+    "level": 4,
+    "title": "〜と : chaque fois que, et alors",
+    "pattern": "〜と、〜",
+    "requires": ["ba"],
+    "explanation": [
+      "と, après un verbe à la forme du dictionnaire, dit une conséquence automatique : この ボタンを おすと、おちゃが でます, « quand on appuie sur ce bouton, du thé sort ».",
+      "On l'emploie pour les lois de la nature, les machines, les habitudes, et les itinéraires : まっすぐ いくと、えきが あります, « en allant tout droit, on trouve la gare ».",
+      "La suite ne peut pas être une volonté, une demande ou une proposition : pour cela, on prend たら.",
+      "Ce と n'est pas celui qui relie des noms (« et ») ni celui des paroles rapportées : il suit un verbe et ouvre une suite."
+    ],
+    "examples": [
+      { "japanese": "このボタンを押すと、お茶が出ます。", "french": "Quand on appuie sur ce bouton, du thé sort." },
+      { "japanese": "春になると、花が咲きます。", "french": "Au printemps, les fleurs s'ouvrent." },
+      { "japanese": "まっすぐ行くと、駅があります。", "french": "En allant tout droit, on trouve la gare." },
+      { "japanese": "右に曲がると、銀行が見えます。", "french": "En tournant à droite, on voit la banque." }
+    ],
+    "theme": "Le chemin",
+    "words": ["押す", "ボタン#1123880", "咲く", "曲がる", "右", "左", "まっすぐ", "信号", "角", "交差点", "橋", "渡る", "見える", "東|ひがし", "西|にし", "南|みなみ", "北|きた"],
+    "placement": [
+      { "sentence": "このボタンを押す＿、お茶が出ます。", "french": "Quand on appuie sur ce bouton, du thé sort.", "choices": ["と", "を", "が"], "answer": "と" },
+      { "sentence": "まっすぐ行く＿、駅があります。", "french": "En allant tout droit, on trouve la gare.", "choices": ["と", "に", "の"], "answer": "と" }
+    ],
+    "signature": [[{ "form": "と", "pos": "助詞,接続助詞" }]]
+  },
+  {
+    "id": "noni",
+    "level": 4,
+    "title": "〜のに : alors que, pourtant",
+    "pattern": "〜のに、〜",
+    "requires": ["node"],
+    "explanation": [
+      "のに relie deux faits dont le second surprend ou déçoit : たくさん べんきょうしたのに、しけんに おちました, « j'ai beaucoup travaillé, et pourtant j'ai raté l'examen ».",
+      "Il porte souvent une nuance de regret, de reproche ou d'étonnement, plus forte que « mais ».",
+      "Devant のに, la forme simple ; un nom ou un adjectif en な prend な, comme devant ので : ひまなのに.",
+      "En fin de phrase, のに exprime un regret : いけば よかったのに, « tu aurais dû y aller »."
+    ],
+    "examples": [
+      { "japanese": "たくさん勉強したのに、試験に落ちました。", "french": "J'ai beaucoup travaillé, et pourtant j'ai raté l'examen." },
+      { "japanese": "雨が降っているのに、出かけました。", "french": "Il pleuvait, et pourtant il est sorti." },
+      { "japanese": "一生懸命練習したのに、試合に負けました。", "french": "Je me suis entraîné de toutes mes forces, et pourtant j'ai perdu le match." },
+      { "japanese": "約束したのに、田中さんは来ませんでした。", "french": "Il avait promis, et pourtant monsieur Tanaka n'est pas venu." }
+    ],
+    "theme": "Les déceptions",
+    "words": ["一生懸命", "がっかり", "結局", "試合", "負ける", "勝つ", "約束", "せっかく"],
+    "placement": [
+      { "sentence": "たくさん勉強した＿、試験に落ちました。", "french": "J'ai beaucoup travaillé, et pourtant j'ai raté l'examen.", "choices": ["のに", "ので", "から"], "answer": "のに" },
+      { "sentence": "雨が降っている＿、出かけました。", "french": "Il pleuvait, et pourtant il est sorti.", "choices": ["のに", "ので", "から"], "answer": "のに" }
+    ],
+    "signature": [[{ "form": "の", "pos": "助詞,準体助詞" }, { "form": "に", "pos": "助詞,格助詞" }]]
+  },
+  {
+    "id": "kedo",
+    "level": 4,
+    "title": "〜けど, 〜が : mais",
+    "pattern": "〜けど、〜・〜が、〜",
+    "requires": ["noni"],
+    "explanation": [
+      "けど relie deux propositions opposées, comme « mais » : たかいけど、かいます, « c'est cher, mais je l'achète ». C'est la forme parlée ; けれども est plus soignée.",
+      "が, placé après une proposition (et non après un nom), dit la même chose dans un style poli : にほんごは むずかしいですが、おもしろいです.",
+      "Les deux servent aussi à introduire une demande avec douceur : すみませんが、… ; ちょっと ききたいんですけど、…",
+      "En fin de phrase, けど laisse une phrase en suspens, par politesse : ちょっと よていが あるんですけど…, « c'est que j'ai un engagement… »."
+    ],
+    "examples": [
+      { "japanese": "高いけど、買います。", "french": "C'est cher, mais je l'achète." },
+      { "japanese": "日本語は難しいですが、おもしろいです。", "french": "Le japonais est difficile, mais intéressant." },
+      { "japanese": "この店は安いけど、ちょっと遠いです。", "french": "Ce magasin est bon marché, mais un peu loin." },
+      { "japanese": "すみませんが、駅はどこですか。", "french": "Excusez-moi, où est la gare ?" }
+    ],
+    "theme": "Acheter",
+    "words": ["値段", "品物", "店員", "レジ", "割引", "売り場", "安売り", "おつり"],
+    "placement": [
+      { "sentence": "高い＿、買います。", "french": "C'est cher, mais je l'achète.", "choices": ["けど", "から", "ので"], "answer": "けど" },
+      { "sentence": "日本語は難しいです＿、おもしろいです。", "french": "Le japonais est difficile, mais intéressant.", "choices": ["が", "から", "ので"], "answer": "が" }
+    ],
+    "signature": [
+      [{ "form": "けど", "pos": "助詞,接続助詞" }],
+      [{ "form": "が", "pos": "助詞,接続助詞" }]
+    ]
+  },
+  {
+    "id": "tame-ni",
+    "level": 4,
+    "title": "〜ために : pour, afin de",
+    "pattern": "〜ために",
+    "requires": ["dekiru"],
+    "explanation": [
+      "ために dit le but : にほんへ いく ために、おかねを ためています, « j'économise pour aller au Japon ». Devant, un verbe à la forme du dictionnaire.",
+      "Avec un nom, の ために : けんこうの ために、まいにち あるきます, « pour ma santé, je marche tous les jours ». Il veut aussi dire « pour quelqu'un » : ははの ために.",
+      "Le but avec ために dépend de la volonté de celui qui agit : on vise un résultat qu'on peut atteindre soi-même.",
+      "Pour un but qui ne dépend pas de soi (« pour que je puisse… », « pour ne pas oublier »), on emploie ように : leçon suivante."
+    ],
+    "examples": [
+      { "japanese": "日本へ行くために、お金を貯めています。", "french": "J'économise pour aller au Japon." },
+      { "japanese": "健康のために、毎日歩きます。", "french": "Pour ma santé, je marche tous les jours." },
+      { "japanese": "試験に合格するために、毎日勉強しています。", "french": "J'étudie tous les jours pour réussir l'examen." },
+      { "japanese": "母のために、料理を作りました。", "french": "J'ai fait à manger pour ma mère." }
+    ],
+    "theme": "Les buts",
+    "words": ["目的", "貯める", "役に立つ", "集める", "機会", "経験", "努力"],
+    "placement": [
+      { "sentence": "日本へ行く＿に、お金を貯めています。", "french": "J'économise pour aller au Japon.", "choices": ["ため", "こと", "とき"], "answer": "ため" },
+      { "sentence": "健康の＿に、毎日歩きます。", "french": "Pour ma santé, je marche tous les jours.", "choices": ["ため", "とき", "まえ"], "answer": "ため" }
+    ],
+    "signature": [[{ "forms": ["ため", "為"] }, { "form": "に", "pos": "助詞,格助詞" }]]
+  },
+  {
+    "id": "you-ni",
+    "level": 4,
+    "title": "〜ように : pour que, de façon à",
+    "pattern": "〜ように",
+    "requires": ["tame-ni", "potential"],
+    "explanation": [
+      "ように dit un but qui ne dépend pas tout à fait de soi : un état à atteindre, une possibilité, un accident à éviter. よく きこえるように、おおきい こえで はなしてください, « parlez fort, pour qu'on entende bien ».",
+      "Devant, un verbe à la forme du dictionnaire (souvent potentielle) ou à la forme en ない : わすれないように、メモします, « je note, pour ne pas oublier ».",
+      "La différence avec ために : ために vise une action voulue (いく ために), ように un résultat espéré (いけるように).",
+      "〜ように してください demande de prendre l'habitude : おくれないように してください, « faites en sorte de ne pas être en retard »."
+    ],
+    "examples": [
+      { "japanese": "よく聞こえるように、大きい声で話してください。", "french": "Parlez fort, pour qu'on entende bien." },
+      { "japanese": "忘れないように、メモします。", "french": "Je note, pour ne pas oublier." },
+      { "japanese": "風邪をひかないように、気をつけてください。", "french": "Faites attention à ne pas attraper froid." },
+      { "japanese": "遅れないように、早く出かけます。", "french": "Je pars tôt pour ne pas être en retard." }
+    ],
+    "theme": "Les précautions",
+    "words": ["メモ", "声", "気", "鍵", "掛ける", "間違い", "ひく"],
+    "placement": [
+      { "sentence": "忘れない＿に、メモします。", "french": "Je note, pour ne pas oublier.", "choices": ["よう", "ため", "こと"], "answer": "よう" },
+      { "sentence": "よく聞こえる＿、大きい声で話してください。", "french": "Parlez fort, pour qu'on entende bien.", "choices": ["ように", "ために", "ことに"], "answer": "ように" }
+    ],
+    "signature": [[{ "form": "よう", "pos": "形状詞,助動詞語幹" }, { "form": "だ", "conjugation": "連用形-ニ", "notFollowedBy": [{ "form": "なる" }] }]]
+  },
+  {
+    "id": "you-ni-naru",
+    "level": 4,
+    "title": "〜ようになる : en venir à, finir par",
+    "pattern": "〜ようになりました",
+    "requires": ["you-ni"],
+    "explanation": [
+      "〜ように なる dit un changement d'habitude ou de capacité, qui s'est fait peu à peu : にほんごが はなせるように なりました, « j'en suis venu à pouvoir parler japonais ».",
+      "Devant, un verbe à la forme du dictionnaire, très souvent potentielle ; à la forme en ない pour ce qu'on ne fait plus : たばこを すわないように なりました, « j'ai arrêté de fumer ».",
+      "〜ように する, lui, dit un effort qu'on fait volontairement : まいあさ はしるように しています, « je m'efforce de courir chaque matin ».",
+      "Comparer avec なる seul (leçon « devenir »), qui suit un nom ou un adjectif."
+    ],
+    "examples": [
+      { "japanese": "日本語が話せるようになりました。", "french": "J'en suis venu à pouvoir parler japonais." },
+      { "japanese": "毎朝走るようにしています。", "french": "Je m'efforce de courir chaque matin." },
+      { "japanese": "自転車に乗れるようになりました。", "french": "J'ai appris à faire du vélo." },
+      { "japanese": "漢字が少し読めるようになりました。", "french": "Je commence à pouvoir lire un peu de kanji." }
+    ],
+    "theme": "Les progrès",
+    "words": ["慣れる", "少しずつ", "以前", "最近", "習慣", "上達", "続く"],
+    "placement": [
+      { "sentence": "日本語が話せる＿になりました。", "french": "J'en suis venu à pouvoir parler japonais.", "choices": ["よう", "ため", "こと"], "answer": "よう" },
+      { "sentence": "毎朝走る＿しています。", "french": "Je m'efforce de courir chaque matin.", "choices": ["ように", "ために", "のに"], "answer": "ように" }
+    ],
+    "signature": [[{ "form": "よう", "pos": "形状詞,助動詞語幹" }, { "form": "だ", "conjugation": "連用形-ニ" }, { "forms": ["なる", "する"] }]]
+  },
+  {
+    "id": "tari",
+    "level": 4,
+    "title": "〜たり〜たりする : entre autres",
+    "pattern": "〜たり、〜たりします",
+    "requires": ["ta"],
+    "explanation": [
+      "たり, sur la forme en た (たべた → たべたり), cite des actions parmi d'autres : しゅうまつは えいがを みたり、ほんを よんだり します, « le week-end, je regarde des films, je lis… ».",
+      "La liste finit par します (au temps voulu) : 〜たり〜たり しました.",
+      "Une seule action suffit, pour dire « entre autres » : こうえんで さんぽしたり します.",
+      "Comparer avec la forme en て, qui enchaîne des actions dans l'ordre : たり ne dit pas d'ordre, il donne des exemples."
+    ],
+    "examples": [
+      { "japanese": "週末は映画を見たり、本を読んだりします。", "french": "Le week-end, je regarde des films, je lis…" },
+      { "japanese": "休みの日は掃除をしたり、洗濯をしたりします。", "french": "Les jours de repos, je fais le ménage, la lessive…" },
+      { "japanese": "昨日は友達と話したり、ゲームをしたりしました。", "french": "Hier, j'ai discuté avec des amis, joué à des jeux…" },
+      { "japanese": "日曜日は公園を散歩したりします。", "french": "Le dimanche, je me promène au parc, entre autres." }
+    ],
+    "theme": "Le week-end",
+    "words": ["釣り", "登山", "ドライブ", "ゲーム", "昼寝", "日曜日", "土曜日", "のんびり", "村|むら", "谷|たに", "野原", "田んぼ", "里|さと", "岩|いわ", "竹|たけ"],
+    "placement": [
+      { "sentence": "映画を見＿、本を読んだりします。", "french": "Je regarde des films, je lis…", "choices": ["たり", "て", "ながら"], "answer": "たり" },
+      { "sentence": "掃除をし＿、洗濯をしたりします。", "french": "Je fais le ménage, la lessive…", "choices": ["たり", "ても", "たら"], "answer": "たり" }
+    ],
+    "signature": [[{ "forms": ["たり", "だり"], "pos": "助詞,副助詞" }]]
+  },
+  {
+    "id": "nakute-mo-ii",
+    "level": 4,
+    "title": "〜なくてもいい : ce n'est pas la peine",
+    "pattern": "〜なくてもいいです",
+    "requires": ["temo-ii", "nakereba"],
+    "explanation": [
+      "La forme en ない devient なくて, suivie de も いいです : あした こなくても いいです, « ce n'est pas la peine de venir demain ».",
+      "C'est le contraire de なければ なりません : l'un oblige, l'autre dispense.",
+      "Pour demander si l'on est dispensé : くつを ぬがなくても いいですか, « je ne suis pas obligé d'enlever mes chaussures ? ».",
+      "À l'oral, on entend aussi 〜なくても だいじょうぶです."
+    ],
+    "examples": [
+      { "japanese": "明日は来なくてもいいです。", "french": "Ce n'est pas la peine de venir demain." },
+      { "japanese": "靴を脱がなくてもいいですか。", "french": "Je ne suis pas obligé d'enlever mes chaussures ?" },
+      { "japanese": "急がなくてもいいですよ。", "french": "Inutile de te presser." },
+      { "japanese": "全部食べなくてもいいです。", "french": "Tu n'es pas obligé de tout manger." }
+    ],
+    "theme": "Chez des Japonais",
+    "words": ["脱ぐ", "スリッパ", "玄関", "畳", "布団", "遠慮", "気にする", "どうぞ"],
+    "placement": [
+      { "sentence": "明日は来＿もいいです。", "french": "Ce n'est pas la peine de venir demain.", "choices": ["なくて", "ないで", "なければ"], "answer": "なくて" },
+      { "sentence": "靴を脱がなくて＿いいですか。", "french": "Je ne suis pas obligé d'enlever mes chaussures ?", "choices": ["も", "は", "が"], "answer": "も" }
+    ],
+    "signature": [[{ "form": "ない", "conjugation": "連用形" }, { "forms": ["て", "で"], "pos": "助詞,接続助詞" }, { "form": "も" }, { "form": "いい" }]]
+  },
+  {
+    "id": "sou-hearsay",
+    "level": 4,
+    "title": "〜そうです : il paraît que",
+    "pattern": "〜（る）そうです",
+    "requires": ["sou", "to-iu"],
+    "explanation": [
+      "そうです, après la forme simple complète, rapporte une information entendue ou lue : あしたは あめが ふるそうです, « il paraît qu'il pleuvra demain ».",
+      "Ne pas confondre avec le そう de l'apparence (おいしそう, « ça a l'air bon ») : celui-là s'attache à une base tronquée ; celui-ci suit une forme entière : ふるそう (il paraît qu'il pleut) contre ふりそう (on dirait qu'il va pleuvoir).",
+      "Pour dire d'où vient l'information : 〜に よると、 : てんきよほうに よると、あめが ふるそうです.",
+      "Après un nom ou un adjectif en な, on garde だ : がくせいだそうです, « il paraît qu'il est étudiant »."
+    ],
+    "examples": [
+      { "japanese": "明日は雨が降るそうです。", "french": "Il paraît qu'il pleuvra demain." },
+      { "japanese": "田中さんは結婚したそうです。", "french": "Il paraît que monsieur Tanaka s'est marié." },
+      { "japanese": "あのレストランはおいしいそうです。", "french": "Il paraît que ce restaurant est bon." },
+      { "japanese": "昨日、大きい地震があったそうです。", "french": "Il paraît qu'il y a eu un grand tremblement de terre hier." }
+    ],
+    "theme": "Les nouvelles",
+    "words": ["噂", "事故", "地震", "火事", "発表", "一週間", "によると"],
+    "placement": [
+      { "sentence": "明日は雨が降る＿です。", "french": "Il paraît qu'il pleuvra demain.", "choices": ["そう", "よう", "こと"], "answer": "そう" },
+      { "sentence": "田中さんは結婚した＿です。", "french": "Il paraît que monsieur Tanaka s'est marié.", "choices": ["そう", "とき", "こと"], "answer": "そう" }
+    ],
+    "signature": [[{ "form": "そう", "pos": "名詞,助動詞語幹" }]]
+  },
+  {
+    "id": "you-da",
+    "level": 4,
+    "title": "〜ようです, 〜みたいです, 〜らしいです : il semble",
+    "pattern": "〜ようです・〜みたいです",
+    "requires": ["sou-hearsay"],
+    "explanation": [
+      "ようです dit une déduction tirée de ce qu'on observe : だれも いない ようです, « on dirait qu'il n'y a personne ». みたいです dit la même chose, en plus parlé.",
+      "Devant, la forme simple ; un nom prend の devant ようです (せんせいの ようです) mais rien devant みたいです (せんせいみたいです).",
+      "らしいです dit une supposition fondée sur ce qu'on a entendu dire, avec un peu de distance : あの ひとは せんせいらしいです, « il paraît que c'est un professeur, à ce qu'on dit ».",
+      "Comparer : そうです rapporte une information ; ようです en tire une conclusion soi-même ; らしい mêle les deux."
+    ],
+    "examples": [
+      { "japanese": "誰もいないようです。", "french": "On dirait qu'il n'y a personne." },
+      { "japanese": "風邪をひいたみたいです。", "french": "On dirait que j'ai attrapé froid." },
+      { "japanese": "あの人は先生らしいです。", "french": "Cette personne serait professeur, à ce qu'on dit." },
+      { "japanese": "田中さんは忙しいようです。", "french": "Monsieur Tanaka a l'air d'être occupé." }
+    ],
+    "theme": "Les indices",
+    "words": ["音", "匂い", "様子", "誰か", "何か", "どこか", "変", "近く", "向こう", "鳴く", "光る"],
+    "placement": [
+      { "sentence": "誰もいない＿です。", "french": "On dirait qu'il n'y a personne.", "choices": ["よう", "そう", "こと"], "answer": "よう" },
+      { "sentence": "風邪をひいた＿です。", "french": "On dirait que j'ai attrapé froid.", "choices": ["みたい", "ため", "とき"], "answer": "みたい" }
+    ],
+    "signature": [
+      [{ "form": "よう", "pos": "形状詞,助動詞語幹" }, { "form": "です" }],
+      [{ "form": "みたい" }],
+      [{ "form": "らしい", "pos": "助動詞" }],
+      [{ "form": "だ", "conjugation": "連体形" }, { "form": "よう", "pos": "形状詞,助動詞語幹" }]
+    ]
   }
 ]

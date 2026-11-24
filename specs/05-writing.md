@@ -10,6 +10,18 @@ is every kyōiku kanji.
 
 ## Decided
 
+- **The matcher on kanji**, checked by a test on the 1,026 school kanji (with
+  KanjiVG and KANJIDIC2 in the cache): each written as its model, every point
+  shaken a little, is right; its first two strokes swapped are found, but for
+  3 kanji whose first strokes are alike (妹, 然, 属). Real handwriting on kanji
+  is still to try: My lesson ([`09`](09-sessions.md)) records each kanji
+  written from memory as a review of its writing, graded as a kana is, its
+  tolerances not tuned on kanji yet; the kanji pages are free practice,
+  nothing recorded.
+- **ぢ and づ told apart**: they are read as じ and ず are, so a kana asked by
+  its reading would be ambiguous. Wherever a reading is shown (the chart, the
+  prompts, the answers), ぢ and づ show the romaji they are typed with too:
+  "ji (di)", "zu (du)"; "di" and "du" are accepted as their readings only.
 - **Input**: an SVG box taking Pointer Events from the pen, or a mouse, but
   never touch (`pointerType == "touch"`), so the palm and fingers are ignored.
   The box takes no browser gesture (`touch-action: none`), so the pen never
@@ -36,9 +48,43 @@ is every kyōiku kanji.
      watched again. The character is right when it has every stroke and each
      is right; right but for the order or direction of some strokes; or wrong.
      Graded *good*, *hard* and *again*.
+- **Kana written one after the other in one box** (`KanaPad`): once the pen
+  rests 0.9 s, what is drawn is recognised (`CharacterRecognizer`) among the
+  kana of the script in use and taken as a character, the box cleared for the
+  next; a drawing far from any kana stays, to be finished, erased or taken all
+  the same ("Next character"). The recogniser brings the drawing and each
+  model to the same size and centre, and compares them stroke by stroke when
+  they have as many strokes, and as one line (the pen's moves between strokes
+  included, so strokes written as one still compare), in place and in
+  direction along the strokes (a corner, て, against a curve, つ), a long
+  stroke counting more than a short one; where and how large the character
+  is drawn tells ゃ from や, poorly. A kana with a dakuten or a handakuten is
+  also compared as its base and its marks apart: the base against the base's
+  model, the marks only as short strokes towards its upper right, wherever
+  exactly (a hand puts で's dakuten above its corner, KanjiVG inside its
+  curve, where it was taken for づ). On the kana written right from memory
+  kept so far, 281 in 302 are recognised first, 301 among the first three;
+  in the pad, 22 in 22. The kana of an answer written wholly in the pad are
+  kept, each with the kana it is in the answer as the learner left it, in
+  `~/.local/share/hanamaru/pad-characters.jsonl`: what the recogniser is tuned
+  on next (a test measures it on them). The distance does not tell a right recognition from a wrong one, so
+  the pause, not a threshold, decides when a character is taken; only a
+  scribble is refused.
 - **Writing a word** from memory (a vocabulary answer, [`08`](08-vocabulary-practice.md)):
-  its characters one after the other, in a box each, with no correction in
-  between; all are corrected together once the last is written. A kana written
+  its characters one after the other in the pad, each shown small, as drawn,
+  in its place; the learner may go back a character, and says when the word
+  is written; no correction in between, all are corrected together then
+  against the characters expected.
+- **Writing a sentence** (a lesson's translation exercise,
+  [`06`](06-curriculum-and-lessons.md)): each kana recognised goes at the end
+  of the answer field, which can still be typed in; the other kana it may be
+  are offered, to put in its place, and the last character can be erased.
+  Small kana are not recognised there: told from their large ones by size
+  alone, they were taken for each other; a button, 小, makes the last kana
+  small (しや to しゃ), or large again. Two more add or take away a dakuten
+  (゛, か to が) or a handakuten (゜, は to ぱ), for a kana taken before its
+  marks were drawn. In a word, the small kana is written
+  small, as it is judged against the character expected. A kana written
   wrong (or with strokes out of order) within a word is kept as a review of
   that kana's writing, so it comes back to be practised; one written right
   only when its writing was due, not to crowd its schedule.
@@ -97,3 +143,5 @@ is every kyōiku kanji.
   written from memory are also kept as reviews' answers, in the learner model
   ([`03`](03-learner-model.md)).
 - Writing words (several characters in boxes) as a dictation exercise.
+- How long the pen rests before a kana is taken (0.9 s), to tune in use: too
+  short cuts a kana written slowly, too long slows a fluent hand.

@@ -19,6 +19,7 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
 
   private val minutes = Var(10)
   private val stylus = Var(true)
+  private val script = Var(Option.empty[Script])
   private val startedAgain = EventBus[Unit]()
 
   private val state: Signal[Option[SessionState]] = EventStream
@@ -67,6 +68,21 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
         )
       )
     ),
+    p(Tr("Which kana?", "Quels kana ?")),
+    div(
+      cls := "step-tabs",
+      List(
+        None -> Tr("Both", "Les deux"),
+        Some(Script.Hiragana) -> "Hiragana",
+        Some(Script.Katakana) -> "Katakana"
+      ).map((each, name) =>
+        button(
+          cls("is-selected") <-- script.signal.map(_ == each),
+          name,
+          onClick.mapTo(each) --> script.writer
+        )
+      )
+    ),
     label(
       cls := "session-context",
       input(
@@ -88,7 +104,9 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
       Tr("Start", "Commencer"),
       onClick --> (_ =>
         bus.send(
-          AppCommand.StartSession(SessionStart(minutes.now(), stylus.now()))
+          AppCommand.StartSession(
+            SessionStart(minutes.now(), stylus.now(), script.now())
+          )
         )
       )
     )
@@ -128,7 +146,7 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
         s"Écris de mémoire, en ${scriptName(kana.script)} :"
       )
     ),
-    span(cls := "placement-reading", kana.romaji),
+    span(cls := "placement-reading", Kana.shownReading(kana)),
     StrokesOf(
       bus,
       kana.character,
@@ -206,8 +224,14 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
       cls := "placement-actions",
       PageLink(
         bus,
-        Page.Chart,
+        Page.Home,
         cls := "button primary",
+        Tr("Back to today", "Retour à Aujourd'hui")
+      ),
+      PageLink(
+        bus,
+        Page.Chart,
+        cls := "button",
         Tr("See the chart", "Voir le tableau")
       ),
       button(

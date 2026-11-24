@@ -71,24 +71,32 @@ object CurriculumTests extends TestSuite {
       "each placement question, answered, shows its point and none after it; its blank is whole tokens"
     ) {
       analyser.foreach { analysis =>
-        points.zipWithIndex.foreach { (point, index) =>
-          point.placement.foreach { item =>
+        // each question wrong, with what is wrong with it
+        val wrong = points.zipWithIndex.flatMap { (point, index) =>
+          point.placement.flatMap { item =>
             val tokens = analysis.tokens(item.filled)
-            assert(point.shownIn(tokens).nonEmpty, item.filled.nonEmpty)
-            assert(
-              points.drop(index + 1).forall(_.shownIn(tokens).isEmpty),
-              item.filled.nonEmpty
-            )
-            val blank =
-              GrammarPlacementTest.inBlank(tokens.map(_.surface), item)
-            assert(
-              blank.toList.sorted
-                .map(tokens(_).surface)
-                .mkString == item.answer,
-              item.filled.nonEmpty
-            )
+            val later = points
+              .drop(index + 1)
+              .filter(_.shownIn(tokens).nonEmpty)
+              .map(_.id)
+            val blank = GrammarPlacementTest
+              .inBlank(tokens.map(_.surface), item)
+              .toList
+              .sorted
+              .map(tokens(_).surface)
+              .mkString
+            Option.when(point.shownIn(tokens).isEmpty)(
+              s"${item.filled} does not show ${point.id}"
+            ) ++
+              Option.when(later.nonEmpty)(
+                s"${item.filled} shows ${later.mkString(", ")}, after ${point.id}"
+              ) ++
+              Option.when(blank != item.written.getOrElse(item.answer))(
+                s"${item.filled}: the blank is ${tokens.map(_.surface).mkString("|")}, not whole tokens"
+              )
           }
         }
+        assert(wrong.isEmpty)
       }
     }
     test("each example shows its point, and none that comes after it") {
@@ -98,17 +106,23 @@ object CurriculumTests extends TestSuite {
             "Examples not analysed: the analyser's dictionary is not in the cache"
           )
         case Some(analysis) =>
-          points.zipWithIndex.foreach { (point, index) =>
-            point.examples.foreach { example =>
+          // each example wrong, with what is wrong with it
+          val wrong = points.zipWithIndex.flatMap { (point, index) =>
+            point.examples.flatMap { example =>
               val tokens = analysis.tokens(example.japanese)
-              assert(point.shownIn(tokens).nonEmpty, example.japanese.nonEmpty)
               val later = points
                 .drop(index + 1)
                 .filter(_.shownIn(tokens).nonEmpty)
                 .map(_.id)
-              assert(later.isEmpty, example.japanese.nonEmpty)
+              Option.when(point.shownIn(tokens).isEmpty)(
+                s"${example.japanese} does not show ${point.id}"
+              ) ++
+                Option.when(later.nonEmpty)(
+                  s"${example.japanese} shows ${later.mkString(", ")}, after ${point.id}"
+                )
             }
           }
+          assert(wrong.isEmpty)
       }
     }
   }

@@ -133,12 +133,8 @@ class GrammarPlacementPage(bus: AppBus) extends ReactiveElement {
         p(
           Tr("Start with: ", "Commence par : "),
           PageLink(bus, Page.Lesson(point.id), point.title),
-          Tr(", or a ", ", ou une "),
-          PageLink(
-            bus,
-            Page.LessonSession,
-            Tr("lesson session", "séance Leçon")
-          ),
+          Tr(", or go on with ", ", ou continue avec "),
+          PageLink(bus, Page.LessonSession, Tr("My lesson", "Ma leçon")),
           "."
         )
       case None =>

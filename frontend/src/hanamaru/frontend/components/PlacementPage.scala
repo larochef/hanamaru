@@ -117,7 +117,7 @@ class PlacementPage(bus: AppBus) extends ReactiveElement {
         s"Écris de mémoire, en ${scriptName(kana.script)} :"
       )
     ),
-    span(cls := "placement-reading", kana.romaji),
+    span(cls := "placement-reading", Kana.shownReading(kana)),
     child.maybe <-- bus
       .request(AppCommand.LoadStrokes(kana.character)) {
         case AppEvent.StrokesLoaded(strokes)
@@ -223,8 +223,14 @@ class PlacementPage(bus: AppBus) extends ReactiveElement {
       cls := "placement-actions",
       PageLink(
         bus,
-        Page.Chart,
+        Page.Home,
         cls := "button primary",
+        Tr("Back to today", "Retour à Aujourd'hui")
+      ),
+      PageLink(
+        bus,
+        Page.Chart,
+        cls := "button",
         Tr("See the chart", "Voir le tableau")
       ),
       button(

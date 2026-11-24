@@ -1,10 +1,11 @@
 package hanamaru.frontend.model
 
+import hanamaru.shared.kanji.KanjiReadingAnswer
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
 import hanamaru.shared.session.{SessionAnswer, SessionStart}
 import hanamaru.shared.vocabulary.{SelfGrade, VocabularyAnswer}
-import hanamaru.shared.writing.WritingAttempt
+import hanamaru.shared.writing.{PadCharacter, WritingAttempt}
 
 sealed trait AppCommand
 
@@ -19,6 +20,9 @@ object AppCommand {
 
   /** Asks for a character's strokes. */
   final case class LoadStrokes(character: String) extends AppCommand
+  final case class LoadManyStrokes(characters: String) extends AppCommand
+  final case class RecordPadCharacters(characters: List[PadCharacter])
+      extends AppCommand
 
   /** Asks where the learner stands on every kana. */
   case object LoadKanaProgress extends AppCommand
@@ -88,4 +92,24 @@ object AppCommand {
 
   /** Asks for a lesson session's plan. */
   case object LoadLessonPlan extends AppCommand
+
+  /** Asks for the unit under way. */
+  case object LoadUnit extends AppCommand
+
+  /** Asks for a school grade's kanji. */
+  final case class LoadKanjiGrade(grade: Int) extends AppCommand
+
+  /** Asks for a kanji, with its words. */
+  final case class LoadKanji(literal: String) extends AppCommand
+
+  /** Asks for a lesson session's kanji exercises. */
+  case object LoadKanjiPractice extends AppCommand
+
+  /** A kanji's reading in a word, to judge and keep. */
+  final case class AnswerKanjiReading(answer: KanjiReadingAnswer)
+      extends AppCommand
+
+  /** A kanji written, to keep (a review when written from memory). */
+  final case class RecordKanjiWriting(attempt: WritingAttempt)
+      extends AppCommand
 }

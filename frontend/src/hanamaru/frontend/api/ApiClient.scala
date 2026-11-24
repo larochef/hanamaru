@@ -5,13 +5,14 @@ import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.AppResult
 import hanamaru.shared.ServerStatus
 import hanamaru.shared.dictionary.DictionaryWord
+import hanamaru.shared.kanji.*
 import hanamaru.shared.learner.*
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
 import hanamaru.shared.routes.*
 import hanamaru.shared.session.*
 import hanamaru.shared.vocabulary.*
-import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
+import hanamaru.shared.writing.*
 
 import scala.util.{Failure, Success}
 
@@ -32,6 +33,16 @@ class ApiClient(baseUri: Uri) {
 
   def strokes(character: String): EventStream[AppResult[CharacterStrokes]] =
     call(WritingRoutes.strokes, character)
+
+  def manyStrokes(
+      characters: String
+  ): EventStream[AppResult[List[CharacterStrokes]]] =
+    call(WritingRoutes.manyStrokes, characters)
+
+  def recordPadCharacters(
+      characters: List[PadCharacter]
+  ): EventStream[AppResult[Unit]] =
+    call(WritingRoutes.recordPadCharacters, characters)
 
   def recordAttempt(
       attempt: WritingAttempt
@@ -122,6 +133,28 @@ class ApiClient(baseUri: Uri) {
 
   def lessonPlan(): EventStream[AppResult[LessonPlan]] =
     call(LessonRoutes.plan, ())
+
+  def unit(): EventStream[AppResult[Option[UnitProgress]]] =
+    call(LessonRoutes.unit, ())
+
+  def kanjiOfGrade(grade: Int): EventStream[AppResult[List[Kanji]]] =
+    call(KanjiRoutes.grade, grade)
+
+  def kanji(literal: String): EventStream[AppResult[KanjiDetail]] =
+    call(KanjiRoutes.kanji, literal)
+
+  def kanjiPractice(): EventStream[AppResult[List[KanjiExercise]]] =
+    call(KanjiRoutes.practice, ())
+
+  def answerKanjiReading(
+      answer: KanjiReadingAnswer
+  ): EventStream[AppResult[KanjiReadingVerdict]] =
+    call(KanjiRoutes.reading, answer)
+
+  def recordKanjiWriting(
+      attempt: WritingAttempt
+  ): EventStream[AppResult[Option[ReviewOutcome]]] =
+    call(KanjiRoutes.writing, attempt)
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

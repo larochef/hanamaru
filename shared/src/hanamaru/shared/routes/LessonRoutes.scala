@@ -60,4 +60,11 @@ object LessonRoutes {
       .in("lesson-session")
       .errorOut(Routes.refused)
       .out(jsonBody[LessonPlan])
+
+  /** The unit under way, none once every unit is acquired. */
+  val unit: PublicEndpoint[Unit, String, Option[UnitProgress], Any] =
+    Routes.baseRoute.get
+      .in("unit")
+      .errorOut(Routes.refused)
+      .out(jsonBody[Option[UnitProgress]])
 }
