@@ -73,10 +73,8 @@ a {
   background: #fde8e6;
 }
 
-.credits {
-  margin: 3rem 0 1.5rem;
-  font-size: 0.85rem;
-  color: var(--muted);
+.credits p {
+  margin: 0.5rem 0;
 }
 
 /* the chart: five columns, as kana are taught */
@@ -592,6 +590,15 @@ button:disabled {
 
 .home-free li {
   margin: 0.3rem 0;
+}
+
+.page-foot {
+  margin: 3rem 0 1.5rem;
+  font-size: 0.85rem;
+}
+
+.page-foot a {
+  color: var(--muted);
 }
 
 .credits p {

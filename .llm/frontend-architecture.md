@@ -2,6 +2,10 @@
 
 Stack: Scala.js, Laminar and Airstream (`Var`, `Signal`, `EventStream`), sttp and the Tapir endpoints of `shared`.
 
+## The page decides nothing
+
+- The page only shows and sends the learner's actions: what to show, in which order, every count, threshold or rule about the learner is decided by the backend, which answers ready to be shown (`TodayRoutes.today`, shown as it is by `HomePage`). Logic in the page duplicates the backend's, drifts from it, and long work there freezes the page
+
 ## Bus
 
 - No `Future`: only Laminar and Airstream

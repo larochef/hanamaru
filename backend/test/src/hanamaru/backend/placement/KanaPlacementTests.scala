@@ -146,7 +146,7 @@ object KanaPlacementTests extends TestSuite {
         assert(hiraganaResult.startAt.isEmpty)
         // every hiragana read and written right: to confirm, writing included
         val progress = learner
-          .kanaProgress()
+          .kanaProgress(0)
           .map(each => each.character -> each.status)
           .toMap
         assert(hiragana.forall(progress.get(_).contains(ItemStatus.ToConfirm)))
@@ -157,7 +157,7 @@ object KanaPlacementTests extends TestSuite {
         taken(test, hiragana.toSet - "ぬ")
         assert(test.state().scripts.head.startAt.contains("な"))
         val progress = learner
-          .kanaProgress()
+          .kanaProgress(0)
           .map(each => each.character -> each.status)
           .toMap
         assert(progress.get("ぬ").contains(ItemStatus.Learning))

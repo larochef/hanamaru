@@ -1,5 +1,6 @@
 package hanamaru.shared.kanji
 
+import hanamaru.shared.characters.CharacterAsked
 import hanamaru.shared.dictionary.DictionaryWord
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
@@ -37,19 +38,6 @@ object KanjiDetail {
   given Schema[KanjiDetail] = Schema.derived
 }
 
-/** What a kanji exercise asks: the kanji's reading in a word, or the kanji
-  * written in a word.
-  */
-enum KanjiAsked {
-
-  /** The word shown, written with the kanji: its reading typed. */
-  case Reading
-
-  /** The word's reading and meaning given: the kanji written with the stylus.
-    */
-  case Writing
-}
-
 /** A kanji exercise of a lesson session: the kanji, the word it is asked in (a
   * word the learner knows), what is asked, and whether it is asked for the
   * first time (the kanji then shown first, and written guided first).
@@ -57,7 +45,7 @@ enum KanjiAsked {
 final case class KanjiExercise(
     kanji: Kanji,
     word: DictionaryWord,
-    asked: KanjiAsked,
+    asked: CharacterAsked,
     isNew: Boolean
 )
 
@@ -66,10 +54,6 @@ final case class KanjiReadingAnswer(kanji: String, word: Long, typed: String)
 
 /** A reading judged: right or not, and the word's reading. */
 final case class KanjiReadingVerdict(right: Boolean, reading: String)
-
-object KanjiAsked {
-  given Schema[KanjiAsked] = Schema.derived
-}
 
 object KanjiExercise {
   given JsonValueCodec[List[KanjiExercise]] = JsonCodecMaker.make

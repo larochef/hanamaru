@@ -48,11 +48,12 @@ object LessonRoutes {
       .out(jsonBody[ExerciseVerdict])
 
   /** A lesson's exercises done, recorded as one review of its point. */
-  val done: PublicEndpoint[ExercisesDone, String, Unit, Any] =
+  val done: PublicEndpoint[ExercisesDone, String, ExercisesTally, Any] =
     Routes.baseRoute.post
       .in("lessons" / "done")
       .in(jsonBody[ExercisesDone])
       .errorOut(Routes.refused)
+      .out(jsonBody[ExercisesTally])
 
   /** A lesson session's plan: the grammar reviews due, then the next lesson. */
   val plan: PublicEndpoint[Unit, String, LessonPlan, Any] =

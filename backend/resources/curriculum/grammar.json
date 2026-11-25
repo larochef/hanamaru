@@ -119,7 +119,7 @@
       { "japanese": "田中さんも先生ですか。", "french": "Monsieur Tanaka est professeur, lui aussi ?" }
     ],
     "theme": "Les animaux et la nature",
-    "words": ["犬", "猫", "鳥", "魚", "動物", "花", "木", "山", "川", "海", "空|そら", "池", "森|もり", "林|はやし", "石|いし", "虫|むし", "馬|うま", "羽|はね"],
+    "words": ["犬", "猫", "鳥", "魚", "花", "木", "山", "川", "海", "空|そら", "池", "森|もり", "林|はやし", "石|いし", "虫|むし", "馬|うま", "羽|はね", "草|くさ"],
     "placement": [
       { "sentence": "私＿学生です。", "french": "Moi aussi, je suis étudiant.", "choices": ["も", "は", "の"], "answer": "も" },
       { "sentence": "山田さん＿日本人です。", "french": "Madame Yamada aussi est japonaise.", "choices": ["も", "を", "へ"], "answer": "も" }
@@ -1789,5 +1789,136 @@
       [{ "form": "らしい", "pos": "助動詞" }],
       [{ "form": "だ", "conjugation": "連体形" }, { "form": "よう", "pos": "形状詞,助動詞語幹" }]
     ]
+  },
+  {
+    "id": "tabakari",
+    "level": 3,
+    "title": "〜たばかりです : venir de",
+    "pattern": "〜たばかりです",
+    "requires": ["ta"],
+    "explanation": [
+      "Après la forme en た, ばかり dit qu'une action vient d'avoir lieu : にほんに きた ばかりです, « je viens d'arriver au Japon ».",
+      "Ce « tout juste » est celui de celui qui parle : une semaine peut être « tout juste » s'il la ressent comme récente. ばかり se comporte comme un nom : ばかりです, ばかりの + nom (かった ばかりの かさ, « le parapluie que je venais d'acheter »).",
+      "Après un nom, ばかり a un autre sens, « rien que » (あめ ばかり, « rien que de la pluie ») ; ici, après la forme en た, il dit toujours « venir de »."
+    ],
+    "examples": [
+      { "japanese": "日本に来たばかりです。", "french": "Je viens d'arriver au Japon." },
+      { "japanese": "さっき昼ご飯を食べたばかりです。", "french": "Je viens juste de déjeuner." },
+      { "japanese": "この店は先週開店したばかりです。", "french": "Ce magasin vient d'ouvrir, la semaine dernière." },
+      { "japanese": "買ったばかりの傘をなくしました。", "french": "J'ai perdu le parapluie que je venais d'acheter." }
+    ],
+    "theme": "Ce qui vient d'arriver",
+    "words": ["届く", "到着", "出発", "帰国", "入社", "退院", "開店", "新人", "最初", "さっき"],
+    "placement": [
+      { "sentence": "日本に来た＿です。", "french": "Je viens d'arriver au Japon.", "choices": ["ばかり", "つもり", "とき"], "answer": "ばかり" },
+      { "sentence": "さっき食べた＿です。", "french": "Je viens juste de manger.", "choices": ["ばかり", "ほう", "まえ"], "answer": "ばかり" }
+    ],
+    "signature": [[{ "forms": ["た", "だ"], "pos": "助動詞" }, { "form": "ばかり" }]]
+  },
+  {
+    "id": "tokoro",
+    "level": 3,
+    "title": "〜ところです : au moment de",
+    "pattern": "〜るところです・〜ているところです・〜たところです",
+    "requires": ["te-iru", "ta"],
+    "explanation": [
+      "ところ, « l'endroit », dit aussi le moment où l'on en est d'une action. La forme du verbe devant dit lequel.",
+      "Forme du dictionnaire : on est sur le point de faire (でかける ところです, « je m'apprête à sortir »). Forme en ている : on est en plein dedans (つくって いる ところです, « je suis en train de le préparer »). Forme en た : on vient tout juste de finir (かえった ところです, « je viens à l'instant de rentrer »).",
+      "たところ est plus immédiat que たばかり : il parle de l'instant même, quand たばかり peut s'étendre sur des jours."
+    ],
+    "examples": [
+      { "japanese": "今から出かけるところです。", "french": "Je suis sur le point de sortir." },
+      { "japanese": "今、晩ご飯を作っているところです。", "french": "Je suis en train de préparer le dîner." },
+      { "japanese": "ちょうど家に帰ったところです。", "french": "Je viens tout juste de rentrer à la maison." },
+      { "japanese": "駅に着いたところです。", "french": "Je viens d'arriver à la gare, à l'instant." }
+    ],
+    "theme": "Le bon moment",
+    "words": ["ちょうど", "途中", "これから", "出る", "支度", "帰り", "戻る", "今朝", "今夜", "ところ"],
+    "placement": [
+      { "sentence": "今から出かける＿です。", "french": "Je suis sur le point de sortir.", "choices": ["ところ", "こと", "はず"], "answer": "ところ" },
+      { "sentence": "ちょうど家に帰った＿です。", "french": "Je viens tout juste de rentrer à la maison.", "choices": ["ところ", "まま", "ため"], "answer": "ところ" }
+    ],
+    "signature": [
+      [{ "form": "ところ" }, { "form": "です" }],
+      [{ "form": "ところ" }, { "form": "だ" }]
+    ]
+  },
+  {
+    "id": "hazu",
+    "level": 3,
+    "title": "〜はずです : normalement, devrait",
+    "pattern": "〜はずです",
+    "requires": ["plain"],
+    "explanation": [
+      "はずです dit ce qui devrait être, d'après ce qu'on sait : にもつは あした とどく はずです, « le colis devrait arriver demain » (on l'a envoyé, les délais sont connus).",
+      "Devant, la forme simple ; un nom prend の (やすみの はずです), un adjectif en な garde な (しずかな はずです).",
+      "C'est une déduction sûre d'elle, appuyée sur des faits ; かもしれません dit seulement que c'est possible, et でしょう que c'est probable."
+    ],
+    "examples": [
+      { "japanese": "田中さんはもう着いたはずです。", "french": "Monsieur Tanaka devrait déjà être arrivé." },
+      { "japanese": "荷物は明日届くはずです。", "french": "Le colis devrait arriver demain." },
+      { "japanese": "会議は三時に始まるはずです。", "french": "La réunion doit commencer à trois heures." },
+      { "japanese": "今日は休みのはずです。", "french": "Normalement, c'est un jour de congé aujourd'hui." }
+    ],
+    "theme": "Ce qu'on attend",
+    "words": ["確か", "当然", "予想", "配達", "郵便", "開始", "終了", "時刻表", "期待", "知らせる"],
+    "placement": [
+      { "sentence": "荷物は明日届く＿です。", "french": "Le colis devrait arriver demain.", "choices": ["はず", "ため", "まま"], "answer": "はず" },
+      { "sentence": "会議は三時に始まる＿です。", "french": "La réunion doit commencer à trois heures.", "choices": ["はず", "ばかり", "こと"], "answer": "はず" }
+    ],
+    "signature": [[{ "form": "はず" }]]
+  },
+  {
+    "id": "koto-ni-suru",
+    "level": 3,
+    "title": "〜ことにする, 〜ことになる : décider, être décidé",
+    "pattern": "〜ことにします・〜ことになりました",
+    "requires": ["dekiru", "naru"],
+    "explanation": [
+      "Après la forme du dictionnaire (ou en ない), こと に する dit qu'on décide soi-même de faire : たばこを やめる ことに しました, « j'ai décidé d'arrêter de fumer ».",
+      "こと に なる dit que c'est décidé, sans dire par qui, souvent par d'autres ou par les circonstances : てんきんする ことに なりました, « il a été décidé que je serais muté ».",
+      "Au présent continu, ことに して いる dit une règle qu'on s'est donnée : まいあさ はやく おきる ことに して います, « je me fais une règle de me lever tôt »."
+    ],
+    "examples": [
+      { "japanese": "来年、日本へ留学することにしました。", "french": "J'ai décidé de partir étudier au Japon l'an prochain." },
+      { "japanese": "毎朝早く起きることにしています。", "french": "Je me fais une règle de me lever tôt chaque matin." },
+      { "japanese": "来月、大阪に転勤することになりました。", "french": "Il a été décidé que je serais muté à Osaka le mois prochain." },
+      { "japanese": "煙草をやめることにしました。", "french": "J'ai décidé d'arrêter de fumer." }
+    ],
+    "theme": "Les décisions",
+    "words": ["決心", "禁煙", "転勤", "辞める", "早起き", "引っ越し", "進学", "結論", "毎月"],
+    "placement": [
+      { "sentence": "煙草をやめる＿にしました。", "french": "J'ai décidé d'arrêter de fumer.", "choices": ["こと", "ところ", "はず"], "answer": "こと" },
+      { "sentence": "大阪に転勤すること＿なりました。", "french": "Il a été décidé que je serais muté à Osaka.", "choices": ["に", "が", "を"], "answer": "に" }
+    ],
+    "signature": [
+      [{ "form": "こと" }, { "form": "に", "pos": "助詞,格助詞" }, { "form": "する" }],
+      [{ "form": "こと" }, { "form": "に", "pos": "助詞,格助詞" }, { "form": "なる" }]
+    ]
+  },
+  {
+    "id": "you-ni-iu",
+    "level": 3,
+    "title": "〜ように言う : dire de faire",
+    "pattern": "〜ようにいいます・〜ようにたのみます",
+    "requires": ["you-ni", "to-iu"],
+    "explanation": [
+      "Pour rapporter une consigne, ce qu'on a dit à quelqu'un de faire, on met ように après la forme du dictionnaire (ou en ない), puis いう, たのむ (demander) ou つたえる (transmettre) : しずかに する ように いいました, « il a dit de se taire ».",
+      "Celui à qui on le dit prend に : せんせいは がくせいに … ように いいました.",
+      "Au passif, on dit ce qu'on nous a dit de faire : いしゃに くすりを のむ ように いわれました, « le médecin m'a dit de prendre le médicament »."
+    ],
+    "examples": [
+      { "japanese": "先生は学生に静かにするように言いました。", "french": "Le professeur a dit aux élèves de se taire." },
+      { "japanese": "医者に薬を飲むように言われました。", "french": "Le médecin m'a dit de prendre le médicament." },
+      { "japanese": "部長に早く来るように頼まれました。", "french": "Le chef m'a demandé de venir tôt." },
+      { "japanese": "田中さんに電話するように伝えてください。", "french": "Dites à Monsieur Tanaka de m'appeler." }
+    ],
+    "theme": "Les consignes",
+    "words": ["命令", "指示", "伝言", "必ず", "早めに", "患者", "看護師", "禁止", "許可"],
+    "placement": [
+      { "sentence": "医者に薬を飲む＿言われました。", "french": "Le médecin m'a dit de prendre le médicament.", "choices": ["ように", "ために", "ことに"], "answer": "ように" },
+      { "sentence": "先生は静かにする＿言いました。", "french": "Le professeur a dit de se taire.", "choices": ["ように", "ところ", "はず"], "answer": "ように" }
+    ],
+    "signature": [[{ "form": "よう", "pos": "形状詞,助動詞語幹" }, { "form": "だ", "conjugation": "連用形-ニ" }, { "forms": ["言う", "頼む", "伝える"] }]]
   }
 ]

@@ -1,6 +1,6 @@
 # 06 — Curriculum and lessons
 
-**Status:** built: units (a point, a theme, its words), 66 points covering N5 and N4, lessons with vocabulary, reading texts, exercises, placement and sessions
+**Status:** built: units (a point, a theme, its words, its symbols), 71 points covering N5, N4 and the start of N3, lessons with vocabulary, reading texts, exercises, placement and sessions
 
 ## Intent
 
@@ -43,21 +43,33 @@ can be repeated with fresh content until it is acquired.
   them; the vocabulary series practise the unit under way
   ([`08`](08-vocabulary-practice.md)). A unit is **acquired** once its point
   is practised (its card past its first steps), 80% of its words are
-  stable and its kanji learned (below); the next unit's words open only then. The units' words, as
+  stable and its symbols learned (below); the next unit's words open only then. The units' words, as
   written, hold every kanji of the first two school grades (240), so that
   each can be learned through a word already known (a test checks it).
-- **A unit's kanji** (built): those of the first two grades, in the order the
+- **A unit's symbols** (built): what it teaches to read and write. The first
+  unit's are the hiragana, the second's the katakana: a beginner learns them
+  there, a few each session, and the first unit's words wait until its
+  hiragana are all met (they are written with them); the second's do not
+  wait for its katakana (they are not written with them). A kanji is
+  assigned only through a word usually written with it (分かる, usually in
+  kana, carries no 分): the same words it is then practised in, so that every
+  unit's kanji can be met (a test checks it). From the third unit on,
+  its kanji: those of the first two grades, in the order the
   units' words bring them, each in the first unit whose words have it, four
   per unit at most, the rest carried on to the next units: the first units'
   words bring far more (13 in the first) than later ones (none in some). The
   first two units bring none, while the kana are still being settled; theirs
   start with the third. So a kanji comes some units after its words, which
   are first learned in kana; all 240 are placed by the last unit.
-  A unit is acquired once its kanji are learned too, each read and written
+  A unit is acquired once its symbols are learned too, each read and written
   past its first steps; they are practised in My lesson
   ([`09`](09-sessions.md)).
+- **Passed once, passed**: a word, a point or a symbol counts as past its
+  first steps once its card has left them, even if a later lapse sends it
+  back to relearning: a unit acquired never closes again, and the lapse is
+  only the card's, reviewed again as FSRS says.
 - **Granularity**: one point per particle or form a beginner meets as one
-  thing (は, の, ます, ません and ました together, ではありません…). The 66
+  thing (は, の, ます, ません and ました together, ではありません…). The 71
   points: です, は, か, の, も, これ/この/ここ, ます, を, へ/に,
   ません/ました/でした, ではありません, the い and な adjectives, で, ある/いる
   (and が), the hour (に), the adjectives' negative and past, くて/で, たい,
@@ -70,7 +82,9 @@ can be repeated with fresh content until it is acquired.
   たほうがいい, てしまう, てみる, ておく, そう (looks), ながら, ので; てある,
   the passive, the causative, すぎる, やすい/にくい, ば, と (whenever), のに,
   けど/が, ために, ように, ようになる/ようにする, たり, なくてもいい,
-  そう (hearsay), ようだ/みたい/らしい.
+  そう (hearsay), ようだ/みたい/らしい; then N3, a first batch: たばかり,
+  ところ (about to, in the middle of, just done), はず, ことにする/ことになる,
+  ように言う (said to do).
 - **Placement answers in kana** may mislead the analyser (よめ, ねよう): a
   question then gives its answer as written (`written`: 読め), for the test.
 - **What a point names is grammar**: once a point is learned, the words its
@@ -102,7 +116,25 @@ can be repeated with fresh content until it is acquired.
     ([`05`](05-writing.md)). Right in
     the other script, the answer is right, and the words in katakana named.
 
-  Four of each at most, particles first. The code judges what it can: the
+  - **the form chosen** (built): for the points of a verb's polite
+    endings (ます, ません, ました, ませんでした, ましょう, たい), the ending
+    blanked as one, chosen among four learned by then (none while ます is
+    the only one): the French says which (tense, negation, wish, invitation);
+  - **the meaning given** (built): a sentence shown in Japanese, its meaning
+    typed in French, in sentences whose French the series has not shown yet
+    (chosen or translated: that would give it away); right by the code when it is the French expected (case,
+    accents and punctuation aside), else judged by the tutor; the tutor away,
+    the learner is shown the meaning and says whether theirs is the same;
+  - **a kanji written** (built): in a sentence, a word whose kanji's writing
+    is being learned, shown in kana, its kanji written from memory: a review
+    of the kanji's writing ([`09`](09-sessions.md)), only when it is due,
+    not counted in the point's.
+
+  The page sends how each exercise went; the server counts them (a kanji
+  written left out) and records the point's review.
+
+  Four choices at most (particles, then forms), three translations, two
+  meanings, two kanji. The code judges what it can: the
   particle expected; the sentence expected, whatever its spaces, punctuation
   and script, and は, へ, を typed as they sound (right, the spelling
   explained). Anything else goes to the tutor (`ExerciseJudge`), who says
@@ -134,7 +166,11 @@ can be repeated with fresh content until it is acquired.
 ## Open
 
 - The rest of the curriculum, towards N3: written in batches, the learner
-  reading each batch for clarity (the order is not theirs to judge).
+  reading each batch for clarity (the order is not theirs to judge). The
+  first N3 batch (たばかり to ように言う) waits for that reading. A new point's
+  signature makes its pattern "not learned yet" for the texts of every lesson
+  before it: a signature too wide would refuse their sentences, so each is
+  kept tight (ばかり after た, ところ before です or だ).
 - What the signatures do not tell apart yet, found writing the first points:
   いい is an い adjective the analyser calls dependent (非自立可能), and 元気 or
   便利 are nouns that can be adjectives (形状詞可能), so the adjective
@@ -142,6 +178,6 @@ can be repeated with fresh content until it is acquired.
   where one goes. では, which the analyser reads as the particles で and は,
   is told apart by its context: a pattern may say what must not follow it
   (the で of a place is not followed by は then ある).
-- Exercises still to come: translation into French, free answers, kanji
-  dictation, listening; and an exercise for the points that are not a
-  particle beyond translation (a conjugation chosen, for ます).
+- Exercises still to come: free answers, listening; forms beyond the polite
+  endings (the plain forms, the adjectives'), which need a conjugation of
+  their own to offer choices.

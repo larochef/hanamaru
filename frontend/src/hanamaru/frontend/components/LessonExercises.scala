@@ -9,10 +9,12 @@ import hanamaru.shared.writing.{CharacterRecognizer, PadCharacter}
 
 import com.raquo.laminar.api.L.*
 
-/** A lesson's exercises, one after the other: a particle chosen, a sentence
-  * translated from French; each judged by the code, else corrected by the
-  * tutor, then the series recorded as one review of the point; `onDone` offers
-  * to go on, in a session.
+/** A lesson's exercises, one after the other: a particle or a form chosen, a
+  * sentence translated from French, one's meaning given in French, a kanji
+  * written; each judged by the code, else corrected by the tutor (a meaning,
+  * the tutor away, by the learner), then the series recorded as one review of
+  * the point (the kanji written are the kanji's reviews); `onDone` offers to go
+  * on, in a session.
   */
 class LessonExercises(
     bus: AppBus,
@@ -32,7 +34,9 @@ class LessonExercises(
 
   private val step = Var[Step](Step.Idle)
   private val exercises = Var(List.empty[LessonExercise])
-  private val right = Var(0)
+  // how each exercise went, sent once all are done: the server counts them
+  private val outcomes = Var(List.empty[ExerciseOutcome])
+  private val finished = EventBus[ExercisesDone]()
   private val loads = EventBus[Unit]()
   private val answers = EventBus[ExerciseAnswer]()
   // sentences written with the stylus, besides the keyboard
@@ -43,17 +47,17 @@ class LessonExercises(
     answers.writer.onNext(ExerciseAnswer(exercises.now()(index), answer))
   }
 
+  private def kept(kind: ExerciseKind, right: Boolean): Unit =
+    outcomes.update(_ :+ ExerciseOutcome(kind, right))
+
   // the next exercise, or the series recorded
-  private def next(index: Int): Unit = {
-    val total = exercises.now().size
-    if (index + 1 < total) {
+  private def next(index: Int): Unit =
+    if (index + 1 < exercises.now().size) {
       step.set(Step.Asking(index + 1))
     } else {
-      val done = ExercisesDone(point, right.now(), total)
-      bus.send(AppCommand.FinishExercises(done))
-      step.set(Step.Done(done.right, total))
+      step.set(Step.Loading)
+      finished.writer.onNext(ExercisesDone(point, outcomes.now()))
     }
-  }
 
   private def sentence(
       parts: List[SentencePart],
@@ -64,19 +68,21 @@ class LessonExercises(
     parts.map(part =>
       span(
         cls("is-asked") := part.marked && !blanked,
-        (if (part.spaceBefore) " " else "") +
-          (if (part.marked && blanked) "＿＿" else part.text)
+        Option.when(part.spaceBefore)(" "),
+        if (part.marked && blanked) span("＿＿") else PartText(part).node
       )
     )
   )
 
   private def asked(index: Int, exercise: LessonExercise): HtmlElement =
     exercise.kind match {
-      case ExerciseKind.Particle =>
+      case ExerciseKind.Particle | ExerciseKind.Form =>
         div(
           p(
             cls := "placement-prompt",
-            Tr("Which particle?", "Quelle particule ?")
+            if (exercise.kind == ExerciseKind.Form)
+              Tr("Which form?", "Quelle forme ?")
+            else Tr("Which particle?", "Quelle particule ?")
           ),
           sentence(exercise.parts, blanked = true),
           p(cls := "example-french", exercise.french),
@@ -91,12 +97,53 @@ class LessonExercises(
             )
           )
         )
+      case ExerciseKind.Meaning =>
+        val field = input(
+          cls := "meaning-input",
+          placeholder := Tr("its meaning, in French", "son sens, en français"),
+          autoComplete := "off",
+          onMountFocus
+        )
+        div(
+          p(
+            cls := "placement-prompt",
+            Tr("What does it mean?", "Que veut dire :")
+          ),
+          sentence(exercise.parts, blanked = false),
+          form(
+            onSubmit.preventDefault --> (_ => submit(index, field.ref.value)),
+            field,
+            button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
+          ),
+          button(
+            Tr("I don't know", "Je ne sais pas"),
+            onClick --> (_ => submit(index, ""))
+          )
+        )
+      case ExerciseKind.KanjiWriting =>
+        div(
+          p(
+            cls := "placement-prompt",
+            Tr("A kanji to write, in:", "Un kanji à écrire, dans :")
+          ),
+          sentence(exercise.parts, blanked = false),
+          p(cls := "example-french", exercise.french),
+          exercise.kanji.map(kanji =>
+            KanjiExerciseView(
+              bus,
+              kanji,
+              () => {
+                kept(ExerciseKind.KanjiWriting, right = true)
+                next(index)
+              }
+            ).node
+          )
+        )
       case ExerciseKind.Translation =>
         val field = KanaInput()
         // the kana written in the pad, in the order they are in the field
         val padded = Var(List.empty[KanaPad.Written])
-        val inKatakana =
-          exercise.parts.count(part => Romaji.isKatakana(part.text))
+        val inKatakana = exercise.wordsInKatakana
         div(
           p(
             cls := "placement-prompt",
@@ -274,52 +321,101 @@ class LessonExercises(
     ).node
   }
 
+  // the tutor away: the learner compares their meaning with the one expected
+  private def selfGraded(
+      index: Int,
+      exercise: LessonExercise,
+      answer: String
+  ): HtmlElement = div(
+    p(
+      Tr("You wrote: ", "Tu as écrit : "),
+      span(cls := "typed-answer", answer)
+    ),
+    p(Tr("It means: ", "Elle veut dire : "), exercise.french),
+    p(
+      cls := "in-english",
+      Tr(
+        "The tutor is away: say whether your meaning is the same.",
+        "Le tuteur est absent : dis si ton sens est le même."
+      )
+    ),
+    div(
+      cls := "placement-actions",
+      button(
+        cls := "primary",
+        Tr("Same meaning", "Même sens"),
+        onClick --> { _ =>
+          kept(exercise.kind, right = true)
+          next(index)
+        }
+      ),
+      button(
+        Tr("Not quite", "Pas tout à fait"),
+        onClick --> { _ =>
+          kept(exercise.kind, right = false)
+          next(index)
+        }
+      )
+    )
+  )
+
   private def judged(
       index: Int,
       exercise: LessonExercise,
       answer: String,
       verdict: ExerciseVerdict
-  ): HtmlElement = div(
-    p(
-      cls := (if (verdict.right) "last-answer is-right"
-              else "last-answer is-failed"),
-      if (verdict.right) Tr("Right!", "Juste !")
-      else Tr("Not quite.", "Pas tout à fait."),
-      Option.when(verdict.byTutor)(
-        span(
-          cls := "in-english",
-          Tr(" (the tutor's judgement)", " (selon le tuteur)")
-        )
-      )
-    ),
-    Option.when(answer.nonEmpty && exercise.kind == ExerciseKind.Translation)(
+  ): HtmlElement = if (verdict.toSelfGrade) {
+    selfGraded(index, exercise, answer)
+  } else
+    div(
       p(
-        Tr("You wrote: ", "Tu as écrit : "),
-        span(lang := "ja", cls := "typed-answer", answer)
-      )
-    ),
-    verdict.correction.map(corrected =>
-      div(
+        cls := (if (verdict.right) "last-answer is-right"
+                else "last-answer is-failed"),
+        if (verdict.right) Tr("Right!", "Juste !")
+        else Tr("Not quite.", "Pas tout à fait."),
+        Option.when(verdict.byTutor)(
+          span(
+            cls := "in-english",
+            Tr(" (the tutor's judgement)", " (selon le tuteur)")
+          )
+        )
+      ),
+      Option.when(
+        answer.nonEmpty && (exercise.kind == ExerciseKind.Translation ||
+          exercise.kind == ExerciseKind.Meaning)
+      )(
         p(
-          cls := "in-english",
-          Tr("Your sentence, corrected:", "Ta phrase corrigée :")
-        ),
-        sentence(corrected, blanked = false)
+          Tr("You wrote: ", "Tu as écrit : "),
+          span(
+            Option.when(exercise.kind == ExerciseKind.Translation)(
+              lang := "ja"
+            ),
+            cls := "typed-answer",
+            answer
+          )
+        )
+      ),
+      verdict.correction.map(corrected =>
+        div(
+          p(
+            cls := "in-english",
+            Tr("Your sentence, corrected:", "Ta phrase corrigée :")
+          ),
+          sentence(corrected, blanked = false)
+        )
+      ),
+      p(cls := "in-english", Tr("The sentence:", "La phrase :")),
+      sentence(exercise.parts, blanked = false),
+      p(cls := "example-french", exercise.french),
+      verdict.explanation
+        .map(explanation => p(cls := "tutor-explanation", explanation)),
+      button(
+        cls := "primary",
+        onMountFocus,
+        Tr("Continue", "Continuer"),
+        onClick --> (_ => next(index))
       )
-    ),
-    p(cls := "in-english", Tr("The sentence:", "La phrase :")),
-    sentence(exercise.parts, blanked = false),
-    p(cls := "example-french", exercise.french),
-    verdict.explanation.map(explanation =>
-      p(cls := "tutor-explanation", explanation)
-    ),
-    button(
-      cls := "primary",
-      onMountFocus,
-      Tr("Continue", "Continuer"),
-      onClick --> (_ => next(index))
     )
-  )
 
   private def shown(now: Step, all: List[LessonExercise]): HtmlElement =
     now match {
@@ -399,7 +495,7 @@ class LessonExercises(
     ) --> {
       case Right(loaded) =>
         exercises.set(loaded)
-        right.set(0)
+        outcomes.set(Nil)
         step.set(if (loaded.isEmpty) Step.Done(0, 0) else Step.Asking(0))
       case Left(reason) => step.set(Step.Failed(reason))
     },
@@ -411,10 +507,19 @@ class LessonExercises(
         .map(answer -> _)
     ) --> {
       case (answer, Right(verdict)) =>
-        if (verdict.right) right.update(_ + 1)
+        // left to the learner, it is kept once they say
+        if (!verdict.toSelfGrade) kept(answer.exercise.kind, verdict.right)
         val index = exercises.now().indexOf(answer.exercise)
         step.set(Step.Judged(index, answer.answer, verdict))
       case (_, Left(reason)) => step.set(Step.Failed(reason))
+    },
+    finished.events.flatMapSwitch(done =>
+      bus.request(AppCommand.FinishExercises(done)) {
+        case AppEvent.ExercisesFinished(`done`, tally) => tally
+      }
+    ) --> {
+      case Right(tally) => step.set(Step.Done(tally.right, tally.total))
+      case Left(reason) => step.set(Step.Failed(reason))
     },
     child <-- step.signal.combineWith(exercises.signal).map(shown)
   )

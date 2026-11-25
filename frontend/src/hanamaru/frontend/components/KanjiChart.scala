@@ -54,8 +54,8 @@ class KanjiChart(bus: AppBus) extends ReactiveElement {
     p(
       cls := "in-english",
       Tr(
-        "The kanji taught in Japanese schools, year by year, the most frequent first. They are not followed yet: these pages are to discover them.",
-        "Les kanji appris à l'école au Japon, année par année, les plus fréquents d'abord. Ils ne sont pas encore suivis : ces pages servent à les découvrir."
+        "The kanji taught in Japanese schools, year by year, the most frequent first. Those of the first two years are learned in My lesson, with the words of each unit; these pages are to discover them and write them freely.",
+        "Les kanji appris à l'école au Japon, année par année, les plus fréquents d'abord. Ceux des deux premières années s'apprennent dans Ma leçon, avec les mots de chaque unité ; ces pages servent à les découvrir et à les écrire librement."
       )
     ),
     div(

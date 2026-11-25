@@ -1,5 +1,6 @@
 package hanamaru.backend
 
+import hanamaru.backend.characters.{CharacterApi, CharacterPractice}
 import hanamaru.backend.kanji.{KanjiPractice, KanjiPracticeApi}
 import hanamaru.backend.learner.{LearnerApi, LearnerStore}
 import hanamaru.backend.lessons.*
@@ -75,6 +76,33 @@ object Main extends OxApp {
       attempts,
       writingReview
     )
+    val characters =
+      CharacterPractice(learner, units, kanji, () => reference.dictionary)
+    val lessons = Lessons(
+      () => reference.analyser,
+      () => reference.dictionary,
+      learner,
+      TextWriter(tutor),
+      units
+    )
+    val exercises = Exercises(
+      lessons,
+      () => reference.analyser,
+      () => reference.dictionary,
+      learner,
+      () => reference.kanji
+    )
+    val kanaPlacement =
+      KanaPlacementTest(PlacementStore(database), learner, attempts)
+    val grammarPlacement = GrammarPlacementTest(
+      PlacementStore(database),
+      learner,
+      Curriculum.points,
+      () => reference.analyser
+    )
+    val myLesson = MyLesson(lessons, vocabulary, characters)
+    val today =
+      Today(learner, lessons, myLesson, kanaPlacement, grammarPlacement)
     val server = NettySyncServer()
       // a restart does not have to wait for the previous run's port; and
       // stopping does not wait for the page's open connections longer than
@@ -102,31 +130,18 @@ object Main extends OxApp {
       .addEndpoints(DictionaryApi(reference).endpoints)
       .addEndpoints(KanjiApi(reference).endpoints)
       .addEndpoints(KanjiPracticeApi(kanji).endpoints)
+      .addEndpoints(CharacterApi(characters).endpoints)
       .addEndpoints(VocabularyApi(vocabulary).endpoints)
       .addEndpoints(
         LessonApi(
-          Lessons(
-            () => reference.analyser,
-            () => reference.dictionary,
-            learner,
-            TextWriter(tutor),
-            units
-          ),
+          lessons,
+          exercises,
           ExerciseJudge(tutor, () => reference.analyser),
-          vocabulary,
-          kanji
+          myLesson
         ).endpoints
       )
       .addEndpoints(
-        PlacementApi(
-          KanaPlacementTest(PlacementStore(database), learner, attempts),
-          GrammarPlacementTest(
-            PlacementStore(database),
-            learner,
-            Curriculum.points,
-            () => reference.analyser
-          )
-        ).endpoints
+        PlacementApi(kanaPlacement, grammarPlacement).endpoints
       )
       .addEndpoints(
         SessionApi(
@@ -138,6 +153,7 @@ object Main extends OxApp {
           )
         ).endpoints
       )
+      .addEndpoints(TodayApi(today).endpoints)
       .addEndpoints(FrontendApi.endpoints)
 
     logger.info(s"Serving on http://localhost:$port")

@@ -3,7 +3,8 @@ package hanamaru.backend.reference
 import hanamaru.shared.kana.Romaji
 import hanamaru.shared.text.{PartWord, SentencePart}
 
-/** A sentence laid out for a learner who reads kana only: each word in kana,
+/** A sentence laid out for a learner who reads kana: each word in kana (and as
+  * written, when written with kanji: [[KanjiSight]] says how it is shown),
   * words spaced as in books for beginners (particles, auxiliaries, suffixes,
   * the する of a verb made of a noun and the ある of ではありません kept with the word
   * before them, prefixes with the word after).
@@ -41,6 +42,7 @@ object SentenceLayout {
         ),
         marked(index),
         word = word(token),
+        written = Option.when(token.surface.exists(isKanji))(token.surface),
         spaceBefore = index > 0 && !token.isGrammar &&
           !previous.exists(before =>
             before.partOfSpeech.headOption.exists(Set("接頭辞", "補助記号")) ||
@@ -61,6 +63,10 @@ object SentenceLayout {
           )
       )
     }
+
+  /** A kanji (or 々, which repeats one). */
+  def isKanji(character: Char): Boolean =
+    (character >= '\u4e00' && character <= '\u9fff') || character == '々'
 
   // A reading that depends on the word after: 何 is なん before a t, d or n
   // sound (なんですか, なんじ, なんの), なに otherwise (なにを, なにも).

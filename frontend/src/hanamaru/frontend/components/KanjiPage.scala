@@ -11,7 +11,8 @@ import com.raquo.laminar.api.L.*
 
 /** One kanji: its meanings, its readings (on in katakana, kun in hiragana), its
   * strokes shown, written guided, then from memory, and words of the core
-  * vocabulary written with it. Not followed yet: nothing is recorded.
+  * vocabulary written with it. Free practice: nothing is recorded (My lesson
+  * follows the units' kanji).
   */
 class KanjiPage(bus: AppBus) extends ReactiveElement {
 
@@ -46,9 +47,7 @@ class KanjiPage(bus: AppBus) extends ReactiveElement {
     .startWith(None)
 
   private def word(each: DictionaryWord): HtmlElement = {
-    val french = each.meanings.filter(_.language == "fre")
-    val meanings =
-      if (french.nonEmpty) french else each.meanings.filter(_.language == "eng")
+    val meanings = each.frenchFirst
     div(
       cls := "unit-word",
       span(

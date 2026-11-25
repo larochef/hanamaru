@@ -37,6 +37,7 @@ final case class ReadingResult(
 )
 
 object ReadingResult {
+  given JsonValueCodec[ReadingResult] = JsonCodecMaker.make
   given Schema[ReadingResult] = Schema.derived
 }
 

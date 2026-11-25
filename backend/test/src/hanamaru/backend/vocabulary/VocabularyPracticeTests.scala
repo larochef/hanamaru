@@ -53,6 +53,39 @@ object VocabularyPracticeTests extends TestSuite {
   }
 
   val tests: Tests = Tests {
+    test(
+      "a series planned: new words shown, every word asked both ways, new ones again"
+    ) {
+      withPractice { (practice, _) =>
+        val words = practice.series(start).toOption.get
+        val tasks = VocabularyPractice.planned(words)
+        val fresh = words.filter(_.isNew)
+        assert(
+          tasks.take(fresh.size) == fresh.map(SeriesTask.Intro(_)),
+          tasks.count {
+            case SeriesTask.Ask(_, Direction.Production, false, 0) => true
+            case _                                                 => false
+          } == words.size,
+          tasks.count {
+            case SeriesTask.Ask(_, Direction.Meaning, false, 0) => true
+            case _                                              => false
+          } == words.size,
+          tasks.drop(fresh.size + 2 * words.size).forall {
+            case SeriesTask.Ask(word, Direction.Production, true, 0) =>
+              word.isNew
+            case _ => false
+          }
+        )
+      }
+    }
+    test("a question missed comes back a few questions later, twice at most") {
+      assert(
+        VocabularyPractice.comesBack(missed = true, attempt = 0).contains(4),
+        VocabularyPractice.comesBack(missed = true, attempt = 1).contains(4),
+        VocabularyPractice.comesBack(missed = true, attempt = 2).isEmpty,
+        VocabularyPractice.comesBack(missed = false, attempt = 0).isEmpty
+      )
+    }
     test("a first series: new words in the order they are learned") {
       withPractice { (practice, _) =>
         val series = practice.series(start).toOption.get

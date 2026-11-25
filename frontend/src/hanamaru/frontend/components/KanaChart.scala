@@ -5,8 +5,6 @@ import hanamaru.frontend.model.*
 import hanamaru.shared.kana.*
 import hanamaru.shared.learner.{ItemStatus, KanaProgress}
 
-import scala.scalajs.js
-
 import com.raquo.laminar.api.L.*
 
 /** Every kana, script by script, laid out as the usual chart, each marked with
@@ -41,7 +39,7 @@ class KanaChart(bus: AppBus) extends ReactiveElement {
 
   private def due(kana: Kana): Signal[Boolean] =
     progress.map(
-      _.get(kana.character).flatMap(_.due).exists(_ <= js.Date.now())
+      _.get(kana.character).exists(_.dueNow)
     )
 
   private def progressLegend: HtmlElement = div(

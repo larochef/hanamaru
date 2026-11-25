@@ -1,7 +1,5 @@
 package hanamaru.shared.learner
 
-import hanamaru.shared.kana.Kana
-
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import sttp.tapir.Schema
@@ -35,13 +33,15 @@ object ItemStatus {
   */
 final case class ReviewOutcome(grade: Grade, due: Long)
 
-/** Where the learner stands on one kana: its status, and when its first card is
-  * due for review, in milliseconds since the epoch, once it has a card.
+/** Where the learner stands on one kana: its status, when its first card is due
+  * for review, in milliseconds since the epoch, once it has a card, and whether
+  * it is due now (said by the server, whose clock decides).
   */
 final case class KanaProgress(
     character: String,
     status: ItemStatus,
-    due: Option[Long]
+    due: Option[Long],
+    dueNow: Boolean = false
 )
 
 object ReviewOutcome {
@@ -52,19 +52,6 @@ object ReviewOutcome {
 object KanaProgress {
   given JsonValueCodec[List[KanaProgress]] = JsonCodecMaker.make
   given Schema[KanaProgress] = Schema.derived
-
-  /** The share of the kana that must be known for them to be settled. */
-  val settledShare = 0.9
-
-  /** Whether the kana are settled: nearly all known, their memory holding three
-    * weeks. They then need no place of their own, only their reviews when due.
-    */
-  def settled(progress: List[KanaProgress]): Boolean =
-    progress.count(_.status == ItemStatus.Known) >= settledShare * Kana.all.size
-
-  /** How many kana are due for review at `now`. */
-  def due(progress: List[KanaProgress], now: Long): Int =
-    progress.count(_.due.exists(_ <= now))
 }
 
 /** The next kana to review, and where the learner stands on it. */

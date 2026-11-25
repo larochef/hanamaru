@@ -5,6 +5,8 @@ import hanamaru.backend.reference.{Analyser, SentenceLayout}
 import hanamaru.shared.kana.Romaji
 import hanamaru.shared.lessons.*
 
+import java.text.Normalizer
+
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 
@@ -21,18 +23,21 @@ final class ExerciseJudge(
   def judged(answer: ExerciseAnswer): ExerciseVerdict = {
     val exercise = answer.exercise
     exercise.kind match {
-      case ExerciseKind.Particle if answer.answer == exercise.expected =>
+      case ExerciseKind.Particle | ExerciseKind.Form
+          if answer.answer == exercise.expected =>
         ExerciseVerdict(right = true, byTutor = false, None, None)
-      case ExerciseKind.Particle =>
+      case ExerciseKind.Particle | ExerciseKind.Form =>
         val filled = exercise.parts
           .map(part => if (part.marked) answer.answer else part.text)
           .mkString
+        val what =
+          if (exercise.kind == ExerciseKind.Form) "form" else "particle"
         client
           .structured[ParticleJudgement](
             system,
             s"""Sentence: $filled
                |Meaning: ${exercise.french}
-               |The blank was filled with 「${answer.answer}」; the expected particle is 「${exercise.expected}」.
+               |The blank was filled with 「${answer.answer}」; the expected $what is 「${exercise.expected}」.
                |Is 「${answer.answer}」 also correct here, with this meaning? Explain why or why not.""".stripMargin,
             particleSchema
           )
@@ -46,6 +51,42 @@ final class ExerciseJudge(
                 Some(judgement.explanation)
               )
           )
+      case ExerciseKind.Meaning if answer.answer.isBlank =>
+        ExerciseVerdict(right = false, byTutor = false, None, None)
+      case ExerciseKind.Meaning
+          if inFrench(answer.answer) == inFrench(exercise.expected) =>
+        ExerciseVerdict(right = true, byTutor = false, None, None)
+      case ExerciseKind.Meaning =>
+        client
+          .structured[MeaningJudgement](
+            system,
+            s"""Japanese sentence: ${exercise.japanese}
+               |Its meaning: ${exercise.french}
+               |The learner translated it into French: ${answer.answer}
+               |Does the learner's French say what the Japanese says? Another wording is fine, and so are small French mistakes; a different meaning (tense, negation, who does what) is not. Explain in French.""".stripMargin,
+            meaningSchema
+          )
+          .fold(
+            // the tutor away: the learner compares with the meaning shown
+            _ =>
+              ExerciseVerdict(
+                right = false,
+                byTutor = false,
+                None,
+                None,
+                toSelfGrade = true
+              ),
+            judgement =>
+              ExerciseVerdict(
+                judgement.correct,
+                byTutor = true,
+                None,
+                Some(judgement.explanation)
+              )
+          )
+      // a kanji written is kept as the kanji's review, not judged here
+      case ExerciseKind.KanjiWriting =>
+        ExerciseVerdict(right = true, byTutor = false, None, None)
       case ExerciseKind.Translation =>
         val typed = normalised(answer.answer)
         val expected = normalised(exercise.expected)
@@ -134,7 +175,10 @@ object ExerciseJudge {
       explanation: String
   )
 
+  final case class MeaningJudgement(correct: Boolean, explanation: String)
+
   given JsonValueCodec[ParticleJudgement] = JsonCodecMaker.make
+  given JsonValueCodec[MeaningJudgement] = JsonCodecMaker.make
   given JsonValueCodec[TranslationJudgement] = JsonCodecMaker.make
 
   private val system =
@@ -142,6 +186,9 @@ object ExerciseJudge {
 
   private val particleSchema =
     """{"type":"object","properties":{"alsoCorrect":{"type":"boolean"},"explanation":{"type":"string"}},"required":["alsoCorrect","explanation"]}"""
+
+  private val meaningSchema =
+    """{"type":"object","properties":{"correct":{"type":"boolean"},"explanation":{"type":"string"}},"required":["correct","explanation"]}"""
 
   private val translationSchema =
     """{"type":"object","properties":{"correct":{"type":"boolean"},"corrected":{"type":"string"},"explanation":{"type":"string"}},"required":["correct","corrected","explanation"]}"""
@@ -156,6 +203,14 @@ object ExerciseJudge {
     text.filterNot(character =>
       character.isWhitespace || "。、？?！!.,　".contains(character)
     )
+
+  /** A French sentence as compared: in small letters, without accents, spaces
+    * nor punctuation.
+    */
+  def inFrench(text: String): String =
+    Normalizer
+      .normalize(text.toLowerCase, Normalizer.Form.NFD)
+      .filter(_.isLetterOrDigit)
 
   // じゃ, spoken, as the では it stands for
   private def uncontracted(text: String): String = text.replace("じゃあり", "ではあり")

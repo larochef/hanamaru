@@ -24,13 +24,6 @@ object KanjiRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[KanjiDetail])
 
-  /** A lesson session's kanji: those due, then the unit's new ones. */
-  val practice: PublicEndpoint[Unit, String, List[KanjiExercise], Any] =
-    Routes.baseRoute.get
-      .in("kanji-practice")
-      .errorOut(Routes.refused)
-      .out(jsonBody[List[KanjiExercise]])
-
   /** A kanji's reading in a word judged, and kept as a review. */
   val reading
       : PublicEndpoint[KanjiReadingAnswer, String, KanjiReadingVerdict, Any] =

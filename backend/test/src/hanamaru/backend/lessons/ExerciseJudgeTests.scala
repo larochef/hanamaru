@@ -42,7 +42,23 @@ object ExerciseJudgeTests extends TestSuite {
   private val particle = exercise(ExerciseKind.Particle, "は")
   private val translation = exercise(ExerciseKind.Translation, "わたしはがくせいです。")
 
+  private val form = exercise(ExerciseKind.Form, "ました")
+  private val meaning = exercise(ExerciseKind.Meaning, "Je suis étudiant.")
+
   val tests: Tests = Tests {
+    test("the form expected is right; another, no tutor to judge it, not") {
+      assert(judge.judged(ExerciseAnswer(form, "ました")).right)
+      assert(!judge.judged(ExerciseAnswer(form, "ます")).right)
+    }
+    test("a meaning as expected, whatever its case, accents and punctuation") {
+      assert(judge.judged(ExerciseAnswer(meaning, "je suis etudiant")).right)
+    }
+    test("another meaning, the tutor away, is left to the learner") {
+      val verdict = judge.judged(ExerciseAnswer(meaning, "Je suis un élève"))
+      assert(!verdict.right, verdict.toSelfGrade)
+      val none = judge.judged(ExerciseAnswer(meaning, " "))
+      assert(!none.right, !none.toSelfGrade)
+    }
     test("the particle expected is right, by the code") {
       assert(
         judge.judged(ExerciseAnswer(particle, "は")) == ExerciseVerdict(

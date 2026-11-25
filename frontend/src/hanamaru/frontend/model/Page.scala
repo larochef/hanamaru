@@ -51,6 +51,9 @@ enum Page {
   /** One kanji: its readings, meanings, strokes and words. */
   case KanjiCharacter(literal: String)
 
+  /** Where the data shown come from, and their licences. */
+  case Credits
+
   def path: String = this match {
     case Home            => "/"
     case Chart           => "/kana"
@@ -65,6 +68,7 @@ enum Page {
     case GrammarPlacement        => "/grammar/placement"
     case LessonSession           => "/lesson"
     case KanjiChart              => "/kanji"
+    case Credits                 => "/credits"
     case KanjiCharacter(literal) =>
       s"/kanji/${URIUtils.encodeURIComponent(literal)}"
     case Lesson(point) =>
@@ -92,6 +96,7 @@ object Page {
       case List("grammar", "placement") => GrammarPlacement
       case List("lesson")               => LessonSession
       case List("kanji")                => KanjiChart
+      case List("credits")              => Credits
       case List("kanji", literal)       =>
         KanjiCharacter(URIUtils.decodeURIComponent(literal))
       case List("grammar", point) =>

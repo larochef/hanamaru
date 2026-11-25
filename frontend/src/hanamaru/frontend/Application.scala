@@ -3,7 +3,7 @@ package hanamaru.frontend
 import hanamaru.frontend.api.ApiClient
 import hanamaru.frontend.appServices.*
 import hanamaru.frontend.components.*
-import hanamaru.frontend.i18n.Language
+import hanamaru.frontend.i18n.{Language, Tr}
 import hanamaru.frontend.model.*
 
 import com.raquo.laminar.api.L.*
@@ -74,9 +74,13 @@ object Application {
       div(
         hidden <-- page.map(!_.isInstanceOf[Page.KanjiCharacter]),
         KanjiPage(bus)
-      )
+      ),
+      div(hidden <-- page.map(_ != Page.Credits), Credits())
     ),
-    Credits()
+    footerTag(
+      cls := "page-foot",
+      PageLink(bus, Page.Credits, Tr("Credits", "Crédits"))
+    )
   )
 
   private lazy val appContainer: dom.Element =
@@ -94,6 +98,8 @@ object Application {
     VocabularyService(bus, apiClient)
     LessonService(bus, apiClient)
     KanjiService(bus, apiClient)
+    CharacterService(bus, apiClient)
+    TodayService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)
     navigation.showAddressed()

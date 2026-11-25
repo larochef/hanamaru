@@ -11,24 +11,24 @@ and a free afternoon are both useful.
 ## Decided
 
 - **Today** (built, the home page, `/`): what to do now, as the learner
-  stands, so that nothing has to be looked for in the menus.
-  - **The kana**, while they are not settled (90% of them known, their memory
-    holding three weeks): the placement test until it is over (or an Express
-    session to start from nothing); then how many are known, to confirm, being
-    learned and due, with the Express session, the free review and the chart.
-    Once settled, the kana have no place of their own: a card only when some
-    are due, for an Express session.
-  - **My lesson**: the unit under way, where it stands, what today's session
-    holds (grammar reviews, a series, the lesson, kanji), and the grammar
+  stands, so that nothing has to be looked for in the menus. The server
+  decides it all (`Today`, one request); the page shows it as it is.
+  - **The kana**, besides My lesson, which teaches and reviews them: the
+    placement test while no kana is met, and to resume it until it is over
+    (My lesson teaches them from nothing otherwise); an Express session when more kana are due than My lesson
+    takes (ten).
+  - **My lesson**: the unit under way, where it stands (its words, its
+    lesson, its symbols, and what it waits for), what today's session holds
+    (grammar reviews, a series, the lesson, kana and kanji), and the grammar
     placement test while it was never taken and the unit's lesson is to do.
-    A beginner who has met fewer than half the kana is told its words are in
-    kana.
   - Then, smaller, what can be practised or looked up freely: a series of
     words, the grammar's lessons, the vocabulary, the kanji, the kana chart.
 
   The menu: Today and My lesson, where the learner goes on; then, quieter,
-  "Look up": the kana (until they are settled), vocabulary, grammar, kanji.
-  The page shown is marked.
+  "Look up": the kana (until they are settled: 90% known, their memory
+  holding three weeks; the server says), vocabulary, grammar, kanji. The page
+  shown is marked. The credits have a page of their own, linked from the foot
+  of every page.
 
 - **Free review** (built, the chart's "Review" button): kana after kana, each
   shown, written guided, then from memory, as long as the learner wishes; the
@@ -106,7 +106,19 @@ and a free afternoon are both useful.
      its first words, so that its text can use them. Its exercises done are its
      first review; missed, it comes back as a review the next time. Past the
      last unit, the first point never practised;
-  4. the **kanji** ([`06`](06-curriculum-and-lessons.md)), each in a word of
+  4. the **kana and kanji**, the units' symbols
+     ([`06`](06-curriculum-and-lessons.md)): first the kana due, read or
+     written, the most overdue first, ten at most, never before they are due
+     (what is left waits, or goes to an Express session); while the first two
+     units are under way, their new kana, five a session in the chart's order,
+     each shown stroke by stroke, written over its model, then from memory,
+     then read; a kana met but never read is read, and one never written (the
+     placement test reads more than it writes) is written as a new one is. A katakana due for its
+     reading is read in a loanword written with it (テ in テレビ), one the
+     learner has met if any, else one of the core vocabulary's most basic, its
+     reading typed in kana (long vowels as ー or not) and its meaning shown
+     after: katakana live in words, which lessons in hiragana seldom give.
+     ヌ, ヲ, ヂ and ヅ, in no such word, are read alone. Then the kanji, each in a word of
      the units the learner knows: those due, read or written, the most overdue
      first (six at most); then the writing of those read well enough (their
      reading past its first steps; two at most), over the model first, then
@@ -116,7 +128,7 @@ and a free afternoon are both useful.
      before its kanji.
 
   It ends with where the unit stands (its words stable, its point practised,
-  its kanji learned) and what opens the next one, with another series to go on. A unit is
+  its symbols learned) and what opens the next one, with another series to go on. A unit is
   acquired once its point is practised, most of its words stable and its
   kanji learned; the next
   unit's words and lesson come only then, so a unit takes a few sessions:

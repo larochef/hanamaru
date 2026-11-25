@@ -1,12 +1,13 @@
 package hanamaru.frontend.model
 
 import hanamaru.shared.ServerStatus
+import hanamaru.shared.characters.*
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kanji.*
 import hanamaru.shared.learner.*
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
-import hanamaru.shared.session.SessionState
+import hanamaru.shared.session.*
 import hanamaru.shared.vocabulary.*
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
 
@@ -53,14 +54,15 @@ object AppEvent {
   final case class CoreWordsLoaded(from: Int, words: List[DictionaryWord])
       extends AppEvent
 
-  final case class SeriesLoaded(words: List[SeriesWord]) extends AppEvent
+  final case class SeriesLoaded(tasks: List[SeriesTask]) extends AppEvent
 
   final case class VocabularyJudged(
       answer: VocabularyAnswer,
       verdict: VocabularyVerdict
   ) extends AppEvent
 
-  final case class SelfGradeKept(grade: SelfGrade) extends AppEvent
+  final case class SelfGradeKept(grade: SelfGrade, comesBack: ComesBack)
+      extends AppEvent
 
   /** A sentence for a word, none when none could be written. */
   final case class SentenceLoaded(word: Long, sentence: Option[WordSentence])
@@ -89,6 +91,9 @@ object AppEvent {
 
   final case class LessonPlanLoaded(plan: LessonPlan) extends AppEvent
 
+  final case class ExercisesFinished(done: ExercisesDone, tally: ExercisesTally)
+      extends AppEvent
+
   final case class UnitLoaded(unit: Option[UnitProgress]) extends AppEvent
 
   final case class KanjiGradeLoaded(grade: Int, kanji: List[Kanji])
@@ -96,8 +101,17 @@ object AppEvent {
 
   final case class KanjiLoaded(detail: KanjiDetail) extends AppEvent
 
-  final case class KanjiPracticeLoaded(exercises: List[KanjiExercise])
+  final case class CharacterPracticeLoaded(exercises: List[CharacterExercise])
       extends AppEvent
+
+  final case class KanaReadingJudged(
+      answer: KanaReadingAnswer,
+      result: ReadingResult
+  ) extends AppEvent
+
+  final case class TodayLoaded(today: Today) extends AppEvent
+
+  final case class MenuLoaded(menu: Menu) extends AppEvent
 
   final case class KanjiReadingJudged(
       answer: KanjiReadingAnswer,

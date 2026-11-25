@@ -44,7 +44,8 @@ class LessonService(bus: AppBus, apiClient: ApiClient) {
       }
     case command @ AppCommand.FinishExercises(done) =>
       AppStreams.runOnce(apiClient.finishExercises(done)) {
-        case Right(_)     => ()
+        case Right(tally) =>
+          bus.publish(AppEvent.ExercisesFinished(done, tally))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }

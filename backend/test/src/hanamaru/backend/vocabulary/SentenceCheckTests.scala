@@ -43,7 +43,12 @@ object SentenceCheckTests extends TestSuite {
       assert(parts.filter(_.spaceBefore).map(_.text) == List("ねこ", "すき"))
       // the usual reading of a word used as it stands: わたし, not わたくし
       assert(
-        parts.head == SentencePart("わたし", marked = false, spaceBefore = false)
+        parts.head == SentencePart(
+          "わたし",
+          marked = false,
+          spaceBefore = false,
+          written = Some("私")
+        )
       )
     }
     test("a word the learner does not know is named") {

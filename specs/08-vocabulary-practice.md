@@ -84,10 +84,12 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
   then, once they are all met, those of them not stable yet. Once most of a
   unit's words are stable, no new word comes until its lesson is practised;
   the vocabulary and series pages say where the unit stands and what opens
-  the next one. Past the last unit, the core list in the order it is learned. The new words are shown first; every
-  word is asked for itself, then for its meaning, in a shuffled order; the new
-  ones are asked for themselves once more at the end. A word missed comes back
-  4 questions later, twice at most. A new word the learner says they already
+  the next one. Past the last unit, the core list in the order it is learned;
+  the first unit's words wait until its hiragana are met. The server plans the
+  series (`SeriesTask`), the page follows it: the new words are shown first;
+  every word is asked for itself, then for its meaning, in a shuffled order;
+  the new ones are asked for themselves once more at the end. A word missed
+  comes back 4 questions later, twice at most, as each verdict says. A new word the learner says they already
   know is not shown, nor asked a second time; answered right, it is graded
   *easy* and *to confirm*, as in the placement test.
 

@@ -49,7 +49,7 @@ class LessonView(
         span(
           cls("is-asked") := part.marked,
           cls("is-word") := part.word.nonEmpty,
-          part.text,
+          PartText(part),
           part.word.map(word => onClick --> (_ => selected.set(Some(word))))
         )
       )
@@ -155,9 +155,7 @@ class LessonView(
 
   // a word of the unit: its reading, its usual writing, its meaning
   private def unitWord(word: DictionaryWord): HtmlElement = {
-    val french = word.meanings.filter(_.language == "fre")
-    val meanings =
-      if (french.nonEmpty) french else word.meanings.filter(_.language == "eng")
+    val meanings = word.frenchFirst
     div(
       cls := "unit-word",
       span(

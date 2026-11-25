@@ -1,5 +1,6 @@
 package hanamaru.backend.vocabulary
 
+import hanamaru.backend.kanji.KanjiSight
 import hanamaru.backend.learner.*
 import hanamaru.backend.lessons.Units
 import hanamaru.backend.reference.Dictionary
@@ -8,6 +9,7 @@ import hanamaru.shared.learner.Grade
 import hanamaru.shared.vocabulary.*
 
 import java.time.Instant
+import scala.util.Random
 
 import com.github.plokhotnyuk.jsoniter_scala.core.writeToString
 
@@ -35,7 +37,8 @@ final class VocabularyPractice(
     * ones, fewer when many are due: the words of the unit under way, then, once
     * they are all met, those of them not stable yet; past the last unit, the
     * core vocabulary in the order it is learned. A unit's words all met, no new
-    * word comes until the unit is acquired, its lesson included.
+    * word comes until the unit is acquired, its lesson included; a first unit's
+    * words wait until its kana are met.
     */
   def series(at: Instant): Either[String, List[SeriesWord]] = dictionary.map {
     words =>
@@ -45,10 +48,17 @@ final class VocabularyPractice(
       val met = learner.metKeys(ItemKind.Word).flatMap(_.toLongOption)
       val newCount = (largestSeries - due.size).min(mostNew).max(0)
       val dueWords = words.words(due)
+      val now = units.standing()
+      // A word is asked in a sentence once its production has passed its
+      // first steps: context too early takes attention from the word itself.
+      def stable(word: Long) = now.stable(word)
       val fresh = units.current match {
-        case Some((_, unitWords)) =>
-          val unmet = unitWords.filterNot(word => met(word.id))
-          val unsettled = unitWords.filter(word =>
+        // the first unit's words wait for its hiragana: they are written with
+        // them
+        case Some(standing) if !standing.symbolsMet => Nil
+        case Some(standing)                         =>
+          val unmet = standing.words.filterNot(word => met(word.id))
+          val unsettled = standing.words.filter(word =>
             met(word.id) && !due.contains(word.id) && !stable(word.id)
           )
           unmet.take(newCount).map(SeriesWord(_, isNew = true)) ++
@@ -63,11 +73,9 @@ final class VocabularyPractice(
       ) ++ fresh
   }
 
-  // A word is asked in a sentence once its production has passed its first
-  // steps: context too early takes attention from the word itself.
-  private def stable(word: Long): Boolean = units.stable(word)
-
-  /** A sentence for a word, made of the words the learner has met. */
+  /** A sentence for a word, made of the words the learner has met, its kanji
+    * shown as the learner reads them.
+    */
   def sentence(word: Long): Either[String, Option[WordSentence]] =
     dictionary.map { words =>
       val met =
@@ -76,6 +84,9 @@ final class VocabularyPractice(
         .words(List(word))
         .headOption
         .flatMap(asked => sentences.written(asked, words.words(met.toList)))
+        .map(written =>
+          written.copy(parts = KanjiSight.of(learner).shown(written.parts))
+        )
     }
 
   def answered(
@@ -124,13 +135,21 @@ final class VocabularyPractice(
           at
         )
       )
-      VocabularyVerdict(verdict, grade, tutorMatched)
+      VocabularyVerdict(
+        verdict,
+        grade,
+        tutorMatched,
+        VocabularyPractice.comesBack(
+          verdict == Verdict.Wrong,
+          answer.attempt
+        )
+      )
     }
 
   /** The learner's own word on an answer neither the code nor the tutor could
     * judge.
     */
-  def selfGraded(grade: SelfGrade, at: Instant): Unit =
+  def selfGraded(grade: SelfGrade, at: Instant): ComesBack = {
     reviewed(
       grade.word,
       grade.direction,
@@ -138,6 +157,8 @@ final class VocabularyPractice(
       writeToString(grade),
       at
     )
+    ComesBack(VocabularyPractice.comesBack(!grade.right, grade.attempt))
+  }
 
   // A new word said to be known and answered right waits for its next review
   // to be confirmed, as the placement test's answers do.
@@ -160,4 +181,29 @@ final class VocabularyPractice(
       at,
       toConfirm = grade == Grade.Easy
     )
+}
+
+object VocabularyPractice {
+
+  // a missed question comes back this many questions later, twice at most
+  private val comesBackAfter = 4
+  private val mostReturns = 2
+
+  /** A series planned: the new words shown first; every word asked for itself,
+    * then for its meaning, each in a mixed order; the new ones asked for
+    * themselves once more, at the end.
+    */
+  def planned(words: List[SeriesWord]): List[SeriesTask] = {
+    val fresh = words.filter(_.isNew)
+    fresh.map(SeriesTask.Intro(_)) ++
+      Random.shuffle(words.map(SeriesTask.Ask(_, Direction.Production))) ++
+      Random.shuffle(words.map(SeriesTask.Ask(_, Direction.Meaning))) ++
+      Random.shuffle(
+        fresh.map(SeriesTask.Ask(_, Direction.Production, again = true))
+      )
+  }
+
+  /** How many questions later a question missed comes back, twice at most. */
+  def comesBack(missed: Boolean, attempt: Int): Option[Int] =
+    Option.when(missed && attempt < mostReturns)(comesBackAfter)
 }

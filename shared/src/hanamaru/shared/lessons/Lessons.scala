@@ -1,6 +1,7 @@
 package hanamaru.shared.lessons
 
 import hanamaru.shared.dictionary.DictionaryWord
+import hanamaru.shared.kana.Script
 import hanamaru.shared.text.SentencePart
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
@@ -39,19 +40,59 @@ final case class GrammarLesson(
     vocabulary: List[DictionaryWord]
 )
 
+/** The symbols a unit teaches: the hiragana, the katakana, or kanji. */
+enum SymbolKind {
+  case Hiragana, Katakana, Kanji
+}
+
+object SymbolKind {
+  def fromScript(script: Script): SymbolKind = script match {
+    case Script.Hiragana => Hiragana
+    case Script.Katakana => Katakana
+  }
+
+  given Schema[SymbolKind] = Schema.derived
+}
+
+/** A unit's symbols as shown: their kind, those listed (kanji; the kana are too
+  * many to list), how many are learned, out of how many.
+  */
+final case class SymbolsProgress(
+    kind: SymbolKind,
+    listed: List[String],
+    learned: Int,
+    total: Int
+)
+
+object SymbolsProgress {
+  given Schema[SymbolsProgress] = Schema.derived
+}
+
+/** What the unit under way waits for, first: its kana to be met (its words are
+  * written with them), its words, its lesson, or its symbols to be learned.
+  */
+enum UnitWaitsFor {
+  case KanaToMeet, Words, Lesson, Symbols
+}
+
+object UnitWaitsFor {
+  given Schema[UnitWaitsFor] = Schema.derived
+}
+
 /** The unit under way: its point, its theme, its words, how many of them are
-  * stable, whether its point is practised, its kanji and how many of them are
-  * learned; the next unit opens once the point is, most words are, and every
-  * kanji is.
+  * stable and how many must be, whether its point is practised, its symbols,
+  * and what it waits for; the next unit opens once the point is practised,
+  * enough words are stable and every symbol is learned.
   */
 final case class UnitProgress(
     point: GrammarPoint,
     theme: String,
     words: List[DictionaryWord],
     stable: Int,
+    wordsNeeded: Int,
     practised: Boolean,
-    kanji: List[String],
-    kanjiLearned: Int
+    symbols: Option[SymbolsProgress],
+    waitsFor: UnitWaitsFor
 )
 
 object UnitProgress {
@@ -67,13 +108,13 @@ final case class LessonText(sentences: List[LessonExample])
 /** A lesson session planned: the points whose review is due, first; then
   * whether there are words to practise in a series; then the lesson to learn,
   * the unit under way's when its point was never practised (none once the
-  * curriculum is learned); then whether there are kanji to practise.
+  * curriculum is learned); then whether there are kana or kanji to practise.
   */
 final case class LessonPlan(
     reviews: List[GrammarPoint],
     series: Boolean,
     next: Option[GrammarPoint],
-    kanji: Boolean
+    characters: Boolean
 )
 
 object LessonPlan {

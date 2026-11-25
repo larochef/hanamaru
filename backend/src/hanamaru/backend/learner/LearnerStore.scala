@@ -41,6 +41,23 @@ enum CardKind(val name: String) {
   case Usage extends CardKind("usage")
 }
 
+/** A card as plans see it: its item's key, what it tests, its phase, and when
+  * it is due, in milliseconds since the epoch.
+  */
+final case class ItemCard(
+    key: String,
+    kind: CardKind,
+    phase: Phase,
+    due: Long
+) {
+
+  /** Past its first steps, once: in review, or relearning after a lapse. What
+    * was passed once is not taken back by a lapse, so that the learner never
+    * finds a unit acquired closed again.
+    */
+  def passed: Boolean = phase != Phase.Learning
+}
+
 /** A kana's card as the session planner sees it: the kana, what the card tests,
   * its phase, and when it is due, in milliseconds since the epoch.
   */
@@ -181,15 +198,15 @@ final class LearnerStore(database: Database) {
     )(_.string("key")).toSet
   )
 
-  /** Every card of every kana: what it tests, its phase, and when it is due. */
-  def kanaCards(): List[KanaCard] = database.read(
+  /** Every card of the items of a kind, in one query. */
+  def cards(itemKind: ItemKind): List[ItemCard] = database.read(
     _.query(
       """SELECT item.key, card.kind, card.phase, card.due
         |FROM item JOIN card ON card.item_id = item.id
         |WHERE item.kind = ?""".stripMargin,
-      ItemKind.Kana.name
+      itemKind.name
     )(row =>
-      KanaCard(
+      ItemCard(
         row.string("key"),
         CardKind.values
           .find(_.name == row.string("kind"))
@@ -198,6 +215,11 @@ final class LearnerStore(database: Database) {
         row.long("due")
       )
     )
+  )
+
+  /** Every card of every kana: what it tests, its phase, and when it is due. */
+  def kanaCards(): List[KanaCard] = cards(ItemKind.Kana).map(card =>
+    KanaCard(card.key, card.kind, card.phase, card.due)
   )
 
   /** What a study session did: its reviews, those answered right, and the kana
@@ -228,7 +250,7 @@ final class LearnerStore(database: Database) {
   }
 
   /** Every kana with a card: its status, and when its first card is due. */
-  def kanaProgress(): List[KanaProgress] = database.read { session =>
+  def kanaProgress(now: Long): List[KanaProgress] = database.read { session =>
     session
       .query(
         """SELECT item.key, card.phase, card.stability, card.due, card.to_confirm
@@ -247,7 +269,12 @@ final class LearnerStore(database: Database) {
       .toList
       .sortBy(_._1)
       .map((key, cards) =>
-        KanaProgress(key, statusOf(cards), Some(cards.map(_.due).min))
+        KanaProgress(
+          key,
+          statusOf(cards),
+          Some(cards.map(_.due).min),
+          cards.exists(_.due <= now)
+        )
       )
   }
 

@@ -22,13 +22,6 @@ class KanjiService(bus: AppBus, apiClient: ApiClient) {
         case Left(reason)  =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
-    case command @ AppCommand.LoadKanjiPractice =>
-      AppStreams.runOnce(apiClient.kanjiPractice()) {
-        case Right(exercises) =>
-          bus.publish(AppEvent.KanjiPracticeLoaded(exercises))
-        case Left(reason) =>
-          bus.publish(AppEvent.RequestFailed(command, reason))
-      }
     case command @ AppCommand.AnswerKanjiReading(answer) =>
       AppStreams.runOnce(apiClient.answerKanjiReading(answer)) {
         case Right(verdict) =>

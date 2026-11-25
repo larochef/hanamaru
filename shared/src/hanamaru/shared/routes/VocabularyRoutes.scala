@@ -7,12 +7,14 @@ import sttp.tapir.json.jsoniter.*
 
 object VocabularyRoutes {
 
-  /** The words of a rapid series: those due first, then new ones. */
-  val series: PublicEndpoint[Unit, String, List[SeriesWord], Any] =
+  /** A rapid series, planned: its words (those due first, then new ones) shown
+    * and asked in order.
+    */
+  val series: PublicEndpoint[Unit, String, List[SeriesTask], Any] =
     Routes.baseRoute.get
       .in("vocabulary" / "series")
       .errorOut(Routes.refused)
-      .out(jsonBody[List[SeriesWord]])
+      .out(jsonBody[List[SeriesTask]])
 
   /** Judges an answer and keeps it as a review. */
   val answer: PublicEndpoint[VocabularyAnswer, String, VocabularyVerdict, Any] =
@@ -22,12 +24,15 @@ object VocabularyRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[VocabularyVerdict])
 
-  /** Keeps the learner's own word on an answer the code could not judge. */
-  val selfGrade: PublicEndpoint[SelfGrade, String, Unit, Any] =
+  /** Keeps the learner's own word on an answer the code could not judge; and
+    * says when a word missed comes back.
+    */
+  val selfGrade: PublicEndpoint[SelfGrade, String, ComesBack, Any] =
     Routes.baseRoute.post
       .in("vocabulary" / "self-grades")
       .in(jsonBody[SelfGrade])
       .errorOut(Routes.refused)
+      .out(jsonBody[ComesBack])
 
   /** A sentence for a word, written by the tutor with the words the learner
     * knows and checked; none when none could be written.

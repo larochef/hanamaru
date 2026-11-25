@@ -4,11 +4,20 @@ import hanamaru.frontend.i18n.Tr
 
 import com.raquo.laminar.api.L.*
 
-/** Where the facts shown come from, as their licences ask. */
+/** The credits page: where the facts shown come from, as their licences ask.
+  * Every page links to it from its foot.
+  */
 class Credits extends ReactiveElement {
 
-  override lazy val node: HtmlElement = footerTag(
+  override lazy val node: HtmlElement = div(
     cls := "credits",
+    h1(Tr("Credits", "Crédits")),
+    p(
+      Tr(
+        "Hanamaru is built on open data, used under their licences:",
+        "Hanamaru s'appuie sur des données ouvertes, utilisées selon leurs licences :"
+      )
+    ),
     p(
       Tr("Character strokes: ", "Tracés des caractères : "),
       a(href := "https://kanjivg.tagaini.net", "KanjiVG"),

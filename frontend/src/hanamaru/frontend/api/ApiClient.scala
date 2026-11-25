@@ -4,6 +4,7 @@ import hanamaru.frontend.api.airstream.AjaxBackend
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.AppResult
 import hanamaru.shared.ServerStatus
+import hanamaru.shared.characters.*
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kanji.*
 import hanamaru.shared.learner.*
@@ -86,7 +87,7 @@ class ApiClient(baseUri: Uri) {
   ): EventStream[AppResult[List[DictionaryWord]]] =
     call(DictionaryRoutes.coreWords, (from, count))
 
-  def series(): EventStream[AppResult[List[SeriesWord]]] =
+  def series(): EventStream[AppResult[List[SeriesTask]]] =
     call(VocabularyRoutes.series, ())
 
   def answerVocabulary(
@@ -94,7 +95,7 @@ class ApiClient(baseUri: Uri) {
   ): EventStream[AppResult[VocabularyVerdict]] =
     call(VocabularyRoutes.answer, answer)
 
-  def selfGradeVocabulary(grade: SelfGrade): EventStream[AppResult[Unit]] =
+  def selfGradeVocabulary(grade: SelfGrade): EventStream[AppResult[ComesBack]] =
     call(VocabularyRoutes.selfGrade, grade)
 
   def sentence(word: Long): EventStream[AppResult[Option[WordSentence]]] =
@@ -117,7 +118,9 @@ class ApiClient(baseUri: Uri) {
   ): EventStream[AppResult[ExerciseVerdict]] =
     call(LessonRoutes.answer, answer)
 
-  def finishExercises(done: ExercisesDone): EventStream[AppResult[Unit]] =
+  def finishExercises(
+      done: ExercisesDone
+  ): EventStream[AppResult[ExercisesTally]] =
     call(LessonRoutes.done, done)
 
   def grammarPlacement(): EventStream[AppResult[GrammarPlacementState]] =
@@ -143,8 +146,19 @@ class ApiClient(baseUri: Uri) {
   def kanji(literal: String): EventStream[AppResult[KanjiDetail]] =
     call(KanjiRoutes.kanji, literal)
 
-  def kanjiPractice(): EventStream[AppResult[List[KanjiExercise]]] =
-    call(KanjiRoutes.practice, ())
+  def characterPractice(): EventStream[AppResult[List[CharacterExercise]]] =
+    call(CharacterRoutes.practice, ())
+
+  def answerKanaReading(
+      answer: KanaReadingAnswer
+  ): EventStream[AppResult[ReadingResult]] =
+    call(CharacterRoutes.kanaReading, answer)
+
+  def today(): EventStream[AppResult[Today]] =
+    call(TodayRoutes.today, ())
+
+  def menu(): EventStream[AppResult[Menu]] =
+    call(TodayRoutes.menu, ())
 
   def answerKanjiReading(
       answer: KanjiReadingAnswer

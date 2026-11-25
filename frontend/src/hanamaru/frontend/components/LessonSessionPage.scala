@@ -10,8 +10,8 @@ import com.raquo.laminar.api.L.*
 /** My lesson, a session on the unit under way: the grammar points due for
   * review, each practised in its exercises; a series of words, the unit's new
   * ones among them; then the unit's lesson, read and practised, when it was
-  * never learned; then the kanji, read and written in known words; then what
-  * was done, and where the unit stands.
+  * never learned; then the kana and kanji due, and the unit's new ones; then
+  * what was done, and where the unit stands.
   */
 class LessonSessionPage(bus: AppBus) extends ReactiveElement {
 
@@ -19,7 +19,7 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
     case Review(point: GrammarPoint)
     case Series
     case Learn(point: GrammarPoint)
-    case Kanji
+    case Characters
   }
 
   private val ready: Signal[Boolean] = bus.events.events
@@ -46,7 +46,7 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
               plan.reviews.map(Step.Review(_)) ++
                 Option.when(plan.series)(Step.Series) ++
                 plan.next.map(Step.Learn(_)) ++
-                Option.when(plan.kanji)(Step.Kanji)
+                Option.when(plan.characters)(Step.Characters)
           }
           .map(Some(_))
       case _ => EventStream.fromValue(None)
@@ -89,18 +89,18 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
             onClick --> (_ => goOn())
           )
         )
-      case Step.Kanji =>
+      case Step.Characters =>
         div(
           p(
             cls := "in-english",
             Tr(
-              s"Step ${index + 1} of $total: the kanji",
-              s"Étape ${index + 1} sur $total : les kanji"
+              s"Step ${index + 1} of $total: kana and kanji",
+              s"Étape ${index + 1} sur $total : kana et kanji"
             )
           ),
-          KanjiPractice(bus, goOn),
+          CharacterPractice(bus, goOn),
           button(
-            Tr("Skip the kanji", "Passer les kanji"),
+            Tr("Skip the kana and kanji", "Passer les kana et kanji"),
             onClick --> (_ => goOn())
           )
         )
@@ -145,7 +145,7 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
         case Step.Series =>
           li(Tr("A series of words", "Une série de mots"))
         case Step.Learn(point) => li(Tr("Lesson: ", "Leçon : "), point.title)
-        case Step.Kanji        => li(Tr("Kanji", "Des kanji"))
+        case Step.Characters   => li(Tr("Kana and kanji", "Des kana et kanji"))
       }),
     div(
       cls := "placement-actions",

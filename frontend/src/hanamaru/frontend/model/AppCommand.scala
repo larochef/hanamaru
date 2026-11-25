@@ -1,5 +1,6 @@
 package hanamaru.frontend.model
 
+import hanamaru.shared.characters.KanaReadingAnswer
 import hanamaru.shared.kanji.KanjiReadingAnswer
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
@@ -102,8 +103,18 @@ object AppCommand {
   /** Asks for a kanji, with its words. */
   final case class LoadKanji(literal: String) extends AppCommand
 
-  /** Asks for a lesson session's kanji exercises. */
-  case object LoadKanjiPractice extends AppCommand
+  /** Asks for a lesson session's kana and kanji exercises. */
+  case object LoadCharacterPractice extends AppCommand
+
+  /** A kana's reading, to judge and keep. */
+  final case class AnswerKanaReading(answer: KanaReadingAnswer)
+      extends AppCommand
+
+  /** Asks for today: what to do now. */
+  case object LoadToday extends AppCommand
+
+  /** Asks for what the menu offers. */
+  case object LoadMenu extends AppCommand
 
   /** A kanji's reading in a word, to judge and keep. */
   final case class AnswerKanjiReading(answer: KanjiReadingAnswer)

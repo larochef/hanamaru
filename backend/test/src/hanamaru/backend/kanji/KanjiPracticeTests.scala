@@ -5,7 +5,9 @@ import hanamaru.backend.lessons.{Curriculum, Units}
 import hanamaru.backend.reference.{Dictionary, KanjiBook}
 import hanamaru.backend.storage.{Database, Places}
 import hanamaru.backend.writing.{WritingAttempts, WritingReview}
-import hanamaru.shared.kanji.{KanjiAsked, KanjiReadingAnswer}
+import hanamaru.shared.characters.CharacterAsked
+import hanamaru.shared.kana.Kana
+import hanamaru.shared.kanji.KanjiReadingAnswer
 import hanamaru.shared.learner.Grade
 
 import java.nio.file.{Files, Path}
@@ -53,7 +55,13 @@ object KanjiPracticeTests extends TestSuite {
           assert(practice.exercises(at).toOption.get.isEmpty)
           def reviewed(kind: ItemKind, key: String, card: CardKind) =
             learner.reviewed(kind, key, card, Grade.Easy, "", at)
-          // the units before the first with kanji acquired
+          // the units before the first with kanji acquired, their kana too
+          for {
+            kana <- Kana.all
+            card <- List(CardKind.Reading, CardKind.Writing)
+          } {
+            reviewed(ItemKind.Kana, kana.character, card)
+          }
           Curriculum.points.take(Units.firstUnitWithKanji).foreach { point =>
             units
               .wordsOf(point)
@@ -74,7 +82,7 @@ object KanjiPracticeTests extends TestSuite {
             fresh.head.kanji.literal == "学",
             fresh.map(_.word.id).distinct.size == 2,
             fresh.forall(exercise =>
-              exercise.isNew && exercise.asked == KanjiAsked.Reading
+              exercise.isNew && exercise.asked == CharacterAsked.Reading
             )
           )
           val verdict = practice
@@ -91,7 +99,7 @@ object KanjiPracticeTests extends TestSuite {
           assert(
             toWrite.exists(exercise =>
               exercise.kanji.literal == "学" &&
-                exercise.asked == KanjiAsked.Writing && exercise.isNew
+                exercise.asked == CharacterAsked.Writing && exercise.isNew
             )
           )
         case _ =>

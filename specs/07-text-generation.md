@@ -1,6 +1,6 @@
 # 07 — Generated texts and progressive kanji
 
-**Status:** sentences for words, and reading texts for lessons, built in kana
+**Status:** sentences for words, and reading texts for lessons, built; their kanji shown as the learner reads them
 
 ## Intent
 
@@ -40,6 +40,16 @@ learned, without anyone writing them by hand.
   again with the problems, three times at most. On the 66 points, 62 had a
   text at the first request (about 5 s; up to 13 s with retries); the others
   usually at the next; ます never does, and has none.
+- **Kanji as they are learned** (built): each word laid out keeps how it is
+  written beside its kana (`SentencePart.written`), and as a sentence is
+  served (`KanjiSight`, not as it is laid out and cached: the learner's kanji
+  change between two requests) the server says how to show it: in kanji when
+  its kanji are all read (their reading past its first steps), in kanji with
+  its reading above (furigana) when they are all met, being learned, in kana
+  otherwise. Only the units' kanji (the first two grades) are taught, so a
+  word with any other kanji stays in kana. Applied to the lessons' examples,
+  reading texts, exercises and the series' sentences; the placement questions
+  stay in kana. The kana stay what exercises are judged on.
 - **Pipeline**:
   1. The backend asks the model for a text built on a grammar point and a set
      of words, with constraints: length, level, the vocabulary allowed, the

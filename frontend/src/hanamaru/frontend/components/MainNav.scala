@@ -2,27 +2,25 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
-import hanamaru.shared.learner.KanaProgress
 
 import com.raquo.laminar.api.L.*
 
 /** The menu: today's page and My lesson, where the learner goes on; then,
-  * quieter, what is looked up or practised freely, the kana there only while
-  * they are not settled (asked again each time a page is shown). The page shown
-  * is marked.
+  * quieter, what is looked up or practised freely, the kana there while the
+  * server offers them, until they are settled (asked again each time a page is
+  * shown). The page shown is marked.
   */
 class MainNav(bus: AppBus, page: Signal[Page]) extends ReactiveElement {
 
-  private val kanaSettled: Signal[Boolean] = bus.events.events
+  private val kanaInMenu: Signal[Boolean] = bus.events.events
     .collect { case AppEvent.PageShown(_) => () }
     .flatMapSwitch(_ =>
-      bus.request(AppCommand.LoadKanaProgress) {
-        case AppEvent.KanaProgressLoaded(progress) =>
-          KanaProgress.settled(progress)
+      bus.request(AppCommand.LoadMenu) { case AppEvent.MenuLoaded(menu) =>
+        menu.kana
       }
     )
-    .collect { case Right(settled) => settled }
-    .startWith(false)
+    .collect { case Right(kana) => kana }
+    .startWith(true)
 
   private def link(target: Page => Boolean, to: Page, name: String) =
     PageLink(
@@ -43,8 +41,8 @@ class MainNav(bus: AppBus, page: Signal[Page]) extends ReactiveElement {
     span(
       cls := "nav-more",
       span(cls := "nav-label", Tr("Look up:", "Consulter :")),
-      child.maybe <-- kanaSettled.map(settled =>
-        Option.when(!settled)(
+      child.maybe <-- kanaInMenu.map(shown =>
+        Option.when(shown)(
           link(
             {
               case Page.Chart | Page.Character(_) | Page.Review | Page.Session |

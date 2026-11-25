@@ -34,6 +34,11 @@ object SentenceLayoutTests extends TestSuite {
       )
       // the everyday readings of 私 and 日本; します kept with its noun
       assert(shown(tokens) == "わたしは にほんを べんきょうします。")
+      // each word with kanji keeps how it is written, for kanji learned
+      assert(
+        SentenceLayout.laidOut(tokens, _ => false).map(_.written) ==
+          List(Some("私"), None, Some("日本"), None, Some("勉強"), None, None, None)
+      )
     }
     test(
       "a prefix and a comma keep the next word; katakana as written; じゃありません whole"

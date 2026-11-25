@@ -11,7 +11,9 @@ class VocabularyApi(practice: VocabularyPractice) {
 
   val endpoints: List[ServerEndpoint[Any, Identity]] = List(
     VocabularyRoutes.sentence.handle(practice.sentence),
-    VocabularyRoutes.series.handle(_ => practice.series(Instant.now())),
+    VocabularyRoutes.series.handle(_ =>
+      practice.series(Instant.now()).map(VocabularyPractice.planned)
+    ),
     VocabularyRoutes.answer.handle(answer =>
       practice.answered(answer, Instant.now())
     ),

@@ -28,6 +28,21 @@ final case class SeriesWord(
     inSentence: Boolean = false
 )
 
+/** A step of a series, as the server planned it: a new word shown, or a word
+  * asked one way; `again` when a new word is asked for itself a second time, at
+  * the end (left out when the learner already knows it); `attempt`, how many
+  * times it came back after being missed.
+  */
+enum SeriesTask {
+  case Intro(word: SeriesWord)
+  case Ask(
+      word: SeriesWord,
+      direction: Direction,
+      again: Boolean = false,
+      attempt: Int = 0
+  )
+}
+
 /** A sentence written for a word by the tutor and checked by the code: its
   * pieces, as written, and in French.
   */
@@ -50,7 +65,8 @@ final case class VocabularyAnswer(
     millis: Double,
     alreadyKnown: Boolean,
     written: List[WritingAttempt] = Nil,
-    sentence: Option[String] = None
+    sentence: Option[String] = None,
+    attempt: Int = 0
 )
 
 /** How an answer was judged. */
@@ -71,13 +87,14 @@ enum Verdict {
 }
 
 /** An answer judged: its verdict, the grade it was given (none while the
-  * learner is to say), and whether the tutor recognised it as one of the
-  * meanings, which it names.
+  * learner is to say), whether the tutor recognised it as one of the meanings,
+  * which it names, and, missed, how many questions later it is asked again.
   */
 final case class VocabularyVerdict(
     verdict: Verdict,
     grade: Option[Grade],
-    tutorMatched: Option[String]
+    tutorMatched: Option[String],
+    comesBack: Option[Int] = None
 )
 
 /** The learner's own word on an answer the code could not judge. */
@@ -85,8 +102,12 @@ final case class SelfGrade(
     word: Long,
     direction: Direction,
     typed: String,
-    right: Boolean
+    right: Boolean,
+    attempt: Int = 0
 )
+
+/** Missed, how many questions later a word is asked again; none, not again. */
+final case class ComesBack(after: Option[Int])
 
 object Direction {
   given Schema[Direction] = Schema.derived
@@ -98,8 +119,17 @@ object WordSentence {
 }
 
 object SeriesWord {
-  given JsonValueCodec[List[SeriesWord]] = JsonCodecMaker.make
   given Schema[SeriesWord] = Schema.derived
+}
+
+object SeriesTask {
+  given JsonValueCodec[List[SeriesTask]] = JsonCodecMaker.make
+  given Schema[SeriesTask] = Schema.derived
+}
+
+object ComesBack {
+  given JsonValueCodec[ComesBack] = JsonCodecMaker.make
+  given Schema[ComesBack] = Schema.derived
 }
 
 object VocabularyAnswer {

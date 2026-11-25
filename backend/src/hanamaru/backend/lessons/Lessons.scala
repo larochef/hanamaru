@@ -1,13 +1,12 @@
 package hanamaru.backend.lessons
 
+import hanamaru.backend.kanji.KanjiSight
 import hanamaru.backend.learner.*
 import hanamaru.backend.reference.*
-import hanamaru.shared.learner.Grade
 import hanamaru.shared.lessons.*
 
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
-import scala.util.Random
 
 /** The curriculum's lessons: their examples laid out in kana by the analyser,
   * the grammar each shows marked and each word glossed by the dictionary; and
@@ -25,7 +24,19 @@ final class Lessons(
 
   def curriculum: List[GrammarPoint] = points.map(_.summary)
 
-  def lesson(id: String): Either[String, GrammarLesson] =
+  /** A point's lesson, its examples' kanji shown as the learner reads them. */
+  def lesson(id: String): Either[String, GrammarLesson] = {
+    val sight = KanjiSight.of(learner)
+    laidOutLesson(id).map(lesson =>
+      lesson.copy(examples = lesson.examples.map(seen(_, sight)))
+    )
+  }
+
+  // an example's words with kanji shown as the learner reads them
+  private def seen(example: LessonExample, sight: KanjiSight) =
+    example.copy(parts = sight.shown(example.parts))
+
+  private def laidOutLesson(id: String): Either[String, GrammarLesson] =
     Option(laidOut.get(id)).map(Right(_)).getOrElse {
       for {
         index <- indexOf(id)
@@ -69,169 +80,83 @@ final class Lessons(
       )
       analysis <- analyser().toRight("The Japanese analyser is not ready")
       words <- dictionary().toRight("The dictionary is not ready")
-    } yield written(index, analysis, words).map(sentences =>
-      LessonText(
-        sentences.map((sentence, tokens) =>
-          shown(points(index), tokens, sentence.french, Glosses(words))
-        )
-      )
-    )
-
-  /** Exercises on a lesson's point, in the sentences of its examples and of a
-    * new reading text that show it: its particle chosen, when the point is a
-    * particle, then sentences translated from French, a few of each, shuffled.
-    */
-  def exercises(id: String): Either[String, List[LessonExercise]] =
-    for {
-      index <- indexOf(id)
-      analysis <- analyser().toRight("The Japanese analyser is not ready")
-      words <- dictionary().toRight("The dictionary is not ready")
     } yield {
-      val point = points(index)
-      val glosses = Glosses(words)
-      val ofExamples = point.examples.map(example =>
-        (example.japanese, example.french, analysis.tokens(example.japanese))
-      )
-      val ofText = Option
-        .when(point.text)(written(index, analysis, words))
-        .flatten
-        .toList
-        .flatten
-        .map((sentence, tokens) => (sentence.japanese, sentence.french, tokens))
-        .filter((_, _, tokens) => point.shownIn(tokens).nonEmpty)
-      // a sentence of the text may be an example again: asked once
-      val sentences = Random.shuffle(
-        (ofExamples ++ ofText).distinctBy((_, _, tokens) =>
-          tokens.map(_.surface).mkString
-        )
-      )
-      val particles = sentences.flatMap { (japanese, french, tokens) =>
-        val shownAt = point.shownIn(tokens)
-        val marked = shownAt.toList.map(tokens(_))
-        Option.when(
-          marked.nonEmpty && marked.forall(
-            _.partOfSpeech.headOption.contains("助詞")
-          ) &&
-            marked.map(_.surface).distinct.size == 1
-        ) {
-          val expected = marked.head.surface
-          LessonExercise(
-            point.id,
-            ExerciseKind.Particle,
-            shown(point, tokens, french, glosses).parts,
-            japanese,
-            french,
-            Random.shuffle(expected :: distractors(index, point, expected)),
-            expected
+      val sight = KanjiSight.of(learner)
+      written(index, analysis, words).map(sentences =>
+        LessonText(
+          sentences.map((sentence, tokens) =>
+            seen(
+              shown(points(index), tokens, sentence.french, Glosses(words)),
+              sight
+            )
           )
-        }
-      }
-      val translations = sentences.map { (japanese, french, tokens) =>
-        val parts = shown(point, tokens, french, glosses).parts
-        LessonExercise(
-          point.id,
-          ExerciseKind.Translation,
-          parts,
-          japanese,
-          french,
-          Nil,
-          parts.map(_.text).mkString
         )
-      }
-      particles.take(exercisesOfAKind) ++ translations.take(
-        exercisesOfAKind + (exercisesOfAKind - particles.size).max(0) / 2
-      )
-    }
-
-  /** A lesson's exercises done, recorded as one review of its point: Good with
-    * four answers in five right, Hard with half, else Again.
-    */
-  def done(result: ExercisesDone, at: Instant): Either[String, Unit] =
-    indexOf(result.point).map { _ =>
-      val share =
-        if (result.total == 0) 0.0 else result.right.toDouble / result.total
-      val grade =
-        if (share >= 0.8) Grade.Good
-        else if (share >= 0.5) Grade.Hard
-        else Grade.Again
-      learner.reviewed(
-        ItemKind.Grammar,
-        result.point,
-        CardKind.Usage,
-        grade,
-        s"${result.right}/${result.total}",
-        at
       )
     }
 
   /** The unit under way, with how far it is. */
   def unit: Option[UnitProgress] =
-    units.current.map { (point, words) =>
-      val kanji = units.kanjiOf(point).getOrElse(Nil)
+    units.current.map { standing =>
       UnitProgress(
-        point.summary,
-        point.theme,
-        words,
-        words.count(word => units.stable(word.id)),
-        units.practised(point),
-        kanji,
-        kanji.count(units.kanjiLearned)
+        standing.point.summary,
+        standing.point.theme,
+        standing.words,
+        standing.stable,
+        standing.wordsNeeded,
+        standing.practised,
+        standing.symbols.map(symbols =>
+          SymbolsProgress(
+            symbols.kind,
+            if (symbols.kind == SymbolKind.Kanji) symbols.characters else Nil,
+            standing.symbolsLearned,
+            symbols.characters.size
+          )
+        ),
+        if (!standing.symbolsMet) UnitWaitsFor.KanaToMeet
+        else if (standing.stable < standing.wordsNeeded) UnitWaitsFor.Words
+        else if (!standing.practised) UnitWaitsFor.Lesson
+        else UnitWaitsFor.Symbols
       )
     }
 
   /** A lesson session's plan: the points due for review, two at most, in the
     * curriculum's order; a series when `wordsToPractise`; the lesson of the
     * unit under way, if its point was never practised nor placed (past the last
-    * unit, the first point never practised); its kanji when `kanjiToPractise`.
+    * unit, the first point never practised), once its kana are met; its kana
+    * and kanji when `charactersToPractise`.
     */
   def plan(
       now: Instant,
       wordsToPractise: Boolean,
-      kanjiToPractise: Boolean
+      charactersToPractise: Boolean
   ): LessonPlan = {
     val due =
       learner.dueKeys(ItemKind.Grammar, now.toEpochMilli, reviewsAtMost).toSet
+    val current = units.current
     LessonPlan(
       points.filter(point => due(point.id)).map(_.summary),
       wordsToPractise,
-      Lessons
-        .nextLesson(
-          points,
-          units.current.map(_._1),
-          learner.metKeys(ItemKind.Grammar)
+      Option
+        .when(current.forall(_.symbolsMet))(
+          Lessons.nextLesson(
+            points,
+            current.map(_.point),
+            learner.metKeys(ItemKind.Grammar)
+          )
         )
+        .flatten
         .map(_.summary),
-      kanjiToPractise
+      charactersToPractise
     )
   }
 
   private val reviewsAtMost = 2
 
-  private val exercisesOfAKind = 4
-
-  // three other particles: those of the points learned first, then those to
-  // come; never another form of the same point (へ for に)
-  private def distractors(
-      index: Int,
-      point: CurriculumPoint,
-      expected: String
-  ): List[String] = {
-    def particlesOf(some: List[CurriculumPoint]) = some
-      .filterNot(_.id == point.id)
-      .flatMap(_.signature.flatten)
-      .filter(_.pos.exists(_.startsWith("助詞")))
-      .flatMap(_.form)
-    val own = point.signature.flatten.flatMap(_.form).toSet + expected
-    (Random.shuffle(particlesOf(points.take(index + 1)).distinct) ++
-      particlesOf(points.drop(index + 1)).distinct)
-      .filterNot(own)
-      .distinct
-      .take(3)
-  }
-
-  // a new reading text: the words the learner has met, and those of the
-  // lessons' examples so far, are the words allowed
-  private def written(index: Int, analysis: Analyser, words: Dictionary) = {
+  /** A new reading text for the lesson at `index`, its sentences with their
+    * tokens: the words the learner has met, and those of the lessons' examples
+    * so far, are the words allowed.
+    */
+  def written(index: Int, analysis: Analyser, words: Dictionary) = {
     val met = words.words(
       learner.metKeys(ItemKind.Word).flatMap(_.toLongOption).toList
     )
@@ -270,11 +195,12 @@ final class Lessons(
       }
     )
 
-  private def indexOf(id: String): Either[String, Int] =
+  /** Where a point is in the curriculum. */
+  def indexOf(id: String): Either[String, Int] =
     Right(points.indexWhere(_.id == id)).filterOrElse(_ >= 0, s"No lesson $id")
 
-  // a sentence in kana, the point's grammar marked, its words glossed
-  private def shown(
+  /** A sentence in kana, the point's grammar marked, its words glossed. */
+  def shown(
       point: CurriculumPoint,
       tokens: List[Token],
       french: String,

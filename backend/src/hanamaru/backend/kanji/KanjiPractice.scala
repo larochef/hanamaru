@@ -4,6 +4,7 @@ import hanamaru.backend.learner.*
 import hanamaru.backend.lessons.Units
 import hanamaru.backend.reference.KanjiBook
 import hanamaru.backend.writing.{WritingAttempts, WritingReview}
+import hanamaru.shared.characters.CharacterAsked
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kana.Romaji
 import hanamaru.shared.kanji.*
@@ -35,11 +36,9 @@ final class KanjiPractice(
   private def wordsSoFar: List[DictionaryWord] =
     units.soFar.flatMap(units.wordsOf).distinctBy(_.id).filterNot(_.usuallyKana)
 
+  // as the units assign kanji ([[Units.carriers]])
   private def writtenWith(word: DictionaryWord, literal: String): Boolean =
-    word.writings.headOption.exists(_.contains(literal))
-
-  private def memory(literal: String, kind: CardKind): Option[Memory] =
-    learner.memory(ItemKind.Kanji, literal, kind)
+    Units.carriers(List(word)).exists(_.contains(literal))
 
   /** The kanji exercises of a session: the cards due, the most overdue first;
     * then the writing of kanji read well enough; then a few new kanji, read.
@@ -47,11 +46,17 @@ final class KanjiPractice(
     */
   def exercises(at: Instant): Either[String, List[KanjiExercise]] =
     book().toRight("The kanji are not ready").map { kanjiBook =>
+      val now = units.standing()
       val words = wordsSoFar
       val taught = units.soFar.flatMap(units.kanjiOf(_).getOrElse(Nil)).distinct
+      val cards = learner
+        .cards(ItemKind.Kanji)
+        .map(card => (card.key, card.kind) -> card)
+        .toMap
+      def card(literal: String, kind: CardKind) = cards.get((literal, kind))
       def known(literal: String) = words
-        .filter(word => writtenWith(word, literal) && units.stable(word.id))
-      def exercise(literal: String, asked: KanjiAsked, isNew: Boolean) =
+        .filter(word => writtenWith(word, literal) && now.stable(word.id))
+      def exercise(literal: String, asked: CharacterAsked, isNew: Boolean) =
         for {
           kanji <- kanjiBook.kanji(literal)
           word <- Random
@@ -62,35 +67,35 @@ final class KanjiPractice(
       val due = taught
         .flatMap(literal =>
           List(
-            KanjiAsked.Reading -> CardKind.Reading,
-            KanjiAsked.Writing -> CardKind.Writing
+            CharacterAsked.Reading -> CardKind.Reading,
+            CharacterAsked.Writing -> CardKind.Writing
           )
             .flatMap((asked, kind) =>
-              memory(literal, kind).map(card => (literal, asked, card.due))
+              card(literal, kind).map(each => (literal, asked, each.due))
             )
         )
-        .filter((_, _, due) => !due.isAfter(at))
+        .filter((_, _, due) => due <= at.toEpochMilli)
         .sortBy((_, _, due) => due)
         .take(dueAtMost)
         .flatMap((literal, asked, _) => exercise(literal, asked, isNew = false))
       val toWrite = taught
         .filter(literal =>
-          memory(literal, CardKind.Reading).exists(_.phase == Phase.Review) &&
-            memory(literal, CardKind.Writing).isEmpty
+          card(literal, CardKind.Reading).exists(_.passed) &&
+            card(literal, CardKind.Writing).isEmpty
         )
         .take(newWritingsAtMost)
-        .flatMap(exercise(_, KanjiAsked.Writing, isNew = true))
+        .flatMap(exercise(_, CharacterAsked.Writing, isNew = true))
       // new kanji each in a word not read yet in the session: two in one
       // word (学生) would ask the same reading twice; the second waits for
       // another session
       val readIn = (due ++ toWrite)
-        .filter(_.asked == KanjiAsked.Reading)
+        .filter(_.asked == CharacterAsked.Reading)
         .map(_.word.id)
       val fresh = taught
         .filter(literal =>
-          memory(literal, CardKind.Reading).isEmpty && known(literal).nonEmpty
+          card(literal, CardKind.Reading).isEmpty && known(literal).nonEmpty
         )
-        .flatMap(exercise(_, KanjiAsked.Reading, isNew = true))
+        .flatMap(exercise(_, CharacterAsked.Reading, isNew = true))
         .foldLeft(List.empty[KanjiExercise])((chosen, next) =>
           if ((readIn ++ chosen.map(_.word.id)).contains(next.word.id)) chosen
           else chosen :+ next

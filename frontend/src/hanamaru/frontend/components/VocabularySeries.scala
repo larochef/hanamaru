@@ -7,7 +7,6 @@ import hanamaru.shared.kana.Romaji
 import hanamaru.shared.vocabulary.*
 
 import scala.scalajs.js
-import scala.util.Random
 
 import com.raquo.laminar.api.L.*
 
@@ -24,30 +23,21 @@ class VocabularySeries(
     goOn: Option[() => Unit] = None
 ) extends ReactiveElement {
 
-  private enum Task {
-    case Intro(word: SeriesWord)
-    case Ask(word: SeriesWord, direction: Direction, attempt: Int)
-  }
-
   private enum Phase {
     case Asking
     case Judged(
-        task: Task.Ask,
+        task: SeriesTask.Ask,
         answer: VocabularyAnswer,
         verdict: VocabularyVerdict
     )
-    case SelfGrading(task: Task.Ask, typed: String)
+    case SelfGrading(task: SeriesTask.Ask, typed: String)
     case Done
   }
 
   /** How the answers went: right, nearly, missed. */
   final private case class Tally(right: Int, near: Int, missed: Int)
 
-  // a missed question comes back this many questions later, twice at most
-  private val comesBackAfter = 4
-  private val mostReturns = 2
-
-  private val queue = Var(List.empty[Task])
+  private val queue = Var(List.empty[SeriesTask])
   private val phase = Var[Phase](Phase.Asking)
   private val known = Var(Set.empty[Long])
 
@@ -66,11 +56,11 @@ class VocabularySeries(
   private val submitted = EventBus[VocabularyAnswer]()
   private val selfGraded = EventBus[SelfGrade]()
 
-  private val loaded: EventStream[AppResult[List[SeriesWord]]] = EventStream
+  private val loaded: EventStream[AppResult[List[SeriesTask]]] = EventStream
     .merge(starts, startedAgain.events)
     .flatMapSwitch(_ =>
-      bus.request(AppCommand.LoadSeries) { case AppEvent.SeriesLoaded(words) =>
-        words
+      bus.request(AppCommand.LoadSeries) { case AppEvent.SeriesLoaded(tasks) =>
+        tasks
       }
     )
 
@@ -86,46 +76,37 @@ class VocabularySeries(
     }
     .startWith(None)
 
-  // The new words shown first; every word asked for itself, then for its
-  // meaning; the new ones asked for themselves once more, at the end.
-  private def planned(words: List[SeriesWord]): List[Task] = {
-    val fresh = words.filter(_.isNew)
-    fresh.map(Task.Intro(_)) ++
-      Random.shuffle(words.map(Task.Ask(_, Direction.Production, 0))) ++
-      Random.shuffle(words.map(Task.Ask(_, Direction.Meaning, 0))) ++
-      Random.shuffle(fresh.map(Task.Ask(_, Direction.Production, 0)))
-  }
-
-  private def started(words: List[SeriesWord]): Unit = {
-    val wanted = words.filter(_.inSentence).map(_.word.id)
+  private def started(tasks: List[SeriesTask]): Unit = {
+    val wanted = tasks.collect {
+      case SeriesTask.Ask(word, _, _, _) if word.inSentence => word.word.id
+    }.distinct
     sentences.set(Map.empty)
     sentencesWanted.set(wanted.drop(1))
     awaited.set(wanted.headOption)
     wanted.headOption.foreach(word => bus.send(AppCommand.LoadSentence(word)))
-    queue.set(planned(words))
+    queue.set(tasks)
     known.set(Set.empty)
     tally.set(Tally(0, 0, 0))
-    phase.set(if (words.isEmpty) Phase.Done else Phase.Asking)
+    phase.set(if (tasks.isEmpty) Phase.Done else Phase.Asking)
   }
 
-  // the next question; a missed one comes back a few questions later
-  // The next question; a missed one comes back a few questions later. A Var
-  // set while an event is handled takes its value once the event is through:
-  // the queue is worked out here, from `tasks`, before it is set.
+  // The next question; a missed one comes back as many questions later as
+  // the server says. A Var set while an event is handled takes its value once
+  // the event is through: the queue is worked out here, from `tasks`, before
+  // it is set.
   private def movedOn(
-      missed: Boolean,
-      tasks: List[Task] = queue.now()
+      comesBack: Option[Int],
+      tasks: List[SeriesTask] = queue.now()
   ): Unit = {
-    val remaining = tasks match {
-      case (ask @ Task.Ask(_, _, attempt)) :: rest
-          if missed && attempt < mostReturns =>
+    val remaining = (tasks, comesBack) match {
+      case ((ask: SeriesTask.Ask) :: rest, Some(after)) =>
         rest.patch(
-          comesBackAfter.min(rest.size),
-          List(ask.copy(attempt = attempt + 1)),
+          after.min(rest.size),
+          List(ask.copy(attempt = ask.attempt + 1)),
           0
         )
-      case _ :: rest => rest
-      case Nil       => Nil
+      case (_ :: rest, _) => rest
+      case (Nil, _)       => Nil
     }
     queue.set(remaining)
     phase.set(if (remaining.isEmpty) Phase.Done else Phase.Asking)
@@ -135,7 +116,7 @@ class VocabularySeries(
       answer: VocabularyAnswer,
       verdict: VocabularyVerdict
   ): Unit =
-    queue.now().headOption.collect { case ask: Task.Ask => ask }.foreach {
+    queue.now().headOption.collect { case ask: SeriesTask.Ask => ask }.foreach {
       ask =>
         tally.update(counted =>
           verdict.verdict match {
@@ -154,16 +135,15 @@ class VocabularySeries(
     }
 
   // The learner knows this new word: it is asked once each way, not shown,
-  // nor asked a second time for itself.
+  // nor asked a second time for itself (the server's `again`).
   private def alreadyKnown(word: SeriesWord): Unit = {
     known.update(_ + word.word.id)
-    val tasks = queue.now()
-    val productions = tasks.zipWithIndex.collect {
-      case (Task.Ask(`word`, Direction.Production, 0), index) => index
-    }
     movedOn(
-      missed = false,
-      if (productions.size > 1) tasks.patch(productions.last, Nil, 1) else tasks
+      None,
+      queue.now().filter {
+        case SeriesTask.Ask(asked, _, true, _) => asked != word
+        case _                                 => true
+      }
     )
   }
 
@@ -216,7 +196,7 @@ class VocabularySeries(
         cls := "primary",
         Tr("Noted", "C'est noté"),
         onMountFocus,
-        onClick --> (_ => movedOn(missed = false))
+        onClick --> (_ => movedOn(None))
       ),
       button(
         Tr("I already know it", "Je le connais déjà"),
@@ -250,8 +230,8 @@ class VocabularySeries(
     sentence.parts.map(part =>
       span(
         cls("is-asked") := part.marked,
-        (if (part.spaceBefore) " " else "") +
-          (if (part.marked && !revealed) "＿＿＿" else part.text)
+        Option.when(part.spaceBefore)(" "),
+        if (part.marked && !revealed) span("＿＿＿") else PartText(part).node
       )
     )
   )
@@ -275,7 +255,7 @@ class VocabularySeries(
         )
       )
 
-  private def asked(task: Task.Ask): HtmlElement = {
+  private def asked(task: SeriesTask.Ask): HtmlElement = {
     val shownAt = js.Date.now()
     val word = task.word.word
     val sentence = sentences.now().get(word.id).map(_.japanese)
@@ -288,7 +268,8 @@ class VocabularySeries(
           js.Date.now() - shownAt,
           alreadyKnown = known.now().contains(word.id),
           sentence =
-            sentence.filter(_ => task.direction == Direction.Production)
+            sentence.filter(_ => task.direction == Direction.Production),
+          attempt = task.attempt
         )
       )
     task.direction match {
@@ -324,7 +305,8 @@ class VocabularySeries(
                   js.Date.now() - shownAt,
                   alreadyKnown = known.now().contains(word.id),
                   written = written,
-                  sentence = sentence
+                  sentence = sentence,
+                  attempt = task.attempt
                 )
               )
             )
@@ -439,7 +421,7 @@ class VocabularySeries(
     }
 
   private def judgedView(
-      task: Task.Ask,
+      task: SeriesTask.Ask,
       answer: VocabularyAnswer,
       verdict: VocabularyVerdict
   ): HtmlElement = div(
@@ -474,34 +456,44 @@ class VocabularySeries(
       cls := "primary",
       Tr("Continue", "Continuer"),
       onMountFocus,
-      onClick --> (_ => movedOn(missed = verdict.verdict == Verdict.Wrong))
+      onClick --> (_ => movedOn(verdict.comesBack))
     )
   )
 
-  private def selfGrading(task: Task.Ask, typed: String): HtmlElement = div(
-    cls := "series-task",
-    p(
-      Tr(
-        s"« $typed » is not among its meanings. Did you mean the same?",
-        s"« $typed » n'est pas parmi ses sens. Voulais-tu dire la même chose ?"
-      )
-    ),
-    wordShown(task.word.word),
-    meaningsShown(task.word.word),
+  private def selfGrading(task: SeriesTask.Ask, typed: String): HtmlElement =
     div(
-      cls := "placement-actions",
-      Seq(true -> Tr("Yes, the same", "Oui, la même"), false -> Tr("No", "Non"))
-        .map((right, label) =>
-          button(
-            cls := (if (right) "primary" else ""),
-            label,
-            onClick.mapTo(
-              SelfGrade(task.word.word.id, task.direction, typed, right)
-            ) --> selfGraded.writer
-          )
+      cls := "series-task",
+      p(
+        Tr(
+          s"« $typed » is not among its meanings. Did you mean the same?",
+          s"« $typed » n'est pas parmi ses sens. Voulais-tu dire la même chose ?"
         )
+      ),
+      wordShown(task.word.word),
+      meaningsShown(task.word.word),
+      div(
+        cls := "placement-actions",
+        Seq(
+          true -> Tr("Yes, the same", "Oui, la même"),
+          false -> Tr("No", "Non")
+        )
+          .map((right, label) =>
+            button(
+              cls := (if (right) "primary" else ""),
+              label,
+              onClick.mapTo(
+                SelfGrade(
+                  task.word.word.id,
+                  task.direction,
+                  typed,
+                  right,
+                  task.attempt
+                )
+              ) --> selfGraded.writer
+            )
+          )
+      )
     )
-  )
 
   private def done: HtmlElement = div(
     cls := "series-task",
@@ -547,18 +539,19 @@ class VocabularySeries(
   val finished: EventStream[Unit] =
     phase.signal.changes.collect { case Phase.Done => () }
 
-  private def shown(tasks: List[Task], now: Phase): HtmlElement = now match {
-    case Phase.Done                          => done
-    case Phase.Judged(task, answer, verdict) =>
-      judgedView(task, answer, verdict)
-    case Phase.SelfGrading(task, typed) => selfGrading(task, typed)
-    case Phase.Asking                   =>
-      tasks.headOption match {
-        case Some(Task.Intro(word)) => intro(word)
-        case Some(ask: Task.Ask)    => asked(ask)
-        case None                   => done
-      }
-  }
+  private def shown(tasks: List[SeriesTask], now: Phase): HtmlElement =
+    now match {
+      case Phase.Done                          => done
+      case Phase.Judged(task, answer, verdict) =>
+        judgedView(task, answer, verdict)
+      case Phase.SelfGrading(task, typed) => selfGrading(task, typed)
+      case Phase.Asking                   =>
+        tasks.headOption match {
+          case Some(SeriesTask.Intro(word)) => intro(word)
+          case Some(ask: SeriesTask.Ask)    => asked(ask)
+          case None                         => done
+        }
+    }
 
   override lazy val node: HtmlElement = div(
     cls := "vocabulary-series",
@@ -587,14 +580,14 @@ class VocabularySeries(
     selfGraded.events.flatMapSwitch(grade =>
       bus
         .request(AppCommand.SelfGradeVocabulary(grade)) {
-          case AppEvent.SelfGradeKept(`grade`) => grade
+          case AppEvent.SelfGradeKept(`grade`, comesBack) => grade -> comesBack
         }
         .collect { case Right(kept) => kept }
-    ) --> { kept =>
+    ) --> { (kept, comesBack) =>
       if (kept.right)
         tally.update(counted => counted.copy(right = counted.right + 1))
       else tally.update(counted => counted.copy(missed = counted.missed + 1))
-      movedOn(missed = !kept.right)
+      movedOn(comesBack.after)
     },
     child.maybe <-- failure.map(_.map(reason => p(cls := "is-failed", reason))),
     p(

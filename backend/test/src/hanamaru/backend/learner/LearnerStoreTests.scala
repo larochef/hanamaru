@@ -74,7 +74,7 @@ object LearnerStoreTests extends TestSuite {
             "{}",
             start
           )
-        val progress = store.kanaProgress()
+        val progress = store.kanaProgress(0)
         assert(progress.map(_.status) == List(ItemStatus.Learning))
         assert(progress.head.due.contains(memory.due.toEpochMilli))
         while (memory.stability < 21) {
@@ -87,7 +87,7 @@ object LearnerStoreTests extends TestSuite {
             memory.due
           )
         }
-        assert(store.kanaProgress().map(_.status) == List(ItemStatus.Known))
+        assert(store.kanaProgress(0).map(_.status) == List(ItemStatus.Known))
       }
     }
     test(

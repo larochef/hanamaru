@@ -4,7 +4,9 @@ import hanamaru.backend.learner.{CardKind, ItemKind, LearnerStore}
 import hanamaru.backend.reference.{Dictionary, KanjiBook}
 import hanamaru.backend.storage.{Database, Places}
 import hanamaru.shared.dictionary.{DictionaryWord, Meaning}
+import hanamaru.shared.kana.{Kana, Script}
 import hanamaru.shared.learner.Grade
+import hanamaru.shared.lessons.SymbolKind
 
 import java.nio.file.{Files, Path}
 import java.time.Instant
@@ -39,6 +41,17 @@ object UnitsTests extends TestSuite {
       .filter(Files.exists(_))
       .map(file => KanjiBook(Database.connect(file)))
   }
+
+  // every kana of a script read and written, past their first steps
+  private def learned(learner: LearnerStore, script: Script, at: Instant) =
+    Kana.all
+      .filter(_.script == script)
+      .foreach(kana =>
+        List(CardKind.Reading, CardKind.Writing).foreach(card =>
+          learner
+            .reviewed(ItemKind.Kana, kana.character, card, Grade.Easy, "", at)
+        )
+      )
 
   private def entry(
       id: Long,
@@ -111,7 +124,7 @@ object UnitsTests extends TestSuite {
         val units =
           Units(Curriculum.points, () => Some(words), learner, noKanji)
         val first = Curriculum.points.head
-        assert(units.current.map(_._1.id).contains(first.id))
+        assert(units.current.map(_.point.id).contains(first.id))
         val at = Instant.parse("2026-11-24T10:00:00Z")
         val unitWords = units.wordsOf(first)
         unitWords
@@ -127,7 +140,7 @@ object UnitsTests extends TestSuite {
             )
           )
         // the words without the lesson: the unit is still under way
-        assert(units.current.map(_._1.id).contains(first.id))
+        assert(units.current.map(_.point.id).contains(first.id))
         learner.reviewed(
           ItemKind.Grammar,
           first.id,
@@ -136,7 +149,10 @@ object UnitsTests extends TestSuite {
           "",
           at
         )
-        assert(units.current.map(_._1.id).contains(Curriculum.points(1).id))
+        // the words and the lesson without its hiragana: still under way
+        assert(units.current.map(_.point.id).contains(first.id))
+        learned(learner, Script.Hiragana, at)
+        assert(units.current.map(_.point.id).contains(Curriculum.points(1).id))
       }
     }
     test("a unit with kanji opens the next once they are read and written") {
@@ -160,6 +176,8 @@ object UnitsTests extends TestSuite {
         val at = Instant.parse("2026-11-24T10:00:00Z")
         def reviewed(kind: ItemKind, key: String, card: CardKind) =
           learner.reviewed(kind, key, card, Grade.Easy, "", at)
+        learned(learner, Script.Hiragana, at)
+        learned(learner, Script.Katakana, at)
         Curriculum.points.take(Units.firstUnitWithKanji + 1).foreach { point =>
           units
             .wordsOf(point)
@@ -170,7 +188,7 @@ object UnitsTests extends TestSuite {
         }
         reviewed(ItemKind.Kanji, "学", CardKind.Reading)
         // read, not written yet: the unit is still under way
-        assert(units.current.map(_._1.id).contains(withKanji.id))
+        assert(units.current.map(_.point.id).contains(withKanji.id))
         reviewed(ItemKind.Kanji, "学", CardKind.Writing)
         assert(
           units.current
@@ -179,10 +197,122 @@ object UnitsTests extends TestSuite {
         )
       }
     }
+    test(
+      "the first unit's symbols are the hiragana, the second's the katakana"
+    ) {
+      dictionary.foreach { words =>
+        val learner = LearnerStore(
+          Database.open(
+            Files.createTempDirectory("hanamaru-units").resolve("learner.db")
+          )
+        )
+        val units =
+          Units(Curriculum.points, () => Some(words), learner, noKanji)
+        val List(first, second) = Curriculum.points.take(2): @unchecked
+        assert(
+          units.symbolsOf(first).map(_.kind).contains(SymbolKind.Hiragana),
+          units.symbolsOf(second).map(_.kind).contains(SymbolKind.Katakana),
+          units
+            .symbolsOf(first)
+            .map(_.characters.size)
+            .contains(
+              Kana.all.count(_.script == Script.Hiragana)
+            )
+        )
+        // no kana met: the first unit's words wait for them
+        assert(units.current.exists(!_.symbolsMet))
+        learner.reviewed(
+          ItemKind.Kana,
+          "あ",
+          CardKind.Reading,
+          Grade.Good,
+          "",
+          Instant.parse("2026-11-24T10:00:00Z")
+        )
+        assert(units.current.exists(!_.symbolsMet))
+        learned(learner, Script.Hiragana, Instant.parse("2026-11-24T10:00:00Z"))
+        assert(units.current.exists(_.symbolsMet))
+      }
+    }
+    test("a kanji unit's words never wait for its kanji to be met") {
+      dictionary.foreach { words =>
+        val learner = LearnerStore(
+          Database.open(
+            Files.createTempDirectory("hanamaru-units").resolve("learner.db")
+          )
+        )
+        val units = Units(
+          Curriculum.points,
+          () => Some(words),
+          learner,
+          () => Some(literal => Option.when(literal == "学")(1))
+        )
+        val withKanji = Curriculum.points(Units.firstUnitWithKanji)
+        // 学 never met: its unit's words and lesson still come
+        assert(units.progressOf(withKanji, units.standing()).symbolsMet)
+      }
+    }
+    test("a lapse does not close a unit acquired") {
+      dictionary.foreach { words =>
+        val learner = LearnerStore(
+          Database.open(
+            Files.createTempDirectory("hanamaru-units").resolve("learner.db")
+          )
+        )
+        val units =
+          Units(Curriculum.points, () => Some(words), learner, noKanji)
+        val first = Curriculum.points.head
+        val at = Instant.parse("2026-11-24T10:00:00Z")
+        units
+          .wordsOf(first)
+          .foreach(word =>
+            learner.reviewed(
+              ItemKind.Word,
+              word.id.toString,
+              CardKind.Production,
+              Grade.Easy,
+              "",
+              at
+            )
+          )
+        learner.reviewed(
+          ItemKind.Grammar,
+          first.id,
+          CardKind.Usage,
+          Grade.Easy,
+          "",
+          at
+        )
+        learned(learner, Script.Hiragana, at)
+        assert(units.current.map(_.point.id).contains(Curriculum.points(1).id))
+        // every word of the unit missed at its next review: relearning
+        units
+          .wordsOf(first)
+          .foreach(word =>
+            learner.reviewed(
+              ItemKind.Word,
+              word.id.toString,
+              CardKind.Production,
+              Grade.Again,
+              "",
+              at.plusSeconds(86400 * 10)
+            )
+          )
+        learner.reviewed(
+          ItemKind.Kana,
+          "あ",
+          CardKind.Writing,
+          Grade.Again,
+          "",
+          at.plusSeconds(86400 * 10)
+        )
+        assert(units.current.map(_.point.id).contains(Curriculum.points(1).id))
+      }
+    }
     test("the kanji spread across the units, a few each, every one once") {
       // every character of the units' words taken for a kanji of grade 1
       val byUnit = Units.kanjiByUnit(
-        Curriculum.points,
+        Curriculum.points.map(point => point.id -> point.wordForms),
         literal => Option.when(literal.head >= '\u4e00')(1)
       )
       val all = byUnit.flatMap(_._2)
@@ -199,20 +329,61 @@ object UnitsTests extends TestSuite {
         .toSet
       assert(all.toSet == inWords)
     }
-    test("the units teach every kanji of the first two grades") {
-      kanjiBook match {
-        case None =>
-          println("Units' kanji not checked: the kanji are not in the cache")
-        case Some(book) =>
-          val taught = Units
-            .kanjiByUnit(
-              Curriculum.points,
-              literal => book.kanji(literal).flatMap(_.grade)
+    test("each unit's kanji can be met in a word of the units so far") {
+      (dictionary, kanjiBook) match {
+        case (Some(words), Some(book)) =>
+          val learner = LearnerStore(
+            Database.open(
+              Files.createTempDirectory("hanamaru-units").resolve("learner.db")
             )
-            .flatMap(_._2)
+          )
+          val units = Units(
+            Curriculum.points,
+            () => Some(words),
+            learner,
+            () => Some(literal => book.kanji(literal).flatMap(_.grade))
+          )
+          // as the kanji practice takes them: written with it as usually
+          // written, not a word usually in kana
+          val stuck = Curriculum.points.indices.flatMap { index =>
+            val soFar = Curriculum.points
+              .take(index + 1)
+              .flatMap(units.wordsOf)
+              .filterNot(_.usuallyKana)
+            units
+              .kanjiOf(Curriculum.points(index))
+              .getOrElse(Nil)
+              .filterNot(literal =>
+                soFar.exists(_.writings.headOption.exists(_.contains(literal)))
+              )
+              .map(literal => s"${Curriculum.points(index).id}:$literal")
+          }
+          assert(stuck.isEmpty)
+        case _ =>
+          println("Units' kanji words not checked: the cache is incomplete")
+      }
+    }
+    test("the units teach every kanji of the first two grades") {
+      (dictionary, kanjiBook) match {
+        case (Some(words), Some(book)) =>
+          val learner = LearnerStore(
+            Database.open(
+              Files.createTempDirectory("hanamaru-units").resolve("learner.db")
+            )
+          )
+          val units = Units(
+            Curriculum.points,
+            () => Some(words),
+            learner,
+            () => Some(literal => book.kanji(literal).flatMap(_.grade))
+          )
+          val taught =
+            Curriculum.points.flatMap(units.kanjiOf(_).getOrElse(Nil))
           val grades = (1 to Units.kanjiGrades).flatMap(book.ofGrade)
           val missing = grades.map(_.literal).filterNot(taught.contains)
           assert(missing.isEmpty, taught.size == grades.size)
+        case _ =>
+          println("Units' kanji not checked: the cache is incomplete")
       }
     }
   }

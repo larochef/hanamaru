@@ -11,7 +11,7 @@ class VocabularyService(bus: AppBus, apiClient: ApiClient) {
   bus.commands.events.foreach {
     case command @ AppCommand.LoadSeries =>
       AppStreams.runOnce(apiClient.series()) {
-        case Right(words) => bus.publish(AppEvent.SeriesLoaded(words))
+        case Right(tasks) => bus.publish(AppEvent.SeriesLoaded(tasks))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
@@ -24,7 +24,8 @@ class VocabularyService(bus: AppBus, apiClient: ApiClient) {
       }
     case command @ AppCommand.SelfGradeVocabulary(grade) =>
       AppStreams.runOnce(apiClient.selfGradeVocabulary(grade)) {
-        case Right(())    => bus.publish(AppEvent.SelfGradeKept(grade))
+        case Right(comesBack) =>
+          bus.publish(AppEvent.SelfGradeKept(grade, comesBack))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }

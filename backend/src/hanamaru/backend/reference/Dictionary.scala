@@ -89,6 +89,25 @@ final class Dictionary(database: Database) {
       described(session, ids)
     }
 
+  /** Words of the core vocabulary written in katakana with a kana, the most
+    * basic first, `count` of them: loanwords, where katakana are met.
+    */
+  def inKatakana(character: String, count: Int): List[DictionaryWord] =
+    database.read { session =>
+      val ids = session.query(
+        """SELECT DISTINCT core_word.word_id, core_word.level, word.rank FROM form
+          |JOIN core_word ON core_word.word_id = form.word_id
+          |JOIN word ON word.id = form.word_id
+          |WHERE form.kana = 1 AND form.position = 0 AND instr(form.text, ?) > 0
+          |AND form.text NOT GLOB '*[^ァ-ヶー]*'
+          |ORDER BY core_word.level DESC, word.rank IS NULL, word.rank
+          |LIMIT ?""".stripMargin,
+        character,
+        count
+      )(_.long("word_id"))
+      described(session, ids)
+    }
+
   /** The words one of whose forms or readings is among `texts`, looked up at
     * once.
     */
