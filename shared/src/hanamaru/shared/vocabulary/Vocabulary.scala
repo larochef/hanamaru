@@ -28,6 +28,10 @@ enum SeriesOf {
   case OfUnit(point: String)
 }
 
+object SeriesOf {
+  given Schema[SeriesOf] = Schema.derived
+}
+
 /** A word of a series: new to the learner, or due for review; asked for itself
   * in a sentence once it is stable enough (`inSentence`).
   */

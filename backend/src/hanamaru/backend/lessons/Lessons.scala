@@ -3,7 +3,9 @@ package hanamaru.backend.lessons
 import hanamaru.backend.kanji.KanjiSight
 import hanamaru.backend.learner.*
 import hanamaru.backend.reference.*
+import hanamaru.shared.characters.CharactersOf
 import hanamaru.shared.lessons.*
+import hanamaru.shared.vocabulary.SeriesOf
 
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
@@ -103,18 +105,20 @@ final class Lessons(
         standing.words,
         standing.stable,
         standing.wordsNeeded,
+        standing.wordsAcquired,
         standing.practised,
         standing.symbols.map(symbols =>
           SymbolsProgress(
             symbols.kind,
             if (symbols.kind == SymbolKind.Kanji) symbols.characters else Nil,
             standing.symbolsLearned,
-            symbols.characters.size
+            symbols.characters.size,
+            standing.symbolsLearnedAll
           )
         ),
         if (standing.acquired) UnitWaitsFor.MovingOn
         else if (!standing.symbolsMet) UnitWaitsFor.KanaToMeet
-        else if (standing.stable < standing.wordsNeeded) UnitWaitsFor.Words
+        else if (!standing.wordsAcquired) UnitWaitsFor.Words
         else if (!standing.practised) UnitWaitsFor.Lesson
         else UnitWaitsFor.Symbols,
         Option
@@ -135,15 +139,15 @@ final class Lessons(
   }
 
   /** A lesson session's plan: the points due for review, two at most, in the
-    * curriculum's order; a series when `wordsToPractise`; the lesson of the
-    * unit under way, if its point was never practised nor placed (past the last
+    * curriculum's order; the series `wordsToPractise`; the lesson of the unit
+    * under way, if its point was never practised nor placed (past the last
     * unit, the first point never practised), once its kana are met; its kana
-    * and kanji when `charactersToPractise`.
+    * and kanji, `charactersToPractise`.
     */
   def plan(
       now: Instant,
-      wordsToPractise: Boolean,
-      charactersToPractise: Boolean
+      wordsToPractise: Option[SeriesOf],
+      charactersToPractise: Option[CharactersOf]
   ): LessonPlan = {
     val due =
       learner.dueKeys(ItemKind.Grammar, now.toEpochMilli, reviewsAtMost).toSet

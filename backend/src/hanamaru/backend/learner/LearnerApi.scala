@@ -2,6 +2,7 @@ package hanamaru.backend.learner
 
 import hanamaru.shared.routes.LearnerRoutes
 
+import java.time.Duration
 import scala.util.Random
 
 import sttp.shared.Identity
@@ -13,13 +14,16 @@ class LearnerApi(learner: LearnerStore) {
     LearnerRoutes.kanaProgress.handleSuccess(_ =>
       learner.kanaProgress(System.currentTimeMillis())
     ),
-    LearnerRoutes.nextKana.handleSuccess(after =>
+    LearnerRoutes.nextKana.handleSuccess { after =>
+      val now = System.currentTimeMillis()
       KanaReview.next(
-        learner.kanaProgress(System.currentTimeMillis()),
-        System.currentTimeMillis(),
+        learner.kanaProgress(now),
+        now,
         after,
+        // the kana reviewed lately, which the rotation takes last
+        learner.reviewedSince(ItemKind.Kana, now - Duration.ofDays(1).toMillis),
         Random()
       )
-    )
+    }
   )
 }

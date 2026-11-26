@@ -30,6 +30,10 @@ object Application {
   // bus's events, which a page away would miss.
   private lazy val shell: HtmlElement = div(
     cls := "layout",
+    // a unit's sections side by side
+    cls("is-wide") <-- page.map(now =>
+      now == Page.LessonSession || now.isInstanceOf[Page.Unit]
+    ),
     headerTag(
       cls := "top-bar",
       PageLink(

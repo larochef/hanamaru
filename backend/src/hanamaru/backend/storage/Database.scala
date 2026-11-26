@@ -121,6 +121,10 @@ object Database {
       val value = results.getInt(column)
       Option.when(!results.wasNull())(value)
     }
+    def longOption(column: String): Option[Long] = {
+      val value = results.getLong(column)
+      Option.when(!results.wasNull())(value)
+    }
     def doubleOption(column: String): Option[Double] = {
       val value = results.getDouble(column)
       Option.when(!results.wasNull())(value)

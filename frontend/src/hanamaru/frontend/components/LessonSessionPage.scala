@@ -4,25 +4,16 @@ import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
 import hanamaru.shared.ReferenceDataState
 import hanamaru.shared.lessons.*
-import hanamaru.shared.vocabulary.SeriesOf
 
 import com.raquo.laminar.api.L.*
 
-/** My lesson, a session on the unit under way: the grammar points due for
-  * review, each practised in its exercises; a series of words, the unit's new
-  * ones among them; then the unit's lesson, read and practised, when it was
-  * never learned; then the kana and kanji due, and the unit's new ones; then
-  * what was done, and where the unit stands: acquired, the choice to move on to
-  * the next unit or to go on with this one, each starting a session again.
+/** My lesson, the unit under way at a glance: where it stands and what it waits
+  * for, a session to review and go on ([[LessonSession]], in a pop-in), and the
+  * unit's sections ([[UnitSections]]), each with its own practice. The unit is
+  * asked again whenever the page is shown, a pop-in closed, or the learner
+  * moves on.
   */
 class LessonSessionPage(bus: AppBus) extends ReactiveElement {
-
-  private enum Step {
-    case Review(point: GrammarPoint)
-    case Series
-    case Learn(point: GrammarPoint)
-    case Characters
-  }
 
   private val ready: Signal[Boolean] = bus.events.events
     .collect { case AppEvent.ServerChecked(status) =>
@@ -35,194 +26,159 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
     .collect { case AppEvent.PageShown(page) => page == Page.LessonSession }
     .startWith(false)
 
-  // a session again on the same page: going on with an acquired unit
-  private val again = EventBus[Unit]()
+  private val reviewing = Var(false)
 
-  // planned each time the page is shown, and again once moved on from a unit
-  // or going on with it
-  private val plan: Signal[Option[AppResult[List[Step]]]] = EventStream
-    .merge(
-      shown.combineWith(ready).changes.distinct,
-      EventStream
-        .merge(
-          again.events,
-          bus.events.events.collect { case AppEvent.UnitMovedOn(_) => () }
-        )
-        .sample(shown.combineWith(ready))
-    )
-    .flatMapSwitch {
-      case (true, true) =>
+  private val closed = EventBus[Unit]()
+
+  // the unit under way, and gathered, or none once every unit is acquired
+  private val unit
+      : Signal[Option[AppResult[Option[(UnitProgress, UnitRecap)]]]] =
+    EventStream
+      .merge(
+        shown.combineWith(ready).changes.distinct.collect { case (true, true) =>
+          ()
+        },
+        closed.events,
+        bus.events.events.collect { case AppEvent.UnitMovedOn(_) => () }
+      )
+      .flatMapSwitch(_ =>
         bus
-          .request(AppCommand.LoadLessonPlan) {
-            case AppEvent.LessonPlanLoaded(plan) =>
-              plan.reviews.map(Step.Review(_)) ++
-                Option.when(plan.series)(Step.Series) ++
-                plan.next.map(Step.Learn(_)) ++
-                Option.when(plan.characters)(Step.Characters)
+          .request(AppCommand.LoadUnit) { case AppEvent.UnitLoaded(unit) =>
+            unit
+          }
+          .flatMapSwitch {
+            case Right(Some(progress)) =>
+              val point = progress.point.id
+              bus
+                .request(AppCommand.LoadUnitRecap(point)) {
+                  case AppEvent.UnitRecapLoaded(recap)
+                      if recap.point.id == point =>
+                    recap
+                }
+                .map(_.map(recap => Some(progress -> recap)))
+            case Right(None)  => EventStream.fromValue(Right(None))
+            case Left(reason) => EventStream.fromValue(Left(reason))
           }
           .map(Some(_))
-      case _ => EventStream.fromValue(None)
-    }
-    .startWith(None)
+      )
+      .startWith(None)
 
-  private val at = Var(0)
-
-  private def stepView(step: Step, index: Int, total: Int): HtmlElement = {
-    val goOn = () => at.set(index + 1)
-    step match {
-      case Step.Review(point) =>
-        div(
-          p(
-            cls := "in-english",
-            Tr(
-              s"Step ${index + 1} of $total: a review",
-              s"Étape ${index + 1} sur $total : une révision"
-            )
-          ),
-          h2(point.title),
-          LessonExercises(bus, point.id, Some(goOn)),
-          button(
-            Tr("Skip this review", "Passer cette révision"),
-            onClick --> (_ => goOn())
-          )
-        )
-      case Step.Series =>
-        div(
-          p(
-            cls := "in-english",
-            Tr(
-              s"Step ${index + 1} of $total: the words",
-              s"Étape ${index + 1} sur $total : les mots"
-            )
-          ),
-          VocabularySeries(
-            bus,
-            EventStream.fromValue(()),
-            SeriesOf.MyLesson,
-            Some(goOn)
-          ),
-          button(
-            Tr("Skip the words", "Passer les mots"),
-            onClick --> (_ => goOn())
-          )
-        )
-      case Step.Characters =>
-        div(
-          p(
-            cls := "in-english",
-            Tr(
-              s"Step ${index + 1} of $total: kana and kanji",
-              s"Étape ${index + 1} sur $total : kana et kanji"
-            )
-          ),
-          CharacterPractice(bus, goOn),
-          button(
-            Tr("Skip the kana and kanji", "Passer les kana et kanji"),
-            onClick --> (_ => goOn())
-          )
-        )
-      case Step.Learn(point) =>
-        val lesson = bus.request(AppCommand.LoadLesson(point.id)) {
-          case AppEvent.LessonLoaded(lesson) if lesson.point.id == point.id =>
-            lesson
-        }
-        div(
-          p(
-            cls := "in-english",
-            Tr(
-              s"Step ${index + 1} of $total: a new lesson",
-              s"Étape ${index + 1} sur $total : une nouvelle leçon"
-            )
-          ),
-          child <-- lesson.map {
-            case Right(loaded) => LessonView(bus, loaded, Some(goOn)).node
-            case Left(reason)  => p(cls := "error", reason)
-          },
-          button(
-            Tr("Skip the lesson", "Passer la leçon"),
-            onClick --> (_ => goOn())
-          )
-        )
-    }
+  private def close(): Unit = {
+    reviewing.set(false)
+    closed.writer.onNext(())
   }
 
-  // the unit as the session left it: acquired, the choice to move on
-  private def acquired: HtmlElement = div(
-    child.maybe <-- bus
-      .request(AppCommand.LoadUnit) { case AppEvent.UnitLoaded(unit) => unit }
-      .map(
-        _.toOption.flatten
-          .flatMap(_.onward)
-          .map(onward =>
-            UnitAcquired(
-              bus,
-              onward,
-              button(
-                Tr("Go on with this unit", "Continuer sur cette unité"),
-                onClick --> (_ => again.writer.onNext(()))
-              )
-            ).node
-          )
-      )
+  private def reviewButton: HtmlElement = button(
+    cls := "review-button",
+    Tr("Review", "Réviser"),
+    span(
+      cls := "review-button-detail",
+      Tr("what is due, then what comes next", "ce qui est dû, puis la suite")
+    ),
+    onClick --> (_ => reviewing.set(true))
   )
 
-  private def summary(steps: List[Step]): HtmlElement = div(
-    acquired,
-    h2(Tr("Session over", "Séance terminée")),
-    if (steps.isEmpty)
-      p(
-        Tr(
-          "Nothing to review or practise, and every lesson is learned.",
-          "Rien à réviser ni à pratiquer, et toutes les leçons sont apprises."
-        )
-      )
-    else
-      ul(steps.map {
-        case Step.Review(point) =>
-          li(Tr("Reviewed: ", "Révisé : "), point.title)
-        case Step.Series =>
-          li(Tr("A series of words", "Une série de mots"))
-        case Step.Learn(point) => li(Tr("Lesson: ", "Leçon : "), point.title)
-        case Step.Characters   => li(Tr("Kana and kanji", "Des kana et kanji"))
-      }),
-    div(
-      cls := "placement-actions",
-      PageLink(
-        bus,
-        Page.Series,
-        cls := "button primary",
-        Tr("Another series", "Encore une série")
+  // a criterion of the unit, met or not as the server says
+  private def counted(text: String, met: Boolean): HtmlElement =
+    span(cls := "unit-badge", cls("is-met") := met, text)
+
+  private def badges(progress: UnitProgress): List[HtmlElement] = List(
+    counted(
+      Tr(
+        s"Words ${progress.stable}/${progress.words.size} (${progress.wordsNeeded} needed)",
+        s"Mots ${progress.stable}/${progress.words.size} (il en faut ${progress.wordsNeeded})"
       ),
-      PageLink(
-        bus,
-        Page.Grammar,
-        cls := "button",
-        Tr("The grammar", "La grammaire")
-      )
+      progress.wordsAcquired
+    ),
+    counted(
+      if (progress.practised) Tr("Lesson done", "Leçon faite")
+      else Tr("Lesson to do", "Leçon à faire"),
+      progress.practised
+    )
+  ) ++ progress.symbols.map(symbols =>
+    counted(
+      symbols.kind match {
+        case SymbolKind.Hiragana =>
+          Tr(
+            s"Hiragana ${symbols.learned}/${symbols.total}",
+            s"Hiragana ${symbols.learned}/${symbols.total}"
+          )
+        case SymbolKind.Katakana =>
+          Tr(
+            s"Katakana ${symbols.learned}/${symbols.total}",
+            s"Katakana ${symbols.learned}/${symbols.total}"
+          )
+        case SymbolKind.Kanji =>
+          Tr(
+            s"Kanji ${symbols.learned}/${symbols.total} learned",
+            s"Kanji ${symbols.learned}/${symbols.total} appris"
+          )
+      },
+      symbols.done
     )
   )
+
+  private def header(progress: UnitProgress, recap: UnitRecap): HtmlElement =
+    div(
+      cls := "my-lesson-head",
+      div(
+        cls := "my-lesson-standing",
+        div(
+          cls := "unit-standing-line",
+          UnitsNav(bus, recap).node,
+          badges(progress)
+        ),
+        h1(
+          progress.theme,
+          " ",
+          span(cls := "unit-pattern", lang := "ja", progress.point.pattern)
+        ),
+        p(cls := "unit-next", UnitProgressView.waiting(progress.waitsFor))
+      ),
+      reviewButton
+    )
+
+  // acquired: the choice to move on, or to go on with it in a session
+  private def onward(progress: UnitProgress): Option[HtmlElement] =
+    progress.onward.map(onward =>
+      UnitAcquired(
+        bus,
+        onward,
+        button(
+          Tr("Go on with this unit", "Continuer sur cette unité"),
+          onClick --> (_ => reviewing.set(true))
+        )
+      ).node
+    )
+
+  private def page(progress: UnitProgress, recap: UnitRecap): HtmlElement =
+    div(
+      header(progress, recap),
+      onward(progress),
+      UnitSections(bus, recap, () => closed.writer.onNext(())).node
+    )
 
   override lazy val node: HtmlElement = div(
     cls := "lesson-session-page",
-    h1(Tr("My lesson", "Ma leçon")),
-    // where the unit stands, and again once the session is over
-    UnitBanner(
-      bus,
-      EventStream.merge(
-        plan.changes.collect { case Some(Right(_)) => () },
-        at.signal.changes
-          .withCurrentValueOf(plan)
-          .collect {
-            case (index, Some(Right(steps))) if index >= steps.size => ()
-          }
+    child <-- unit.map {
+      case None => p(cls := "in-english", Tr("Loading…", "Chargement…"))
+      case Some(Left(reason))                   => p(cls := "error", reason)
+      case Some(Right(Some((progress, recap)))) => page(progress, recap)
+      case Some(Right(None))                    =>
+        div(
+          h1(Tr("My lesson", "Ma leçon")),
+          p(Tr("Every unit is acquired.", "Toutes les unités sont acquises.")),
+          reviewButton
+        )
+    },
+    child.maybe <-- reviewing.signal.map(
+      Option.when(_)(
+        Modal(
+          Tr("My lesson", "Ma leçon"),
+          LessonSession(bus).node,
+          () => close()
+        ).node
       )
-    ),
-    plan.changes --> (_ => at.set(0)),
-    child <-- plan.combineWith(at.signal).map {
-      case (None, _) => p(cls := "in-english", Tr("Planning…", "Préparation…"))
-      case (Some(Left(reason)), _)     => p(cls := "error", reason)
-      case (Some(Right(steps)), index) =>
-        steps.lift(index).fold(summary(steps))(stepView(_, index, steps.size))
-    }
+    )
   )
 }

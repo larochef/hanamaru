@@ -31,34 +31,6 @@ class UnitProgressView(bus: AppBus, progress: UnitProgress)
     }
   }
 
-  private def waiting: String = progress.waitsFor match {
-    case UnitWaitsFor.KanaToMeet =>
-      Tr(
-        "Its words are written in kana: they come once its kana are all met.",
-        "Ses mots s'écrivent avec ses kana : ils viendront une fois tous ses kana rencontrés."
-      )
-    case UnitWaitsFor.Words =>
-      Tr(
-        "Its words, in series, open the next unit with the rest.",
-        "Ses mots, en séries, ouvriront l'unité suivante avec le reste."
-      )
-    case UnitWaitsFor.Lesson =>
-      Tr(
-        "The words are acquired: do the lesson to open the next unit.",
-        "Les mots sont acquis : fais la leçon pour ouvrir l'unité suivante."
-      )
-    case UnitWaitsFor.Symbols =>
-      Tr(
-        "Words and lesson done: its symbols, read and written, open the next unit.",
-        "Mots et leçon faits : ses symboles, lus et écrits, ouvriront l'unité suivante."
-      )
-    case UnitWaitsFor.MovingOn =>
-      Tr(
-        "Acquired: move on to the next unit when you like.",
-        "Acquise : passe à l'unité suivante quand tu veux."
-      )
-  }
-
   override lazy val node: HtmlElement = div(
     cls := "unit-progress",
     p(
@@ -87,6 +59,38 @@ class UnitProgressView(bus: AppBus, progress: UnitProgress)
       else Tr("Lesson to do. ", "Leçon à faire. "),
       progress.symbols.map(symbolsLine)
     ),
-    p(cls := "unit-next", waiting)
+    p(cls := "unit-next", UnitProgressView.waiting(progress.waitsFor))
   )
+}
+
+object UnitProgressView {
+
+  /** What the unit under way waits for, in words. */
+  def waiting(waitsFor: UnitWaitsFor): String = waitsFor match {
+    case UnitWaitsFor.KanaToMeet =>
+      Tr(
+        "Its words are written in kana: they come once its kana are all met.",
+        "Ses mots s'écrivent avec ses kana : ils viendront une fois tous ses kana rencontrés."
+      )
+    case UnitWaitsFor.Words =>
+      Tr(
+        "Its words, in series, open the next unit with the rest.",
+        "Ses mots, en séries, ouvriront l'unité suivante avec le reste."
+      )
+    case UnitWaitsFor.Lesson =>
+      Tr(
+        "The words are acquired: do the lesson to open the next unit.",
+        "Les mots sont acquis : fais la leçon pour ouvrir l'unité suivante."
+      )
+    case UnitWaitsFor.Symbols =>
+      Tr(
+        "Words and lesson done: its symbols, read and written, open the next unit.",
+        "Mots et leçon faits : ses symboles, lus et écrits, ouvriront l'unité suivante."
+      )
+    case UnitWaitsFor.MovingOn =>
+      Tr(
+        "Acquired: move on to the next unit when you like.",
+        "Acquise : passe à l'unité suivante quand tu veux."
+      )
+  }
 }

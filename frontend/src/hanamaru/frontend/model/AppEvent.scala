@@ -112,6 +112,13 @@ object AppEvent {
       exercises: List[CharacterExercise]
   ) extends AppEvent
 
+  final case class FocusCardLoaded(
+      focus: FocusState,
+      card: Option[CharacterExercise]
+  ) extends AppEvent
+
+  final case class FocusFinished(focus: FocusState) extends AppEvent
+
   final case class KanaReadingJudged(
       answer: KanaReadingAnswer,
       result: ReadingResult

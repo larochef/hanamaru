@@ -1,6 +1,6 @@
 package hanamaru.frontend.model
 
-import hanamaru.shared.characters.{CharactersOf, KanaReadingAnswer}
+import hanamaru.shared.characters.*
 import hanamaru.shared.kanji.KanjiReadingAnswer
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
@@ -111,6 +111,15 @@ object AppCommand {
 
   /** Asks for a lesson session's kana and kanji exercises. */
   final case class LoadCharacterPractice(of: CharactersOf) extends AppCommand
+
+  /** Asks for the next card of a focus on a new character. */
+  final case class LoadFocusCard(focus: FocusState) extends AppCommand
+
+  /** A focus over, to keep as its character's first review. */
+  final case class FinishFocus(focus: FocusState) extends AppCommand
+
+  /** A character written in a focus: kept for the matcher, no review. */
+  final case class KeepWriting(attempt: WritingAttempt) extends AppCommand
 
   /** A kana's reading, to judge and keep. */
   final case class AnswerKanaReading(answer: KanaReadingAnswer)

@@ -64,14 +64,16 @@ is every kyōiku kanji.
   they have as many strokes, and as one line (the pen's moves between strokes
   included, so strokes written as one still compare), in place and in
   direction along the strokes (a corner, て, against a curve, つ), a long
-  stroke counting more than a short one; where and how large the character
+  stroke counting more than a short one, each point matched to one a little
+  further on or back on the model (dynamic time warping, within a tenth of
+  the line: a ん with a long descent and a small hump is not a し); where and how large the character
   is drawn tells ゃ from や, poorly. A kana with a dakuten or a handakuten is
   also compared as its base and its marks apart: the base against the base's
   model, the marks only as short strokes towards its upper right, wherever
   exactly (a hand puts で's dakuten above its corner, KanjiVG inside its
   curve, where it was taken for づ). On the kana written right from memory
-  kept so far, 281 in 302 are recognised first, 301 among the first three;
-  in the pad, 22 in 22. The kana of an answer written wholly in the pad are
+  kept so far, 994 in 1056 are recognised first (989 before the warping);
+  in the pad, 254 in 258, measured in `backend.calibration`. The kana of an answer written wholly in the pad are
   kept, each with the kana it is in the answer as the learner left it, in
   `~/.local/share/hanamaru/pad-characters.jsonl`: what the recogniser is tuned
   on next (a test measures it on them). The distance does not tell a right recognition from a wrong one, so
@@ -141,9 +143,9 @@ is every kyōiku kanji.
 
 ## Open
 
-- The tolerances, tuned on the attempts kept; and whether point distances
-  after resampling are enough, or dynamic time warping or the Fréchet distance
-  do better on real strokes.
+- The tolerances, tuned on the attempts kept; and whether the stroke matcher
+  too does better with dynamic time warping (the recogniser does) or the
+  Fréchet distance on real strokes.
 - Whether, from memory, a stroke's place should be judged against the strokes
   already drawn rather than against the box, for a character written much
   smaller or larger than the model. Judging against the box with a lenient

@@ -125,5 +125,34 @@ object CurriculumTests extends TestSuite {
           assert(wrong.isEmpty)
       }
     }
+    test("the た of a past is told from the な and なら of だ") {
+      analyser.foreach { analysis =>
+        def shows(id: String, sentence: String) =
+          points
+            .find(_.id == id)
+            .get
+            .shownIn(analysis.tokens(sentence))
+            .nonEmpty
+        assert(
+          shows("tara", "雨が降ったら、行きません。"),
+          !shows("tara", "静かなら、いいです。")
+        )
+      }
+    }
+    test("ところ of a moment is told from ところ of a place") {
+      analyser.foreach { analysis =>
+        val tokoro = points.find(_.id == "tokoro").get
+        def shown(sentence: String) =
+          tokoro.shownIn(analysis.tokens(sentence)).nonEmpty
+        assert(
+          shown("今、本を読んでいるところです。"),
+          shown("さっき読んだところです。"),
+          !shown("静かなところです。"),
+          !shown("いいところだ。"),
+          !shown("私のところです。"),
+          !shown("きれいなところだ。")
+        )
+      }
+    }
   }
 }

@@ -43,12 +43,11 @@ and a free afternoon are both useful.
   shown, written guided, then from memory, as long as the learner wishes; the
   learner moves to the next one when ready. The next kana is picked among those
   already met: first those due, those being learned first; then those the
-  placement test found probably known, to confirm them; then those being
-  learned, the one due soonest first, then any the same way. At random among
-  those due and those to confirm, never the same twice in a row. Every kana
-  once practised is "being learned" until its memory holds three weeks, so
-  picking among them at random kept the same few coming back while those to
-  confirm never came; in turn, each comes back once the others have. Writing from
+  placement test found probably known, to confirm them, at random; then,
+  nothing left to review, any kana met, at random, those not reviewed in the
+  last day first, as Express does: taking those being learned, the soonest
+  due first, went round the ten or so that a slip had kept learning (ち written
+  nine times, り once). Never the same twice in a row. Writing from
   memory there is a review like anywhere else. Kana never met are not offered:
   new content belongs to the planned sessions below.
 
@@ -104,12 +103,26 @@ and a free afternoon are both useful.
 - **My lesson** (built, first in the menu): the one place to go on with the
   curriculum, one unit ([`06`](06-curriculum-and-lessons.md)) after the other,
   grammar and vocabulary together. Kana stay apart for now, in their Express
-  sessions. It is planned from where the learner stands, each time it opens:
+  sessions. Its page shows the unit under way at a glance: where it stands
+  (its words, its lesson, its symbols, each criterion marked met as the
+  server judges it) and what it waits for; its grammar,
+  the start of its lesson, read again whole or practised; its symbols, the
+  kana chart or its kanji, each where it stands, written freely; its words,
+  two columns of them, each with a short meaning (the first glosses of its
+  first sense that fit a short line, their asides in parentheses left out),
+  its senses unfolded on demand, the server deciding both. Each section has
+  its own practice (a series on the unit's words or kanji, its exercises), and
+  a Review button the session: each opens in a pop-in over the page, closed by
+  its × alone (a stroke slipping off a pad must not close it), the unit asked
+  again once it is. The units before are a click away: the one before by an arrow, any of
+  them in a menu on the unit's name, on one line however many there are. A session is planned
+  from where the learner stands, each time it opens:
   1. the grammar points due for review, two at most, in the curriculum's
      order, each practised in its exercises (or skipped);
   2. a **vocabulary series** ([`08`](08-vocabulary-practice.md)): the words
      due, then the new words of the unit under way, or those of its words not
-     stable yet; none when there is nothing to practise;
+     stable yet, in the room the words due leave; none when there is nothing
+     to practise;
   3. the **lesson of the unit under way**, when its point was never practised
      nor placed: its explanation, examples, reading text and exercises, after
      its first words, so that its text can use them. Its exercises done are its
@@ -119,9 +132,8 @@ and a free afternoon are both useful.
      ([`06`](06-curriculum-and-lessons.md)): first the kana due, read or
      written, the most overdue first, ten at most, never before they are due
      (what is left waits, or goes to an Express session); while the first two
-     units are under way, their new kana, five a session in the chart's order,
-     each shown stroke by stroke, written over its model, then from memory,
-     then read; a kana met but never read is read, and one never written (the
+     units are under way, their new kana, two a session in the chart's order,
+     each learned in a **focus** (below); a kana met but never read is read, and one never written (the
      placement test reads more than it writes) is written as a new one is. A katakana due for its
      reading is read in a loanword written with it (テ in テレビ), one the
      learner has met if any, else one of the core vocabulary's most basic, its
@@ -130,19 +142,53 @@ and a free afternoon are both useful.
      ヌ, ヲ, ヂ and ヅ, in no such word, are read alone. Then the kanji, each in a word of
      the units the learner knows: those due, read or written, the most overdue
      first (six at most); then the writing of those read well enough (their
-     reading past its first steps; two at most), over the model first, then
-     from memory; then new ones (two at most), only once a word written with
-     them is stable: shown (meanings, readings, strokes), then read, the
-     word's reading typed in kana, by keyboard or stylus, its meaning shown
-     only once answered (given, it gives the word away). Reading comes
+     reading past its first steps, or read four times: a kanji written is
+     recognised more easily; two at most), over the model first, then
+     from memory (kanji read before focuses were); then new ones (two at
+     most), only once a word written with them is stable, or met two days
+     ago, each learned in a focus. Read, a kanji's word's reading is typed in
+     kana, by keyboard or stylus, its meaning shown only once answered
+     (given, it gives the word away). A reading, kana or
+     kanji, or a word of a series, answered wrong is shown as the learner
+     typed or wrote it, beside the answer expected. Reading comes
      before writing, and a word before its kanji. The word a kanji is asked
      in has the fewest other kanji not taught so far, then not met yet (学 in
      学生, not in 大学生, whose 大 comes later).
 
+  A **focus** (`CharacterFocus`) is how a new character, kana or kanji, is
+  learned, before any review: about ten cards in one sitting, read and
+  written in turn four times, the first of each new (shown: meanings,
+  readings, strokes with the Traits / Guidé / De mémoire tabs; written over
+  its model, then from memory); a kanji read in up to three words of the
+  units written with it, whose other kanji are taught so far, a katakana in
+  a loanword every other time. A card missed comes back once the others are
+  done, the one asked longest ago first, three times at most: a focus always
+  ends. Its answers are judged but not kept as reviews (its writing kept for
+  the matcher); once over, the character's reading and writing are reviewed
+  once each, as their last card went, and due from the next day, still in
+  their first steps: focuses alone acquire no unit. A unit's page offers a
+  focus on each of its kanji not met yet, ahead of My lesson.
+
+  Nothing waits for ever (`Waiting`): an item held back, by reviews taking
+  all the room or by a gate not passed yet, gets in once it has waited past a
+  patience, two days with no backlog, longer as the backlog grows (twice as
+  long with a full series due) so that the reviews still come on time: a new
+  word once none has come for that long, though the words due fill the
+  series; a kanji once a word written with it was met that long ago, though
+  the word is not stable yet. Express still brings new kana only once nothing
+  is due: My lesson brings them anyway.
+
+  Each part is a selection with its fallback: what it selects (the grammar
+  due, the words due or new, the kana and kanji due or new), else, nothing
+  being, the unit under way gone over at random: its point's exercises (once
+  its lesson is done), a series on its words, one on its kanji. Asked for, a
+  session always has something to practise; Today names only what is due.
+
   It ends with where the unit stands (its words stable, its point practised,
-  its symbols learned) and what opens the next one, with another series to go on. A unit is
+  its symbols learned) and what opens the next one, with another session to go on. A unit is
   acquired once its point is practised, most of its words stable and its
-  kanji learned; it then says so, at the session's end and on Today, and
+  kanji learned; it then says so, at the session's end, on Today and on My
+  lesson's page, and
   offers to move on to the next unit or to go on with this one (another
   session on it). The next
   unit's words and lesson come only once the learner moves on, so a unit takes a few sessions:

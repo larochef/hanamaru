@@ -55,7 +55,9 @@ object LessonRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[ExercisesTally])
 
-  /** A lesson session's plan: the grammar reviews due, then the next lesson. */
+  /** A lesson session's plan: what is due or new, else, nothing being, the unit
+    * under way gone over again.
+    */
   val plan: PublicEndpoint[Unit, String, LessonPlan, Any] =
     Routes.baseRoute.get
       .in("lesson-session")

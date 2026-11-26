@@ -22,6 +22,22 @@ object CharacterRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[List[CharacterExercise]])
 
+  /** The next card of a focus on a new character, none once it is over. */
+  val focusNext
+      : PublicEndpoint[FocusState, String, Option[CharacterExercise], Any] =
+    Routes.baseRoute.post
+      .in("characters" / "focus" / "next")
+      .in(jsonBody[FocusState])
+      .errorOut(Routes.refused)
+      .out(jsonBody[Option[CharacterExercise]])
+
+  /** A focus over: the character's reading and writing kept as reviewed. */
+  val focusDone: PublicEndpoint[FocusState, String, Unit, Any] =
+    Routes.baseRoute.post
+      .in("characters" / "focus" / "done")
+      .in(jsonBody[FocusState])
+      .errorOut(Routes.refused)
+
   /** A kana's reading judged, and kept as a review. */
   val kanaReading
       : PublicEndpoint[KanaReadingAnswer, String, ReadingResult, Any] =

@@ -23,6 +23,24 @@ class CharacterService(bus: AppBus, apiClient: ApiClient) {
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
+    case command @ AppCommand.LoadFocusCard(focus) =>
+      AppStreams.runOnce(apiClient.focusNext(focus)) {
+        case Right(card)  => bus.publish(AppEvent.FocusCardLoaded(focus, card))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
+    case command @ AppCommand.FinishFocus(focus) =>
+      AppStreams.runOnce(apiClient.focusDone(focus)) {
+        case Right(_)     => bus.publish(AppEvent.FocusFinished(focus))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
+    case command @ AppCommand.KeepWriting(attempt) =>
+      AppStreams.runOnce(apiClient.keepAttempt(attempt)) {
+        case Right(_)     => ()
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
     case _ => ()
   }(using unsafeWindowOwner)
 }

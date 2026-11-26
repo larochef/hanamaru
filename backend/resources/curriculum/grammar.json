@@ -872,7 +872,7 @@
     ],
     "signature": [
       [{ "pos": "動詞", "conjugation": "連体形" }, { "forms": ["前", "まえ"] }, { "form": "に", "pos": "助詞,格助詞" }],
-      [{ "forms": ["た", "だ"], "pos": "助動詞" }, { "forms": ["後", "あと"] }, { "form": "で", "pos": "助詞,格助詞" }],
+      [{ "pos": "助動詞,*,*,*,助動詞-タ" }, { "forms": ["後", "あと"] }, { "form": "で", "pos": "助詞,格助詞" }],
       [{ "form": "の", "pos": "助詞,格助詞" }, { "forms": ["後", "あと"] }, { "form": "で", "pos": "助詞,格助詞" }]
     ]
   },
@@ -1147,7 +1147,7 @@
       { "sentence": "雨が降っ＿、出かけません。", "french": "S'il pleut, je ne sors pas.", "choices": ["たら", "たり", "ない"], "answer": "たら" },
       { "sentence": "安かっ＿、買います。", "french": "Si c'est bon marché, je l'achète.", "choices": ["たら", "て", "ない"], "answer": "たら" }
     ],
-    "signature": [[{ "forms": ["た", "だ"], "pos": "助動詞", "conjugation": "仮定形" }]]
+    "signature": [[{ "pos": "助動詞,*,*,*,助動詞-タ", "conjugation": "仮定形" }]]
   },
   {
     "id": "nakereba",
@@ -1199,7 +1199,7 @@
       { "sentence": "薬を飲んだ＿がいいです。", "french": "Vous devriez prendre un médicament.", "choices": ["ほう", "こと", "もの"], "answer": "ほう" },
       { "sentence": "早く寝た＿いいですよ。", "french": "Tu ferais mieux de te coucher tôt.", "choices": ["ほうが", "ことが", "ものが"], "answer": "ほうが" }
     ],
-    "signature": [[{ "forms": ["た", "だ"], "pos": "助動詞" }, { "forms": ["ほう", "方"] }, { "form": "が", "pos": "助詞,格助詞" }, { "form": "いい" }]]
+    "signature": [[{ "pos": "助動詞,*,*,*,助動詞-タ" }, { "forms": ["ほう", "方"] }, { "form": "が", "pos": "助詞,格助詞" }, { "form": "いい" }]]
   },
   {
     "id": "te-shimau",
@@ -1798,7 +1798,7 @@
     "requires": ["ta"],
     "explanation": [
       "Après la forme en た, ばかり dit qu'une action vient d'avoir lieu : にほんに きた ばかりです, « je viens d'arriver au Japon ».",
-      "Ce « tout juste » est celui de celui qui parle : une semaine peut être « tout juste » s'il la ressent comme récente. ばかり se comporte comme un nom : ばかりです, ばかりの + nom (かった ばかりの かさ, « le parapluie que je venais d'acheter »).",
+      "Ce « tout juste » est subjectif : une semaine peut compter comme « tout juste » si celui qui parle la ressent comme récente. ばかり se comporte comme un nom : ばかりです, ばかりの + nom (かった ばかりの かさ, « le parapluie que je venais d'acheter »).",
       "Après un nom, ばかり a un autre sens, « rien que » (あめ ばかり, « rien que de la pluie ») ; ici, après la forme en た, il dit toujours « venir de »."
     ],
     "examples": [
@@ -1810,10 +1810,10 @@
     "theme": "Ce qui vient d'arriver",
     "words": ["届く", "到着", "出発", "帰国", "入社", "退院", "開店", "新人", "最初", "さっき"],
     "placement": [
-      { "sentence": "日本に来た＿です。", "french": "Je viens d'arriver au Japon.", "choices": ["ばかり", "つもり", "とき"], "answer": "ばかり" },
+      { "sentence": "日本に来た＿です。", "french": "Je viens d'arriver au Japon.", "choices": ["ばかり", "まえ", "とき"], "answer": "ばかり" },
       { "sentence": "さっき食べた＿です。", "french": "Je viens juste de manger.", "choices": ["ばかり", "ほう", "まえ"], "answer": "ばかり" }
     ],
-    "signature": [[{ "forms": ["た", "だ"], "pos": "助動詞" }, { "form": "ばかり" }]]
+    "signature": [[{ "pos": "助動詞,*,*,*,助動詞-タ" }, { "form": "ばかり" }]]
   },
   {
     "id": "tokoro",
@@ -1839,8 +1839,8 @@
       { "sentence": "ちょうど家に帰った＿です。", "french": "Je viens tout juste de rentrer à la maison.", "choices": ["ところ", "まま", "ため"], "answer": "ところ" }
     ],
     "signature": [
-      [{ "form": "ところ" }, { "form": "です" }],
-      [{ "form": "ところ" }, { "form": "だ" }]
+      [{ "pos": "動詞" }, { "form": "ところ" }, { "forms": ["です", "だ"] }],
+      [{ "pos": "助動詞,*,*,*,助動詞-タ" }, { "form": "ところ" }, { "forms": ["です", "だ"] }]
     ]
   },
   {

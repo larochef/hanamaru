@@ -41,14 +41,17 @@ enum CardKind(val name: String) {
   case Usage extends CardKind("usage")
 }
 
-/** A card as plans see it: its item's key, what it tests, its phase, and when
-  * it is due, in milliseconds since the epoch.
+/** A card as plans see it: its item's key, what it tests, its phase, when it is
+  * due, how many times it was reviewed, and when first, in milliseconds since
+  * the epoch.
   */
 final case class ItemCard(
     key: String,
     kind: CardKind,
     phase: Phase,
-    due: Long
+    due: Long,
+    reviews: Int = 0,
+    firstReviewed: Long = 0
 ) {
 
   /** Past its first steps, once: in review, or relearning after a lapse. What
@@ -72,6 +75,9 @@ final case class KanaCard(
 enum ReviewSource(val name: String) {
   case Practice extends ReviewSource("practice")
   case Placement extends ReviewSource("placement")
+
+  /** A focus on a new character, kept as one review of each of its cards. */
+  case Focus extends ReviewSource("focus")
 }
 
 /** What the learner knows: items, their cards with their FSRS memory, and every
@@ -127,6 +133,25 @@ final class LearnerStore(database: Database) {
     )
     memory
   }
+
+  /** A card not due before `until`: a character learned in a focus, its first
+    * steps done there, is reviewed from the next day on.
+    */
+  def postponed(
+      itemKind: ItemKind,
+      key: String,
+      cardKind: CardKind,
+      until: Instant
+  ): Unit = database.transaction(
+    _.update(
+      """UPDATE card SET due = max(due, ?) WHERE kind = ? AND item_id =
+        |(SELECT id FROM item WHERE kind = ? AND key = ?)""".stripMargin,
+      until.toEpochMilli,
+      cardKind.name,
+      itemKind.name,
+      key
+    )
+  )
 
   /** A card never reviewed, found probably known from other answers: it is
     * scheduled as a card first answered easily, to be confirmed, without a
@@ -201,7 +226,11 @@ final class LearnerStore(database: Database) {
   /** Every card of the items of a kind, in one query. */
   def cards(itemKind: ItemKind): List[ItemCard] = database.read(
     _.query(
-      """SELECT item.key, card.kind, card.phase, card.due
+      """SELECT item.key, card.kind, card.phase, card.due,
+        |  (SELECT count(*) FROM review WHERE review.card_id = card.id)
+        |    AS reviews,
+        |  (SELECT min(reviewed_at) FROM review WHERE review.card_id = card.id)
+        |    AS first_reviewed
         |FROM item JOIN card ON card.item_id = item.id
         |WHERE item.kind = ?""".stripMargin,
       itemKind.name
@@ -212,7 +241,9 @@ final class LearnerStore(database: Database) {
           .find(_.name == row.string("kind"))
           .getOrElse(throw IllegalStateException(row.string("kind"))),
         Phase.valueOf(row.string("phase")),
-        row.long("due")
+        row.long("due"),
+        row.int("reviews"),
+        row.longOption("first_reviewed").getOrElse(row.long("due"))
       )
     )
   )

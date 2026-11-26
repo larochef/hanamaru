@@ -36,6 +36,15 @@ object WritingRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[Option[ReviewOutcome]])
 
+  /** Keeps a character written in a focus, every stroke drawn: material for the
+    * matcher, and no review (the focus is one, once over).
+    */
+  val keepAttempt: PublicEndpoint[WritingAttempt, String, Unit, Any] =
+    Routes.baseRoute.post
+      .in("writing" / "kept")
+      .in(jsonBody[WritingAttempt])
+      .errorOut(Routes.refused)
+
   /** Keeps the kana of an answer written in the pad. */
   val recordPadCharacters
       : PublicEndpoint[List[PadCharacter], String, Unit, Any] =

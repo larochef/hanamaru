@@ -21,6 +21,7 @@ Stack: Scala.js, Laminar and Airstream (`Var`, `Signal`, `EventStream`), sttp an
 - A conditional modifier or element is `Option.when(condition)(...)`, never an `if` with an empty branch
 - Every font is bundled with the page, never left to the system's: Japanese glyphs differ from one font to the next, and stroke shapes must match the textbook style
 - Every text shown is `Tr(english, french)`: no text left in one language
+- A sign alone in a button (+, −, ×) is drawn (`ButtonIcon`), never typed: the font's tall Japanese em box puts a text glyph off centre
 
 ## Airstream sttp backend
 

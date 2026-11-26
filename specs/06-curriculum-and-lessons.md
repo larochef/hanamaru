@@ -172,11 +172,15 @@ can be repeated with fresh content until it is acquired.
 ## Open
 
 - The rest of the curriculum, towards N3: written in batches, the learner
-  reading each batch for clarity (the order is not theirs to judge). The
-  first N3 batch (たばかり to ように言う) waits for that reading. A new point's
+  reading each batch for clarity (the order is not theirs to judge). Points
+  beyond the learner's level, the first N3 batch (たばかり to ように言う),
+  are proofread apart, not by the learner. A new point's
   signature makes its pattern "not learned yet" for the texts of every lesson
   before it: a signature too wide would refuse their sentences, so each is
-  kept tight (ばかり after た, ところ before です or だ).
+  kept tight (ばかり after た, ところ after a verb or た and before です or
+  だ: not the place of 静かなところです). The た of a past is told by its
+  conjugation type, 助動詞-タ: its dictionary form may be だ (読んだ), as is
+  the な of 静かな or the なら of 静かなら.
 - What the signatures do not tell apart yet, found writing the first points:
   いい is an い adjective the analyser calls dependent (非自立可能), and 元気 or
   便利 are nouns that can be adjectives (形状詞可能), so the adjective

@@ -2,7 +2,7 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
-import hanamaru.shared.characters.{CharacterAsked, KanaReadingAnswer}
+import hanamaru.shared.characters.*
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kana.Kana
 import hanamaru.shared.placement.ReadingResult
@@ -13,8 +13,9 @@ import com.raquo.laminar.api.L.*
 /** A kana exercise: read (shown, its reading typed in romaji; a katakana in a
   * loanword, the word's reading typed in kana), or written from its reading; a
   * new kana is shown stroke by stroke first, then written over its model, then
-  * from memory. Each answer is kept as a review by the server. Once done,
-  * `next` leads on.
+  * from memory. Each answer is kept as a review by the server, or, in a focus
+  * (`kept`), only judged; how it went is `answered`. Once done, `next` leads
+  * on.
   */
 class KanaExerciseView(
     bus: AppBus,
@@ -22,12 +23,14 @@ class KanaExerciseView(
     asked: CharacterAsked,
     isNew: Boolean,
     inWord: Option[DictionaryWord],
-    next: () => Unit
+    next: () => Unit,
+    kept: AnswerKept = AnswerKept.AsReview,
+    answered: CardResult => Unit = _ => ()
 ) extends ReactiveElement {
 
   private enum Stage {
     case Shown, Guided, FromMemory, Read, Forgotten
-    case Judged(result: ReadingResult)
+    case Judged(answer: KanaReadingAnswer, result: ReadingResult)
   }
 
   private val stage = Var(
@@ -101,7 +104,11 @@ class KanaExerciseView(
         )
         writing.node.amend(
           writing.attempts --> { attempt =>
-            bus.send(AppCommand.RecordWriting(attempt))
+            bus.send(
+              if (kept == AnswerKept.InFocus) AppCommand.KeepWriting(attempt)
+              else AppCommand.RecordWriting(attempt)
+            )
+            answered(CardResult.of(attempt))
             if (attempt.forgotten) stage.set(Stage.Forgotten)
           },
           child.maybe <-- writing.attempts
@@ -114,12 +121,16 @@ class KanaExerciseView(
 
   private def judgedBy(answers: EventStream[KanaReadingAnswer]) =
     answers.flatMapSwitch(answer =>
-      bus.request(AppCommand.AnswerKanaReading(answer)) {
-        case AppEvent.KanaReadingJudged(`answer`, result) => result
-      }
+      bus
+        .request(AppCommand.AnswerKanaReading(answer)) {
+          case AppEvent.KanaReadingJudged(`answer`, result) => result
+        }
+        .map(answer -> _)
     ) --> {
-      case Right(result) => stage.set(Stage.Judged(result))
-      case Left(_)       => ()
+      case (answer, Right(result)) =>
+        answered(if (result.correct) CardResult.Right else CardResult.Missed)
+        stage.set(Stage.Judged(answer, result))
+      case (_, Left(_)) => ()
     }
 
   private def read: HtmlElement = inWord.fold {
@@ -127,7 +138,7 @@ class KanaExerciseView(
     question.node.amend(
       judgedBy(
         question.answers.map(reading =>
-          KanaReadingAnswer(kana.character, reading.typed)
+          KanaReadingAnswer(kana.character, reading.typed, kept = kept)
         )
       )
     )
@@ -137,7 +148,7 @@ class KanaExerciseView(
     val stylusField = StylusField(bus, field, Var(true))
     val answers = EventBus[KanaReadingAnswer]()
     def answer(typed: Option[String]) =
-      KanaReadingAnswer(kana.character, typed, Some(word.id))
+      KanaReadingAnswer(kana.character, typed, Some(word.id), kept)
     div(
       p(
         cls := "placement-prompt",
@@ -165,7 +176,10 @@ class KanaExerciseView(
     )
   }
 
-  private def judged(result: ReadingResult): HtmlElement = div(
+  private def judged(
+      answer: KanaReadingAnswer,
+      result: ReadingResult
+  ): HtmlElement = div(
     span(
       cls := "character-model",
       lang := "ja",
@@ -176,6 +190,9 @@ class KanaExerciseView(
       if (result.correct) Tr("Right!", "Juste !")
       else Tr("It reads ", "Il se lit ") + result.romaji
     ),
+    answer.typed
+      .filter(typed => !result.correct && typed.nonEmpty)
+      .map(YouWrote(_).node),
     inWord.map(word => p(cls := "series-meaning", word.firstMeaning)),
     continueButton(next)
   )
@@ -183,11 +200,11 @@ class KanaExerciseView(
   override lazy val node: HtmlElement = div(
     cls := "kana-exercise",
     child <-- stage.signal.map {
-      case Stage.Shown          => shown
-      case Stage.Guided         => guided
-      case Stage.FromMemory     => fromMemory
-      case Stage.Read           => read
-      case Stage.Judged(result) => judged(result)
+      case Stage.Shown                  => shown
+      case Stage.Guided                 => guided
+      case Stage.FromMemory             => fromMemory
+      case Stage.Read                   => read
+      case Stage.Judged(answer, result) => judged(answer, result)
       // not remembered: shown and written again, its review kept as missed
       case Stage.Forgotten => Relearn(bus, kana.character, next).node
     }

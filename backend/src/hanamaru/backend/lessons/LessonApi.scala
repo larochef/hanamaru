@@ -19,7 +19,7 @@ class LessonApi(
   val endpoints: List[ServerEndpoint[Any, Identity]] = List(
     LessonRoutes.curriculum.handle(_ => Right(lessons.curriculum)),
     LessonRoutes.lesson.handle(lessons.lesson),
-    LessonRoutes.plan.handleSuccess(_ => myLesson.plan(Instant.now())),
+    LessonRoutes.plan.handleSuccess(_ => myLesson.session(Instant.now())),
     LessonRoutes.unit.handleSuccess(_ => lessons.unit),
     LessonRoutes.recap.handle(recaps.recap),
     LessonRoutes.moveOn.handleSuccess(_ => lessons.movedOn(Instant.now())),

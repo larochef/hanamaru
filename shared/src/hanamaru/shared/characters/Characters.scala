@@ -2,6 +2,7 @@ package hanamaru.shared.characters
 
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kanji.KanjiExercise
+import hanamaru.shared.writing.*
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
@@ -13,6 +14,10 @@ import sttp.tapir.Schema
 enum CharactersOf {
   case MyLesson
   case OfUnit(point: String)
+}
+
+object CharactersOf {
+  given Schema[CharactersOf] = Schema.derived
 }
 
 /** What a kana or kanji exercise asks: the character read, or written. */
@@ -43,7 +48,34 @@ enum CharacterExercise {
   )
 
   case Kanji(exercise: KanjiExercise)
+
+  /** A character new to the learner, a kana or a kanji, learned in a focus of
+    * its own ([[FocusState]]) before it is reviewed.
+    */
+  case Focus(character: String)
 }
+
+/** How an answer is kept: as a review of its card; or only judged, in a focus,
+  * kept as one review once the focus is over.
+  */
+enum AnswerKept {
+  case AsReview, InFocus
+}
+
+/** How a card went: right, or missed. */
+enum CardResult {
+  case Right, Missed
+}
+
+/** A card of a focus as it went. */
+final case class FocusAnswer(exercise: CharacterExercise, result: CardResult)
+
+/** A focus on a new character: about ten cards in one sitting, its reading and
+  * its writing in turn, a card missed coming back a few times; the cards
+  * answered so far. Once over, its reading and writing are reviewed, from the
+  * next day on.
+  */
+final case class FocusState(character: String, answers: List[FocusAnswer])
 
 /** A kana's reading as typed in romaji, none for "I don't know"; or, read in a
   * word, the word's reading as typed (in kana).
@@ -51,7 +83,8 @@ enum CharacterExercise {
 final case class KanaReadingAnswer(
     character: String,
     typed: Option[String],
-    word: Option[Long] = None
+    word: Option[Long] = None,
+    kept: AnswerKept = AnswerKept.AsReview
 )
 
 object CharacterAsked {
@@ -60,7 +93,32 @@ object CharacterAsked {
 
 object CharacterExercise {
   given JsonValueCodec[List[CharacterExercise]] = JsonCodecMaker.make
+  given JsonValueCodec[Option[CharacterExercise]] = JsonCodecMaker.make
   given Schema[CharacterExercise] = Schema.derived
+}
+
+object AnswerKept {
+  given Schema[AnswerKept] = Schema.derived
+}
+
+object CardResult {
+
+  /** How a character written went: missed when wrong or not remembered; its
+    * strokes out of order, it is still written, as its review grades it.
+    */
+  def of(attempt: WritingAttempt): CardResult =
+    WritingCorrection.outcome(attempt) match {
+      case WritingOutcome.Wrong                              => Missed
+      case WritingOutcome.Right | WritingOutcome.StrokeOrder => Right
+    }
+
+  given Schema[CardResult] = Schema.derived
+}
+
+object FocusState {
+  given JsonValueCodec[FocusState] = JsonCodecMaker.make
+  given Schema[FocusAnswer] = Schema.derived
+  given Schema[FocusState] = Schema.derived
 }
 
 object KanaReadingAnswer {

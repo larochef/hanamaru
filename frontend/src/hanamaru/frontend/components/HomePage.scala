@@ -89,9 +89,9 @@ class HomePage(bus: AppBus) extends ReactiveElement {
           )
       )
       .toList ++
-      Option.when(plan.series)(Tr("a series of words", "une série de mots")) ++
+      plan.series.map(_ => Tr("a series of words", "une série de mots")) ++
       plan.next.map(point => Tr("the lesson ", "la leçon ") + point.pattern) ++
-      Option.when(plan.characters)(Tr("kana or kanji", "des kana ou kanji"))
+      plan.characters.map(_ => Tr("kana or kanji", "des kana ou kanji"))
 
   private def lessonCard(today: Today): HtmlElement =
     today.unit

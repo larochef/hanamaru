@@ -44,6 +44,8 @@ class CharacterPractice(
             )
         case CharacterExercise.Kanji(kanji) =>
           KanjiExerciseView(bus, kanji, next).node
+        case CharacterExercise.Focus(character) =>
+          FocusView(bus, character, next).node
       }
     )
   }

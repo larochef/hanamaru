@@ -159,6 +159,17 @@ class ApiClient(baseUri: Uri) {
     case CharactersOf.OfUnit(point) => call(CharacterRoutes.ofUnit, point)
   }
 
+  def focusNext(
+      focus: FocusState
+  ): EventStream[AppResult[Option[CharacterExercise]]] =
+    call(CharacterRoutes.focusNext, focus)
+
+  def focusDone(focus: FocusState): EventStream[AppResult[Unit]] =
+    call(CharacterRoutes.focusDone, focus)
+
+  def keepAttempt(attempt: WritingAttempt): EventStream[AppResult[Unit]] =
+    call(WritingRoutes.keepAttempt, attempt)
+
   def answerKanaReading(
       answer: KanaReadingAnswer
   ): EventStream[AppResult[ReadingResult]] =

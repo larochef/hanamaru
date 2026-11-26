@@ -18,23 +18,6 @@ class LessonView(
     onExercisesDone: Option[() => Unit] = None
 ) extends ReactiveElement {
 
-  // Japanese in the explanation, set apart from the French around it
-  private val japanese = "[぀-ヿ一-鿿〜・ー]+(?: [぀-ヿ一-鿿〜・ー]+)*".r
-
-  private def paragraph(text: String): HtmlElement = {
-    val runs = japanese.findAllMatchIn(text).toList
-    val pieces = runs
-      .foldLeft((0, List.empty[Modifier[HtmlElement]])) {
-        case ((from, done), run) =>
-          (
-            run.end,
-            done :+ textToTextNode(text.substring(from, run.start)) :+
-              span(cls := "in-japanese", lang := "ja", run.matched)
-          )
-      }
-    p(pieces._2, text.substring(pieces._1))
-  }
-
   // A sentence in kana, the point's grammar marked; a word of the dictionary
   // is shown, tapped, in `selected`.
   private def sentence(
@@ -199,7 +182,10 @@ class LessonView(
             .dropRight(1)
         )
       ),
-      div(cls := "lesson-explanation", lesson.explanation.map(paragraph)),
+      div(
+        cls := "lesson-explanation",
+        lesson.explanation.map(LessonView.paragraph)
+      ),
       Option.when(lesson.vocabulary.nonEmpty)(
         div(
           cls := "lesson-vocabulary",
@@ -221,4 +207,25 @@ class LessonView(
   }
 
   override lazy val node: HtmlElement = view
+}
+
+object LessonView {
+
+  // Japanese in the explanation, set apart from the French around it
+  private val japanese = "[぀-ヿ一-鿿〜・ー]+(?: [぀-ヿ一-鿿〜・ー]+)*".r
+
+  /** A paragraph of a lesson's explanation, its Japanese set apart. */
+  def paragraph(text: String): HtmlElement = {
+    val runs = japanese.findAllMatchIn(text).toList
+    val pieces = runs
+      .foldLeft((0, List.empty[Modifier[HtmlElement]])) {
+        case ((from, done), run) =>
+          (
+            run.end,
+            done :+ textToTextNode(text.substring(from, run.start)) :+
+              span(cls := "in-japanese", lang := "ja", run.matched)
+          )
+      }
+    p(pieces._2, text.substring(pieces._1))
+  }
 }

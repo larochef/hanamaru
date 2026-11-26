@@ -58,7 +58,15 @@ final class VocabularyPractice(
       .dueKeys(ItemKind.Word, at.toEpochMilli, largestSeries)
       .flatMap(_.toLongOption)
     val met = learner.metKeys(ItemKind.Word).flatMap(_.toLongOption)
-    val newCount = (largestSeries - due.size).min(mostNew).max(0)
+    // the room the reviews leave for new words; none left, one all the same
+    // once no new word has come for long ([[Waiting]])
+    val lastNew = learner.cards(ItemKind.Word).map(_.firstReviewed).maxOption
+    val newCount = Waiting.room(
+      learner.dueKeys(ItemKind.Word, at.toEpochMilli, Int.MaxValue).size,
+      largestSeries,
+      mostNew,
+      lastNew.map(since => Duration.ofMillis(at.toEpochMilli - since))
+    )
     val dueWords = words.words(due)
     val now = units.standing()
     // A word is asked in a sentence once its production has passed its

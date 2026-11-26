@@ -43,6 +43,7 @@ class WritingApi(
     WritingRoutes.strokes.handle(strokes),
     WritingRoutes.manyStrokes.handle(manyStrokes),
     WritingRoutes.recordAttempt.handleSuccess(recorded),
+    WritingRoutes.keepAttempt.handleSuccess(attempts.record),
     WritingRoutes.recordPadCharacters.handleSuccess(padCharacters.record)
   )
 }

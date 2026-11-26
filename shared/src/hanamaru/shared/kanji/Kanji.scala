@@ -1,6 +1,6 @@
 package hanamaru.shared.kanji
 
-import hanamaru.shared.characters.CharacterAsked
+import hanamaru.shared.characters.{AnswerKept, CharacterAsked}
 import hanamaru.shared.dictionary.DictionaryWord
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
@@ -50,10 +50,22 @@ final case class KanjiExercise(
 )
 
 /** A kanji's reading in a word, as typed (in kana). */
-final case class KanjiReadingAnswer(kanji: String, word: Long, typed: String)
+final case class KanjiReadingAnswer(
+    kanji: String,
+    word: Long,
+    typed: String,
+    kept: AnswerKept = AnswerKept.AsReview
+)
 
-/** A reading judged: right or not, and the word's reading. */
-final case class KanjiReadingVerdict(right: Boolean, reading: String)
+/** A reading judged: right or not, the word's reading, and, the word wrong but
+  * the kanji's own part of it right, that part (`kanjiRead`): the kanji is read
+  * right.
+  */
+final case class KanjiReadingVerdict(
+    right: Boolean,
+    reading: String,
+    kanjiRead: Option[String] = None
+)
 
 object KanjiExercise {
   given JsonValueCodec[List[KanjiExercise]] = JsonCodecMaker.make

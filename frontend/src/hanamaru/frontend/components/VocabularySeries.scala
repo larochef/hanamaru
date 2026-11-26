@@ -429,6 +429,9 @@ class VocabularySeries(
   ): HtmlElement = div(
     cls := "series-task",
     verdictLine(verdict),
+    Option.when(verdict.verdict != Verdict.Right && answer.typed.nonEmpty)(
+      YouWrote(answer.typed).node
+    ),
     wordShown(task.word.word),
     meaningsShown(task.word.word),
     // asked in a sentence: the sentence whole, and in French

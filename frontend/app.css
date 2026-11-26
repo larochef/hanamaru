@@ -751,6 +751,19 @@ button:disabled {
   color: #b26a00;
 }
 
+/* a reading judged: right, the kanji right in a word missed, or wrong */
+.verdict.is-right {
+  color: #2e7d32;
+}
+
+.verdict.is-near {
+  color: #b26a00;
+}
+
+.verdict.is-wrong {
+  color: var(--accent);
+}
+
 .tutor-note {
   color: var(--muted);
 }
@@ -1171,59 +1184,352 @@ button:disabled {
 }
 
 /* a unit gone over: its lesson, words and symbols */
-.unit-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin: 1rem 0;
+.layout.is-wide {
+  max-width: 78rem;
 }
 
-.unit-nav-link {
-  min-width: 1.8rem;
-  padding: 0.2rem 0.4rem;
+/* a unit's sections: grammar and symbols on one side, words on the other */
+.unit-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+.unit-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.unit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.2rem 1.4rem;
   border: 1px solid var(--faint);
-  border-radius: 0.4rem;
-  text-align: center;
-  text-decoration: none;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.unit-card h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.unit-card p {
+  margin: 0;
+}
+
+.unit-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.unit-pattern {
+  font-size: 1.4rem;
+}
+
+.unit-point-title {
+  font-size: 1.2rem;
+}
+
+.unit-card .unit-kanji {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.unit-card .unit-kanji-card {
+  min-width: 0;
+}
+
+.unit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.unit-word-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  column-gap: 1.2rem;
+}
+
+.unit-word-row {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--faint);
+}
+
+.unit-word-line {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.unit-word-line .word-writing {
+  font-size: 1.25rem;
+  white-space: nowrap;
+}
+
+.unit-word-line .word-reading {
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.word-short {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+/* a round button holding a drawn sign: a text one sits on the font's
+   baseline, off the middle with a Japanese font's tall em box */
+.icon-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.button-icon {
+  display: flex;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.button-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.word-senses {
+  margin: 0.3rem 0 0.2rem;
+  padding-left: 1.4rem;
+  font-size: 0.85rem;
+}
+
+.standing-dot {
+  flex: none;
+  align-self: center;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--muted);
+}
+
+.standing-dot.is-learning {
+  border-color: var(--hiragana);
+  background: var(--hiragana);
+}
+
+.standing-dot.is-acquired {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+/* My lesson's head: where the unit stands, and the session a click away */
+.my-lesson-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.my-lesson-standing {
+  flex: 1 1 30rem;
+}
+
+.my-lesson-standing h1 {
+  margin: 0.4rem 0 0.2rem;
+}
+
+.my-lesson-standing .unit-next {
+  margin: 0;
+}
+
+/* a unit among the units so far: the ones around it, the list in a menu */
+.units-nav {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.units-nav a.icon-button {
+  border: 1px solid var(--faint);
   color: var(--ink);
 }
 
-.unit-nav-link.is-selected {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--paper);
+.units-menu {
+  position: relative;
 }
 
-.unit-section {
-  margin: 1.5rem 0;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--faint);
+.units-menu summary {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--faint);
+  border-radius: 1rem;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
 }
 
-.unit-panel {
-  margin-top: 1rem;
-  padding: 1rem;
+.units-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.units-menu-list {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  min-width: 18rem;
+  max-height: 60vh;
+  margin: 0;
+  padding: 0.3rem 0;
+  overflow-y: auto;
   border: 1px solid var(--faint);
   border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 0.5rem 1.5rem rgba(43, 43, 43, 0.12);
+  list-style: none;
 }
 
-.unit-words {
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-  max-width: 100%;
+.units-menu-list a {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  color: var(--ink);
+  text-decoration: none;
 }
 
-.unit-words td {
-  padding: 0.3rem 0.8rem 0.3rem 0;
-  vertical-align: baseline;
+.units-menu-list a:hover,
+.units-menu-list a.is-selected {
+  background: var(--paper);
 }
 
-.unit-words .word-writing {
-  font-size: 1.3rem;
+.units-menu-list a.is-selected {
+  font-weight: 600;
 }
 
-.unit-words .word-reading {
+.units-menu-number {
+  min-width: 1.5rem;
   color: var(--muted);
+  text-align: right;
+}
+
+/* the units, the one under way, and its criteria, on one line */
+.unit-standing-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.6rem;
+  align-items: center;
+}
+
+.unit-standing-line .units-nav {
+  margin: 0;
+}
+
+.unit-badge {
+  padding: 0.2rem 0.7rem;
+  border-radius: 1rem;
+  background: var(--faint);
+  font-size: 0.9rem;
+}
+
+.unit-badge.is-met {
+  background: #e3eedf;
+  color: #2d5a27;
+}
+
+.unit-badge.is-met::before {
+  content: "✓ ";
+}
+
+.review-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 4rem;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.review-button-detail {
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+/* a pop-in over the page, scrolled on its own */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(43, 43, 43, 0.45);
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: min(48rem, 100%);
+  max-height: 100%;
+  border-radius: 1rem;
+  background: var(--paper);
+  box-shadow: 0 1.2rem 3.5rem rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--faint);
+  background: #fff;
+}
+
+.modal-heading {
+  font-weight: 600;
+}
+
+.modal-close {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.modal-close .button-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.modal-body {
+  padding: 1rem 1.5rem 1.5rem;
+  overflow-y: auto;
 }
 
 .standing {

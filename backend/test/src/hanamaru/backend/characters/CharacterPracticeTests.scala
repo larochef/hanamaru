@@ -6,16 +6,12 @@ import hanamaru.backend.lessons.{Curriculum, Units}
 import hanamaru.backend.reference.Dictionary
 import hanamaru.backend.storage.{Database, Places}
 import hanamaru.backend.writing.{WritingAttempts, WritingReview}
-import hanamaru.shared.characters.{
-  CharacterAsked,
-  CharacterExercise,
-  KanaReadingAnswer
-}
+import hanamaru.shared.characters.*
 import hanamaru.shared.kana.{Kana, Script}
 import hanamaru.shared.learner.Grade
 
 import java.nio.file.{Files, Path}
-import java.time.Instant
+import java.time.{Duration, Instant}
 import scala.jdk.CollectionConverters.*
 
 import utest.*
@@ -55,17 +51,55 @@ object CharacterPracticeTests extends TestSuite {
   }
 
   val tests: Tests = Tests {
-    test("the first unit brings its hiragana, a few at a time, in order") {
+    test(
+      "the first unit brings its hiragana, a few at a time, in order, each in a focus"
+    ) {
       withPractice { (practice, _) =>
-        val first =
-          hiragana.take(CharacterPractice.newKanaAtMost).map(_.character)
         assert(
           practice.exercises(at) ==
-            first.map(
-              CharacterExercise.Kana(_, CharacterAsked.Writing, true)
-            ) ++
-            first.map(CharacterExercise.Kana(_, CharacterAsked.Reading, false))
+            hiragana
+              .take(CharacterPractice.kanaFocusesAtMost)
+              .map(kana => CharacterExercise.Focus(kana.character))
         )
+      }
+    }
+    test(
+      "a focus: written and read in turn; once over, reviewed from the next day on"
+    ) {
+      withPractice { (practice, learner) =>
+        val first = practice.focusNext(FocusState("あ", Nil)).toOption.flatten
+        assert(
+          first.contains(
+            CharacterExercise.Kana("あ", CharacterAsked.Writing, true)
+          )
+        )
+        // answered right to its end
+        val answers = LazyList
+          .iterate(Option(List.empty[FocusAnswer]))(
+            _.flatMap(answers =>
+              practice
+                .focusNext(FocusState("あ", answers))
+                .toOption
+                .flatten
+                .map(card => answers :+ FocusAnswer(card, CardResult.Right))
+            )
+          )
+          .takeWhile(_.nonEmpty)
+          .flatten
+          .last
+        assert(answers.size == 2 * CharacterFocus.rounds)
+        // no review while it lasts
+        assert(learner.cards(ItemKind.Kana).isEmpty)
+        practice.focusDone(FocusState("あ", answers), at)
+        val cards = learner.cards(ItemKind.Kana)
+        assert(
+          cards.map(_.kind).toSet == Set(CardKind.Reading, CardKind.Writing),
+          cards.forall(card =>
+            card.due >= at.plus(Duration.ofHours(12)).toEpochMilli &&
+              !card.passed
+          )
+        )
+        assert(!practice.exercises(at).contains(CharacterExercise.Focus("あ")))
       }
     }
     test("the kana due, a few at most, never before they are due") {

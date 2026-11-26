@@ -178,9 +178,12 @@ final case class UnitStanding(
     symbolsLearned: Int,
     symbolsMet: Boolean
 ) {
-  def acquired: Boolean =
-    practised && stable >= wordsNeeded &&
-      symbols.exists(_.characters.size == symbolsLearned)
+  def wordsAcquired: Boolean = stable >= wordsNeeded
+
+  def symbolsLearnedAll: Boolean =
+    symbols.exists(_.characters.size == symbolsLearned)
+
+  def acquired: Boolean = practised && wordsAcquired && symbolsLearnedAll
 }
 
 /** The cards of the units' items, as they stand: an item passed once its cards

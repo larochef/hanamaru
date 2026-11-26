@@ -2,7 +2,7 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
-import hanamaru.shared.characters.CharacterAsked
+import hanamaru.shared.characters.*
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kanji.*
 import hanamaru.shared.writing.WritingStep
@@ -14,12 +14,17 @@ import com.raquo.laminar.api.L.*
   * kanji to write, written over its model the first time, then from memory from
   * the word's reading and meaning. Once done, `next` leads on.
   */
-class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
-    extends ReactiveElement {
+class KanjiExerciseView(
+    bus: AppBus,
+    exercise: KanjiExercise,
+    next: () => Unit,
+    kept: AnswerKept = AnswerKept.AsReview,
+    answered: CardResult => Unit = _ => ()
+) extends ReactiveElement {
 
   private enum Stage {
     case Shown, Asked, Guided, FromMemory, Forgotten
-    case Judged(verdict: KanjiReadingVerdict)
+    case Judged(answer: KanjiReadingAnswer, verdict: KanjiReadingVerdict)
   }
 
   private def writingOf(word: DictionaryWord): String =
@@ -78,7 +83,9 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
       continueButton(next)
     )
 
-  private def asked(judged: KanjiReadingVerdict => Unit): HtmlElement = {
+  private def asked(
+      judged: (KanjiReadingAnswer, KanjiReadingVerdict) => Unit
+  ): HtmlElement = {
     val field = KanaInput()
     val stylusField = StylusField(bus, field, Var(true))
     val submitted = EventBus[KanjiReadingAnswer]()
@@ -93,7 +100,8 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
           KanjiReadingAnswer(
             exercise.kanji.literal,
             exercise.word.id,
-            field.value
+            field.value,
+            kept
           )
         } --> submitted.writer,
         field,
@@ -103,16 +111,23 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
       button(
         Tr("I don't know", "Je ne sais pas"),
         onClick.mapTo(
-          KanjiReadingAnswer(exercise.kanji.literal, exercise.word.id, "")
+          KanjiReadingAnswer(exercise.kanji.literal, exercise.word.id, "", kept)
         ) --> submitted.writer
       ),
       submitted.events.flatMapSwitch(answer =>
-        bus.request(AppCommand.AnswerKanjiReading(answer)) {
-          case AppEvent.KanjiReadingJudged(`answer`, verdict) => verdict
-        }
+        bus
+          .request(AppCommand.AnswerKanjiReading(answer)) {
+            case AppEvent.KanjiReadingJudged(`answer`, verdict) => verdict
+          }
+          .map(answer -> _)
       ) --> {
-        case Right(verdict) => judged(verdict)
-        case Left(_)        => ()
+        case (answer, Right(verdict)) =>
+          answered(
+            if (verdict.right || verdict.kanjiRead.nonEmpty) CardResult.Right
+            else CardResult.Missed
+          )
+          judged(answer, verdict)
+        case (_, Left(_)) => ()
       },
       child.maybe <-- bus.events.events.collect {
         case AppEvent.RequestFailed(AppCommand.AnswerKanjiReading(_), reason) =>
@@ -122,16 +137,30 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
   }
 
   private def judgedView(
+      answer: KanjiReadingAnswer,
       verdict: KanjiReadingVerdict,
       next: () => Unit
   ): HtmlElement = div(
     cls := "series-task",
-    p(
-      cls := (if (verdict.right) "verdict is-right" else "verdict is-wrong"),
-      if (verdict.right) Tr("Right!", "Juste !")
-      else
-        Tr("Not quite: it reads ", "Pas tout à fait : il se lit ") +
-          verdict.reading
+    verdict.kanjiRead.fold(
+      p(
+        cls := (if (verdict.right) "verdict is-right" else "verdict is-wrong"),
+        if (verdict.right) Tr("Right!", "Juste !")
+        else
+          Tr("Not quite: it reads ", "Pas tout à fait : il se lit ") +
+            verdict.reading
+      )
+    )(part =>
+      p(
+        cls := "verdict is-near",
+        Tr(
+          s"${exercise.kanji.literal} is read right ($part); the word reads ${verdict.reading}.",
+          s"${exercise.kanji.literal} est bien lu ($part) ; le mot se lit ${verdict.reading}."
+        )
+      )
+    ),
+    Option.when(!verdict.right && answer.typed.nonEmpty)(
+      YouWrote(answer.typed).node
     ),
     wordShown(exercise.word),
     continueButton(next)
@@ -185,7 +214,11 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
           )
           writing.node.amend(
             writing.attempts --> { attempt =>
-              bus.send(AppCommand.RecordKanjiWriting(attempt))
+              bus.send(
+                if (kept == AnswerKept.InFocus) AppCommand.KeepWriting(attempt)
+                else AppCommand.RecordKanjiWriting(attempt)
+              )
+              answered(CardResult.of(attempt))
               if (attempt.forgotten) forgot()
             },
             child.maybe <-- writing.attempts
@@ -209,9 +242,9 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
       child <-- stage.signal.map {
         case Stage.Shown => shown(() => stage.set(Stage.Asked))
         case Stage.Asked =>
-          asked(verdict => stage.set(Stage.Judged(verdict)))
-        case Stage.Judged(verdict) => judgedView(verdict, next)
-        case Stage.Guided          =>
+          asked((answer, verdict) => stage.set(Stage.Judged(answer, verdict)))
+        case Stage.Judged(answer, verdict) => judgedView(answer, verdict, next)
+        case Stage.Guided                  =>
           guided(() => stage.set(Stage.FromMemory))
         case Stage.FromMemory =>
           fromMemory(next, () => stage.set(Stage.Forgotten))

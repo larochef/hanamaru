@@ -105,8 +105,11 @@ object CharacterRecognizer {
 
   /** How much each difference counts: the strokes compared one by one, against
     * the line they make (`byStroke`, the rest); a stroke more or fewer than the
-    * model's; the character drawn larger or smaller, or elsewhere. Tuned on
-    * characters written from memory.
+    * model's; the character drawn larger or smaller, or elsewhere; and how far
+    * along a line a point may be matched to one of the model's (`warp`, a share
+    * of the line): a part drawn longer than the model's, ん's descent and a
+    * small hump, is not another kana (し). Tuned on characters written from
+    * memory.
     */
   final case class Weights(
       byStroke: Double = 0.85,
@@ -114,7 +117,8 @@ object CharacterRecognizer {
       size: Double = 0.2,
       place: Double = 0.15,
       direction: Double = 0.2,
-      byLength: Double = 0.5
+      byLength: Double = 0.5,
+      warp: Double = 0.1
   )
 
   // A character's strokes brought to a size of 1 around its centre: each
@@ -142,17 +146,17 @@ object CharacterRecognizer {
   }
 
   private def distance(drawn: Shape, model: Shape, weights: Weights): Double = {
-    val asOneLine = meanDistance(drawn.line, model.line)
+    val asOneLine = along(drawn.line, model.line, weights)
     val byStroke =
       if (drawn.count == model.count)
         drawn.each
           .zip(model.each)
           .zip(model.lengths.map(math.pow(_, weights.byLength)))
           .map { case ((stroke, target), weight) =>
-            weight * (meanDistance(stroke, target) +
+            weight * (along(stroke, target, weights) +
               weights.direction * turnDistance(stroke, target))
               .min(
-                (meanDistance(stroke.reverse, target) +
+                (along(stroke.reverse, target, weights) +
                   weights.direction * turnDistance(stroke.reverse, target)) *
                   1.2
               )
@@ -202,6 +206,37 @@ object CharacterRecognizer {
       tooLong + tooLeft + tooLow
     }.sum / marks.size
   }
+
+  // how far two lines are, point by point; with `warp`, each point matched to
+  // one a little further on or back on the other line (dynamic time warping,
+  // within that share of the line): a part drawn longer than the model's
+  private def along(
+      a: Vector[Point],
+      b: Vector[Point],
+      weights: Weights
+  ): Double =
+    if (weights.warp <= 0) meanDistance(a, b)
+    else {
+      val band = (weights.warp * a.size).ceil.toInt.max(1)
+      val far = Double.MaxValue / 4
+      val cost = Array.fill(a.size + 1, b.size + 1)(far)
+      val steps = Array.fill(a.size + 1, b.size + 1)(0)
+      cost(0)(0) = 0
+      for {
+        i <- 1 to a.size
+        j <- (i - band).max(1) to (i + band).min(b.size)
+      } {
+        val here = math.hypot(a(i - 1).x - b(j - 1).x, a(i - 1).y - b(j - 1).y)
+        val (before, count) = List(
+          (cost(i - 1)(j - 1), steps(i - 1)(j - 1)),
+          (cost(i - 1)(j), steps(i - 1)(j)),
+          (cost(i)(j - 1), steps(i)(j - 1))
+        ).minBy(_._1)
+        cost(i)(j) = before + here
+        steps(i)(j) = count + 1
+      }
+      cost(a.size)(b.size) / steps(a.size)(b.size).max(1)
+    }
 
   private def meanDistance(a: Vector[Point], b: Vector[Point]): Double =
     a.zip(b).map((p, q) => math.hypot(p.x - q.x, p.y - q.y)).sum / a.size

@@ -14,6 +14,8 @@ class CharacterApi(practice: CharacterPractice) {
       practice.exercises(Instant.now())
     ),
     CharacterRoutes.ofUnit.handle(practice.ofUnit(_, Instant.now())),
-    CharacterRoutes.kanaReading.handle(practice.readKana(_, Instant.now()))
+    CharacterRoutes.kanaReading.handle(practice.readKana(_, Instant.now())),
+    CharacterRoutes.focusNext.handle(practice.focusNext),
+    CharacterRoutes.focusDone.handle(practice.focusDone(_, Instant.now()))
   )
 }
