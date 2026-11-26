@@ -15,6 +15,13 @@ object CharacterRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[List[CharacterExercise]])
 
+  /** A unit's kanji gone over out of turn, from its page. */
+  val ofUnit: PublicEndpoint[String, String, List[CharacterExercise], Any] =
+    Routes.baseRoute.get
+      .in("characters" / "unit" / path[String]("point"))
+      .errorOut(Routes.refused)
+      .out(jsonBody[List[CharacterExercise]])
+
   /** A kana's reading judged, and kept as a review. */
   val kanaReading
       : PublicEndpoint[KanaReadingAnswer, String, ReadingResult, Any] =

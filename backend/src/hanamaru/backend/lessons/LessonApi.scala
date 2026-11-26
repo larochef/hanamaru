@@ -12,7 +12,8 @@ class LessonApi(
     lessons: Lessons,
     exercises: Exercises,
     judge: ExerciseJudge,
-    myLesson: MyLesson
+    myLesson: MyLesson,
+    recaps: UnitRecaps
 ) {
 
   val endpoints: List[ServerEndpoint[Any, Identity]] = List(
@@ -20,6 +21,8 @@ class LessonApi(
     LessonRoutes.lesson.handle(lessons.lesson),
     LessonRoutes.plan.handleSuccess(_ => myLesson.plan(Instant.now())),
     LessonRoutes.unit.handleSuccess(_ => lessons.unit),
+    LessonRoutes.recap.handle(recaps.recap),
+    LessonRoutes.moveOn.handleSuccess(_ => lessons.movedOn(Instant.now())),
     LessonRoutes.text.handle(lessons.text),
     LessonRoutes.exercises.handle(exercises.exercises),
     LessonRoutes.answer.handleSuccess(judge.judged),

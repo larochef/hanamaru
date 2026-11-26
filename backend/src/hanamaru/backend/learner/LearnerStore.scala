@@ -222,6 +222,55 @@ final class LearnerStore(database: Database) {
     KanaCard(card.key, card.kind, card.phase, card.due)
   )
 
+  /** The units the learner moved on from, by their points. */
+  def unitsLeft(): Set[String] = database.read(
+    _.query("SELECT point_id FROM unit_left")(_.string("point_id")).toSet
+  )
+
+  /** Moves the learner on from units, by their points. */
+  def leaveUnits(points: List[String], at: Instant): Unit =
+    database.transaction(session =>
+      points.foreach(point =>
+        session.update(
+          "INSERT OR IGNORE INTO unit_left (point_id, left_at) VALUES (?, ?)",
+          point,
+          at.toEpochMilli
+        )
+      )
+    )
+
+  /** The items of a kind reviewed since `since`, in milliseconds since the
+    * epoch.
+    */
+  def reviewedSince(itemKind: ItemKind, since: Long): Set[String] =
+    database.read(
+      _.query(
+        """SELECT DISTINCT item.key FROM review
+          |JOIN card ON card.id = review.card_id
+          |JOIN item ON item.id = card.item_id
+          |WHERE item.kind = ? AND review.reviewed_at >= ?""".stripMargin,
+        itemKind.name,
+        since
+      )(_.string("key")).toSet
+    )
+
+  /** The cards a study session has asked so far: each kana and what it tests.
+    */
+  def sessionAsked(studySession: Long): Set[(String, CardKind)] =
+    database.read(
+      _.query(
+        """SELECT DISTINCT item.key, card.kind FROM review
+          |JOIN card ON card.id = review.card_id
+          |JOIN item ON item.id = card.item_id
+          |WHERE review.session_id = ?""".stripMargin,
+        studySession
+      )(row =>
+        row.string("key") -> CardKind.values
+          .find(_.name == row.string("kind"))
+          .getOrElse(throw IllegalStateException(row.string("kind")))
+      ).toSet
+    )
+
   /** What a study session did: its reviews, those answered right, and the kana
     * it brought in (first reviewed in it), in the order they came.
     */

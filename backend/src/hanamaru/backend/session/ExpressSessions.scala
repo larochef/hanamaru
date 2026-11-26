@@ -125,7 +125,8 @@ final class ExpressSessions(
       last,
       session.script.fold(Kana.all)(script =>
         Kana.all.filter(_.script == script)
-      )
+      ),
+      learner.sessionAsked(session.id)
     )
     sessions.asking(session.id, next, at)
     SessionState(session.id, next, session.endsAt, summary, lastReading)

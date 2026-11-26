@@ -57,7 +57,7 @@ object KanjidicTests extends TestSuite {
       val count = Kanjidic.imported(
         source,
         database,
-        Map("schema" -> Kanjidic.schemaVersion)
+        Map("schema" -> Kanjidic.importVersion)
       )
       assert(count == 2)
       val book = KanjiBook(Database.connect(database))
@@ -73,7 +73,7 @@ object KanjidicTests extends TestSuite {
       // no French meaning: the English ones, said so
       assert(first(1).meanings == List("month", "moon"), first(1).inEnglish)
       assert(book.kanji("丂").isEmpty)
-      assert(book.version.get("schema").contains(Kanjidic.schemaVersion))
+      assert(book.version.get("schema").contains(Kanjidic.importVersion))
     }
     test("the file's date, from its header") {
       assert(

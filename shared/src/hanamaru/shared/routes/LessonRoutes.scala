@@ -62,10 +62,25 @@ object LessonRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[LessonPlan])
 
-  /** The unit under way, none once every unit is acquired. */
+  /** The unit under way, none once every unit is left. */
   val unit: PublicEndpoint[Unit, String, Option[UnitProgress], Any] =
     Routes.baseRoute.get
       .in("unit")
+      .errorOut(Routes.refused)
+      .out(jsonBody[Option[UnitProgress]])
+
+  /** A unit gathered to be gone over: one of those so far. */
+  val recap: PublicEndpoint[String, String, UnitRecap, Any] =
+    Routes.baseRoute.get
+      .in("unit" / path[String]("point"))
+      .errorOut(Routes.refused)
+      .out(jsonBody[UnitRecap])
+
+  /** Moves on from the unit under way, once acquired: the unit under way then.
+    */
+  val moveOn: PublicEndpoint[Unit, String, Option[UnitProgress], Any] =
+    Routes.baseRoute.post
+      .in("unit" / "onward")
       .errorOut(Routes.refused)
       .out(jsonBody[Option[UnitProgress]])
 }

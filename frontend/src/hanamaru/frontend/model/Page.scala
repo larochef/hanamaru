@@ -54,6 +54,9 @@ enum Page {
   /** Where the data shown come from, and their licences. */
   case Credits
 
+  /** A unit gathered to be gone over: its lesson, its words, its symbols. */
+  case Unit(point: String)
+
   def path: String = this match {
     case Home            => "/"
     case Chart           => "/kana"
@@ -73,6 +76,8 @@ enum Page {
       s"/kanji/${URIUtils.encodeURIComponent(literal)}"
     case Lesson(point) =>
       s"/grammar/${URIUtils.encodeURIComponent(point)}"
+    case Unit(point) =>
+      s"/unit/${URIUtils.encodeURIComponent(point)}"
   }
 }
 
@@ -101,6 +106,7 @@ object Page {
         KanjiCharacter(URIUtils.decodeURIComponent(literal))
       case List("grammar", point) =>
         Lesson(URIUtils.decodeURIComponent(point))
-      case _ => Home
+      case List("unit", point) => Unit(URIUtils.decodeURIComponent(point))
+      case _                   => Home
     }
 }

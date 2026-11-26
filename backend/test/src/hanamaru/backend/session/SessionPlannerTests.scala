@@ -4,6 +4,8 @@ import hanamaru.backend.learner.{CardKind, KanaCard, Phase}
 import hanamaru.shared.kana.{Kana, Script}
 import hanamaru.shared.session.SessionExercise
 
+import scala.util.Random
+
 import utest.*
 
 object SessionPlannerTests extends TestSuite {
@@ -18,8 +20,20 @@ object SessionPlannerTests extends TestSuite {
       stylus: Boolean = true,
       introduced: Int = 0,
       last: Option[SessionExercise] = None,
-      at: Long = now
-  ) = SessionPlanner.next(cards, at, endsAt, stylus, introduced, 3, last)
+      at: Long = now,
+      asked: Set[(String, CardKind)] = Set.empty,
+      seed: Long = 1
+  ) = SessionPlanner.next(
+    cards,
+    at,
+    endsAt,
+    stylus,
+    introduced,
+    3,
+    last,
+    asked = asked,
+    random = Random(seed)
+  )
 
   val tests: Tests = Tests {
     test("nothing met: the first kana of the chart, new") {
@@ -76,37 +90,55 @@ object SessionPlannerTests extends TestSuite {
       )
       assert(next(met).contains(SessionExercise.NewKana("い", true)))
       // no new kana: the cards met, before they are due
-      assert(next(met, introduced = 3).contains(SessionExercise.Writing("あ")))
-      assert(
-        next(met, at = endsAt - 60 * 1000)
-          .contains(SessionExercise.Writing("あ"))
-      )
+      val ofあ =
+        Set(SessionExercise.Writing("あ"), SessionExercise.Reading("あ"))
+      assert(next(met, introduced = 3).exists(ofあ))
+      assert(next(met, at = endsAt - 60 * 1000).exists(ofあ))
     }
-    test("a card being learned due in a moment rather than ending early") {
+    test("nothing due: a card all the same rather than ending early") {
       val cards = List(
         card("あ", CardKind.Writing, Phase.Learning, now + 30 * 1000),
         card("あ", CardKind.Reading, Phase.Review, now + 5000)
       )
-      assert(next(cards, introduced = 3).contains(SessionExercise.Writing("あ")))
+      assert(next(cards, introduced = 3).isDefined)
     }
     test(
-      "once nothing else is left, the cards before they are due, being learned first"
+      "nothing due: any card at random, those the session has not asked first"
     ) {
+      // a few being learned, due in minutes, and the others reviewed long ago
       val cards = List(
-        card("あ", CardKind.Writing, Phase.Learning, now + 8 * 60 * 1000),
-        card("い", CardKind.Writing, Phase.Learning, now + 9 * 60 * 1000),
-        card("あ", CardKind.Reading, Phase.Review, now + 5000),
-        card("い", CardKind.Reading, Phase.Review, now + 5000)
+        card("あ", CardKind.Reading, Phase.Learning, now + 8 * 60 * 1000),
+        card("い", CardKind.Reading, Phase.Learning, now + 9 * 60 * 1000)
+      ) ++ List("う", "え", "お", "か").map(character =>
+        card(character, CardKind.Reading, Phase.Review, now + 3600000)
       )
-      assert(next(cards, introduced = 3).contains(SessionExercise.Writing("あ")))
+      val seeds = (1L to 200L).toList
+      // every card comes up, not only those being learned
+      val drawn =
+        seeds.flatMap(seed => next(cards, introduced = 3, seed = seed))
+      assert(drawn.toSet.size == cards.size)
+      // those the session has asked wait for the others
+      val asked = cards
+        .filter(_.character != "お")
+        .map(card => card.character -> card.kind)
       assert(
-        next(cards, introduced = 3, last = Some(SessionExercise.Writing("あ")))
-          .contains(SessionExercise.Writing("い"))
+        seeds.forall(seed =>
+          next(cards, introduced = 3, asked = asked.toSet, seed = seed)
+            .contains(SessionExercise.Reading("お"))
+        )
       )
-      // every kana met and none due: the soonest due, not an empty session
-      val reviewed = cards.map(_.copy(phase = Phase.Review))
+      // all asked: any, but not the one just asked
+      val all = cards.map(card => card.character -> card.kind).toSet
       assert(
-        next(reviewed, introduced = 3).contains(SessionExercise.Reading("あ"))
+        seeds.forall(seed =>
+          !next(
+            cards,
+            introduced = 3,
+            asked = all,
+            last = Some(SessionExercise.Reading("お")),
+            seed = seed
+          ).contains(SessionExercise.Reading("お"))
+        )
       )
     }
     test("a katakana session: only katakana, due or new") {

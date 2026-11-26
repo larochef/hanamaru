@@ -39,8 +39,11 @@ the application's storage and queried by the backend.
   (`~/.cache/hanamaru/reference/dictionary.db`, about 60 MB, 2 s to import):
   words with their frequency rank and common mark, their written forms and
   readings with JMdict's codes, their senses in French and English with
-  their parts of speech and glosses. A change of the database's shape imports
-  it again.
+  their parts of speech and glosses. Its tables and indexes, and the kanji
+  database's, are Flyway migrations of their own (`db/dictionary`, `db/kanji`
+  in the backend's resources), applied as the import starts and at each start;
+  a database made before its migrations is taken to be at its first. Only a
+  change of what is imported imports it again.
 - **The core vocabulary list** (the order words are learned in, and the
   vocabulary placement) is the **JLPT lists**, N5 (the first words) to N1:
   Jonathan Waller's lists (tanos.co.uk, CC BY), each word tied to its JMdict

@@ -86,7 +86,9 @@ object KanaRecognitionTests extends TestSuite {
             .readAllLines(file)
             .asScala
             .map(readFromString[WritingAttempt](_))
-            .filter(_.step == WritingStep.FromMemory)
+            .filter(attempt =>
+              attempt.step == WritingStep.FromMemory && !attempt.forgotten
+            )
             .toList
             .flatMap(attempt =>
               scriptOf(attempt.character).map(script =>

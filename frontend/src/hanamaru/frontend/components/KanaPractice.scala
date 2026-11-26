@@ -3,7 +3,7 @@ package hanamaru.frontend.components
 import hanamaru.frontend.i18n.{Delays, Tr}
 import hanamaru.frontend.model.*
 import hanamaru.shared.ReferenceDataState
-import hanamaru.shared.kana.{Kana, Script}
+import hanamaru.shared.kana.Kana
 import hanamaru.shared.writing.*
 
 import com.raquo.laminar.api.L.*
@@ -95,27 +95,16 @@ class KanaPractice(bus: AppBus, shown: Signal[Option[Kana]])
         }
     )
 
-  private def stepName(shownStep: WritingStep): String = shownStep match {
-    case WritingStep.Demonstration => Tr("Demonstration", "Démonstration")
-    case WritingStep.Guided        => Tr("Guided", "Guidé")
-    case WritingStep.FromMemory    => Tr("From memory", "De mémoire")
-  }
-
   private def stepTabs: HtmlElement = div(
     cls := "step-tabs",
     WritingStep.values.toList.map(each =>
       button(
         cls("is-selected") <-- step.signal.map(_ == each),
-        stepName(each),
+        WritingPractice.stepName(each),
         onClick.mapTo(each) --> step.writer
       )
     )
   )
-
-  private def scriptName(script: Script): String = script match {
-    case Script.Hiragana => Tr("hiragana", "hiragana")
-    case Script.Katakana => Tr("katakana", "katakana")
-  }
 
   // From memory, the character itself is hidden: its reading is the prompt.
   private def heading(kana: Kana): HtmlElement = div(
@@ -129,8 +118,7 @@ class KanaPractice(bus: AppBus, shown: Signal[Option[Kana]])
       kana.character
     ),
     div(
-      span(cls := "character-reading", Kana.shownReading(kana)),
-      span(cls := "character-script", scriptName(kana.script))
+      KanaReading(kana, "character-reading")
     )
   )
 

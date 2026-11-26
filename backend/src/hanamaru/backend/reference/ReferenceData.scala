@@ -58,7 +58,8 @@ final class ReferenceData(directory: Path, download: Download) {
       s"KanjiVG ${KanjiVg.version} ready"
     }
     dictionaryState = prepared("JMdict") {
-      val opened = Dictionary(Database.connect(importedDictionary()))
+      val opened =
+        Dictionary(Database.open(importedDictionary(), Jmdict.schema))
       words = Some(opened)
       s"JMdict of ${opened.version.getOrElse("created", "?")} ready"
     }
@@ -75,14 +76,14 @@ final class ReferenceData(directory: Path, download: Download) {
       s"Sudachi's dictionary ${Analyser.version} ready"
     }
     kanjiState = prepared("KANJIDIC2") {
-      val opened = KanjiBook(Database.connect(importedKanji()))
+      val opened = KanjiBook(Database.open(importedKanji(), Kanjidic.schema))
       book = Some(opened)
       s"KANJIDIC2 of ${opened.version.getOrElse("created", "?")} ready"
     }
   }
 
   // The kanji's database, imported once from KANJIDIC2's file, itself
-  // downloaded once and kept: again only when the database's shape changes.
+  // downloaded once and kept: again only when what is imported changes.
   private def importedKanji(): Path = {
     val database = directory.resolve("kanji.db")
     val current = Files.exists(database) &&
@@ -94,7 +95,7 @@ final class ReferenceData(directory: Path, download: Download) {
             )
           )
         )
-        .contains(Kanjidic.schemaVersion)
+        .contains(Kanjidic.importVersion)
     if (!current) {
       val file = directory.resolve("kanjidic2.xml.gz")
       val sha256 =
@@ -109,7 +110,7 @@ final class ReferenceData(directory: Path, download: Download) {
         file,
         database,
         Map(
-          "schema" -> Kanjidic.schemaVersion,
+          "schema" -> Kanjidic.importVersion,
           "created" -> created.getOrElse("unknown"),
           "sha256" -> sha256,
           "imported" -> Instant.now().toString
@@ -121,7 +122,7 @@ final class ReferenceData(directory: Path, download: Download) {
   }
 
   // The dictionary's database, imported once from JMdict's file, itself
-  // downloaded once and kept: again only when the database's shape changes.
+  // downloaded once and kept: again only when what is imported changes.
   private def importedDictionary(): Path = {
     val database = directory.resolve("dictionary.db")
     val current = Files.exists(database) &&
@@ -135,7 +136,7 @@ final class ReferenceData(directory: Path, download: Download) {
             )
           )
         )
-        .contains(Jmdict.schemaVersion)
+        .contains(Jmdict.importVersion)
     if (!current) {
       val file = directory.resolve("JMdict.gz")
       val sha256 =
@@ -158,7 +159,7 @@ final class ReferenceData(directory: Path, download: Download) {
         core,
         database,
         Map(
-          "schema" -> Jmdict.schemaVersion,
+          "schema" -> Jmdict.importVersion,
           "created" -> created.getOrElse("unknown"),
           "sha256" -> sha256,
           "imported" -> Instant.now().toString

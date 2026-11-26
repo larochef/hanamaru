@@ -17,7 +17,8 @@ class WritingExercise(
     step: WritingStep,
     canStartAgain: Boolean,
     showCorrection: Boolean = true,
-    doneLabel: Option[String] = None
+    doneLabel: Option[String] = None,
+    canForget: Boolean = false
 ) extends ReactiveElement {
   private val size = CharacterStrokes.boxSize
   private val guided = step == WritingStep.Guided
@@ -80,6 +81,17 @@ class WritingExercise(
     ended.set(true)
     corrected.set(Some(attempt))
     attemptsEnded.writer.onNext(attempt)
+  }
+
+  // from memory: not remembered, said so rather than guessed; the strokes
+  // drawn till then kept
+  private def forget(): Unit = {
+    ended.set(true)
+    attemptsEnded.writer.onNext(
+      WritingCorrection
+        .attempt(character.character, accepted.now(), model)
+        .copy(forgotten = true)
+    )
   }
 
   private def restart(): Unit = {
@@ -180,6 +192,16 @@ class WritingExercise(
         .combineWith(ended.signal)
         .map((strokes, isEnded) => strokes.isEmpty || isEnded),
       onClick --> (_ => finish())
+    ),
+    Option.when(canForget)(
+      button(
+        Tr(
+          "I don't remember it: show me",
+          "Je ne me souviens plus : remontre-le"
+        ),
+        disabled <-- ended.signal,
+        onClick --> (_ => forget())
+      )
     )
   )
 

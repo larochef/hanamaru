@@ -1,8 +1,8 @@
 package hanamaru.backend.kanji
 
 import hanamaru.backend.learner.*
-import hanamaru.backend.lessons.Units
-import hanamaru.backend.reference.KanjiBook
+import hanamaru.backend.lessons.{Standing, Units}
+import hanamaru.backend.reference.{KanjiBook, SentenceLayout}
 import hanamaru.backend.writing.{WritingAttempts, WritingReview}
 import hanamaru.shared.characters.CharacterAsked
 import hanamaru.shared.dictionary.DictionaryWord
@@ -36,6 +36,31 @@ final class KanjiPractice(
   private def wordsSoFar: List[DictionaryWord] =
     units.soFar.flatMap(units.wordsOf).distinctBy(_.id).filterNot(_.usuallyKana)
 
+  // The word a kanji is asked in: one of the stable words written with it, at
+  // random among those whose other kanji are the fewest not taught so far
+  // (`taught`), then not met yet: 学 asked in 大学 or 大学生 shows a 大 of a
+  // unit to come; in 学生, a 生 of the unit under way. Else a word of the
+  // units written with it, chosen alike.
+  private def wordFor(
+      literal: String,
+      words: List[DictionaryWord],
+      now: Standing,
+      taught: Set[String]
+  ): Option[DictionaryWord] = {
+    val withIt = words.filter(writtenWith(_, literal))
+    def strangers(word: DictionaryWord) = {
+      val others = Units
+        .carriers(List(word))
+        .flatMap(_.filter(SentenceLayout.isKanji).map(_.toString))
+        .distinct
+        .filter(kanji => kanji != literal && kanji != "々")
+      (others.count(!taught(_)), others.count(!now.symbolMet(_)))
+    }
+    def best(among: List[DictionaryWord]) =
+      Random.shuffle(among).sortBy(strangers).headOption
+    best(withIt.filter(word => now.stable(word.id))).orElse(best(withIt))
+  }
+
   // as the units assign kanji ([[Units.carriers]])
   private def writtenWith(word: DictionaryWord, literal: String): Boolean =
     Units.carriers(List(word)).exists(_.contains(literal))
@@ -59,10 +84,7 @@ final class KanjiPractice(
       def exercise(literal: String, asked: CharacterAsked, isNew: Boolean) =
         for {
           kanji <- kanjiBook.kanji(literal)
-          word <- Random
-            .shuffle(known(literal))
-            .headOption
-            .orElse(words.find(writtenWith(_, literal)))
+          word <- wordFor(literal, words, now, taught.toSet)
         } yield KanjiExercise(kanji, word, asked, isNew)
       val due = taught
         .flatMap(literal =>
@@ -102,6 +124,51 @@ final class KanjiPractice(
         )
         .take(newKanjiAtMost)
       due ++ toWrite ++ fresh
+    }
+
+  /** A unit's kanji gone over out of turn (the unit one of those so far): each
+    * met read again, each read written from memory (its writing new when never
+    * written), in a word written with it, in a random order. Kept as reviews,
+    * as any; a kanji not met yet is only shown on the unit's page.
+    */
+  def ofUnit(point: String, at: Instant): Either[String, List[KanjiExercise]] =
+    for {
+      kanjiBook <- book().toRight("The kanji are not ready")
+      unit <- units.soFar
+        .find(_.id == point)
+        .toRight(s"No unit $point so far")
+    } yield {
+      val now = units.standing()
+      val words = wordsSoFar
+      val taught =
+        units.soFar.flatMap(units.kanjiOf(_).getOrElse(Nil)).toSet
+      val cards = learner.cards(ItemKind.Kanji)
+      val met = cards.map(_.key).toSet
+      val written =
+        cards.filter(_.kind == CardKind.Writing).map(_.key).toSet
+      def exercise(literal: String, asked: CharacterAsked, isNew: Boolean) =
+        for {
+          kanji <- kanjiBook.kanji(literal)
+          word <- wordFor(literal, words, now, taught)
+        } yield KanjiExercise(kanji, word, asked, isNew)
+      Random.shuffle(
+        units
+          .kanjiOf(unit)
+          .getOrElse(Nil)
+          .filter(met)
+          .flatMap(literal =>
+            exercise(literal, CharacterAsked.Reading, isNew = false) ++
+              Option
+                .when(now.symbolCardPassed(literal, CardKind.Reading))(
+                  exercise(
+                    literal,
+                    CharacterAsked.Writing,
+                    isNew = !written(literal)
+                  )
+                )
+                .flatten
+          )
+      )
     }
 
   /** A kanji's reading in a word, judged (the word's reading, in either

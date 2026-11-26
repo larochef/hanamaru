@@ -112,12 +112,27 @@ final class Lessons(
             symbols.characters.size
           )
         ),
-        if (!standing.symbolsMet) UnitWaitsFor.KanaToMeet
+        if (standing.acquired) UnitWaitsFor.MovingOn
+        else if (!standing.symbolsMet) UnitWaitsFor.KanaToMeet
         else if (standing.stable < standing.wordsNeeded) UnitWaitsFor.Words
         else if (!standing.practised) UnitWaitsFor.Lesson
-        else UnitWaitsFor.Symbols
+        else UnitWaitsFor.Symbols,
+        Option
+          .when(standing.acquired)(units.onward)
+          .flatten
+          .map((acquired, next) =>
+            UnitOnward(acquired.map(_.summary), next.map(_.summary))
+          )
       )
     }
+
+  /** Moves on from the unit under way, once it is acquired; the unit under way
+    * then.
+    */
+  def movedOn(at: Instant): Option[UnitProgress] = {
+    units.moveOn(at)
+    unit
+  }
 
   /** A lesson session's plan: the points due for review, two at most, in the
     * curriculum's order; a series when `wordsToPractise`; the lesson of the

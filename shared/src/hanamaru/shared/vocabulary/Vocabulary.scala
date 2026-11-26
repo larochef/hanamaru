@@ -19,6 +19,15 @@ enum Direction {
   case Meaning
 }
 
+/** The words a series is on: My lesson's (those due, then the unit's new ones);
+  * a series the learner asks for, filled up with words met; one unit's, from
+  * its page.
+  */
+enum SeriesOf {
+  case MyLesson, Free
+  case OfUnit(point: String)
+}
+
 /** A word of a series: new to the learner, or due for review; asked for itself
   * in a sentence once it is stable enough (`inSentence`).
   */

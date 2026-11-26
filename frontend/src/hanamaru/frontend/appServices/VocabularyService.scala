@@ -9,9 +9,9 @@ import com.raquo.laminar.api.L.*
 class VocabularyService(bus: AppBus, apiClient: ApiClient) {
 
   bus.commands.events.foreach {
-    case command @ AppCommand.LoadSeries =>
-      AppStreams.runOnce(apiClient.series()) {
-        case Right(tasks) => bus.publish(AppEvent.SeriesLoaded(tasks))
+    case command @ AppCommand.LoadSeries(of) =>
+      AppStreams.runOnce(apiClient.series(of)) {
+        case Right(tasks) => bus.publish(AppEvent.SeriesLoaded(of, tasks))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }

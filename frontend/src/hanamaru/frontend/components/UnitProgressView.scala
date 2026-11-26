@@ -52,6 +52,11 @@ class UnitProgressView(bus: AppBus, progress: UnitProgress)
         "Words and lesson done: its symbols, read and written, open the next unit.",
         "Mots et leçon faits : ses symboles, lus et écrits, ouvriront l'unité suivante."
       )
+    case UnitWaitsFor.MovingOn =>
+      Tr(
+        "Acquired: move on to the next unit when you like.",
+        "Acquise : passe à l'unité suivante quand tu veux."
+      )
   }
 
   override lazy val node: HtmlElement = div(
@@ -61,6 +66,16 @@ class UnitProgressView(bus: AppBus, progress: UnitProgress)
       span(cls := "unit-theme", progress.theme),
       " · ",
       PageLink(bus, Page.Lesson(progress.point.id), progress.point.title)
+    ),
+    p(
+      PageLink(
+        bus,
+        Page.Unit(progress.point.id),
+        Tr(
+          "Go over the unit: its lesson, words and symbols",
+          "Revoir l'unité : sa leçon, ses mots, ses symboles"
+        )
+      )
     ),
     p(
       cls := "in-english",

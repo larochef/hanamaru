@@ -13,6 +13,7 @@ class CharacterApi(practice: CharacterPractice) {
     CharacterRoutes.practice.handleSuccess(_ =>
       practice.exercises(Instant.now())
     ),
+    CharacterRoutes.ofUnit.handle(practice.ofUnit(_, Instant.now())),
     CharacterRoutes.kanaReading.handle(practice.readKana(_, Instant.now()))
   )
 }

@@ -43,7 +43,13 @@ can be repeated with fresh content until it is acquired.
   them; the vocabulary series practise the unit under way
   ([`08`](08-vocabulary-practice.md)). A unit is **acquired** once its point
   is practised (its card past its first steps), 80% of its words are
-  stable and its symbols learned (below); the next unit's words open only then. The units' words, as
+  stable and its symbols learned (below). **Moving on is the learner's**:
+  an acquired unit stays the unit under way, with a word of congratulation
+  and the choice to move on to the next or to go on with it (its words then
+  come in turn in the series), until the learner moves on; the units right
+  after it acquired too (a placement, practice ahead) are left with it. The
+  units left are kept (`unit_left`); the unit under way is the first not
+  left. The next unit's words open only then. The units' words, as
   written, hold every kanji of the first two school grades (240), so that
   each can be learned through a word already known (a test checks it).
 - **A unit's symbols** (built): what it teaches to read and write. The first

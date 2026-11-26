@@ -45,12 +45,14 @@ object StrokeMatcher {
   val placeTolerance: Double = 22
 
   /** Judges `drawn` as the stroke at `expected` (counted from 0) of a character
-    * whose strokes are `strokes`.
+    * whose strokes are `strokes`; `next`, the stroke drawn after it, when the
+    * character is judged once written.
     */
   def judge(
       drawn: List[Point],
       strokes: List[List[Point]],
-      expected: Int
+      expected: Int,
+      next: Option[List[Point]] = None
   ): StrokeJudgement = {
     val line = resampled(drawn)
     val target = strokes(expected)
@@ -75,6 +77,14 @@ object StrokeMatcher {
       .map((stroke, index) => index -> inPlaceDistance(line, stroke))
       .minByOption(_._2)
       .filter(_._2 < laterMargin * inPlace)
+      // Taken for the stroke right after it, while the next one drawn is
+      // there: the two are judged together, by where they are one from the
+      // other. Hands put a dakuten's two strokes, or ジ's ticks, a little off
+      // together, the first then nearer the second's place.
+      .filterNot((index, _) =>
+        index == expected + 1 &&
+          next.exists(inOrder(line, _, target, strokes(index)))
+      )
     // Short strokes, a dakuten's, stay within the tolerance even reversed: the
     // direction is the one that matches best, not the one within it. A loop
     // has no direction to judge.
@@ -86,6 +96,26 @@ object StrokeMatcher {
       case None => StrokeVerdict.Accepted
     }
     StrokeJudgement(verdict, shapeForward.min(shapeBackward), offset)
+  }
+
+  // Whether `first` and `second`, drawn one after the other, are `a` then `b`
+  // rather than `b` then `a`, the shift they share taken away.
+  private def inOrder(
+      first: Vector[Point],
+      second: List[Point],
+      a: List[Point],
+      b: List[Point]
+  ): Boolean = {
+    val (to, from) = (resampled(a) ++ resampled(b), first ++ resampled(second))
+    val (dx, dy) = (
+      to.map(_.x).sum / to.size - from.map(_.x).sum / from.size,
+      to.map(_.y).sum / to.size - from.map(_.y).sum / from.size
+    )
+    def moved(line: Vector[Point]) =
+      line.map(point => Point(point.x + dx, point.y + dy))
+    val (one, two) = (moved(first), moved(resampled(second)))
+    inPlaceDistance(one, a) + inPlaceDistance(two, b) <=
+      inPlaceDistance(one, b) + inPlaceDistance(two, a)
   }
 
   private def toleranceOf(stroke: List[Point]): Double =

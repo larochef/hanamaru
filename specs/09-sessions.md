@@ -21,6 +21,15 @@ and a free afternoon are both useful.
     lesson, its symbols, and what it waits for), what today's session holds
     (grammar reviews, a series, the lesson, kana and kanji), and the grammar
     placement test while it was never taken and the unit's lesson is to do.
+    From it, **the unit's page** (`/unit/<point>`, any unit so far): its
+    lesson read again with its exercises; its words, each new, being learned
+    or acquired, and a series on them alone (due first, a few new, then the
+    others in turn); its symbols: for the first two units the chart of their
+    kana and an Express session, else its kanji, each where it stands (not
+    met, being read, read, read and written), written freely, and a series
+    on those met (each read, and written once read, kept as reviews). Each
+    practice opens in the page; the kanji chart, by school grade, is not the
+    units' order.
   - Then, smaller, what can be practised or looked up freely: a series of
     words, the grammar's lessons, the vocabulary, the kanji, the kana chart.
 
@@ -77,10 +86,10 @@ and a free afternoon are both useful.
     learned or relearned first (a card missed comes back a few minutes later,
     within the session), then the most overdue; then the first reading of kana
     met but never read; then **new kana**, in the chart's order, one per three
-    minutes of the session, and **only once nothing is due**; then the cards
-    before they are due, those being learned first, then the soonest due,
-    rather than ending early (with every kana met and none due, a session
-    used to end as it began, empty);
+    minutes of the session, and **only once nothing is due**; then, rather
+    than ending early, **any card of the session's kana, at random**, those
+    it has not asked yet first (taking the soonest due went round the few
+    kana being learned, whose next steps are minutes away);
   - exercises: a kana **read** (typed in romaji), a kana **written** from memory
     from its reading, and a **new kana**: shown stroke by stroke, written over
     its model, then from memory (its writing's first review), or, without the
@@ -124,14 +133,19 @@ and a free afternoon are both useful.
      reading past its first steps; two at most), over the model first, then
      from memory; then new ones (two at most), only once a word written with
      them is stable: shown (meanings, readings, strokes), then read, the
-     word's reading typed in kana. Reading comes before writing, and a word
-     before its kanji.
+     word's reading typed in kana, by keyboard or stylus, its meaning shown
+     only once answered (given, it gives the word away). Reading comes
+     before writing, and a word before its kanji. The word a kanji is asked
+     in has the fewest other kanji not taught so far, then not met yet (学 in
+     学生, not in 大学生, whose 大 comes later).
 
   It ends with where the unit stands (its words stable, its point practised,
   its symbols learned) and what opens the next one, with another series to go on. A unit is
   acquired once its point is practised, most of its words stable and its
-  kanji learned; the next
-  unit's words and lesson come only then, so a unit takes a few sessions:
+  kanji learned; it then says so, at the session's end and on Today, and
+  offers to move on to the next unit or to go on with this one (another
+  session on it). The next
+  unit's words and lesson come only once the learner moves on, so a unit takes a few sessions:
   words first, the lesson as soon as some are met, then series until the
   words hold. It does not keep to a time yet, and asks nothing of the
   context: nothing in it is spoken; the stylus is a choice within the series

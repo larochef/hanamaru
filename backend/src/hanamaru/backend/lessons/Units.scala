@@ -6,6 +6,7 @@ import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kana.*
 import hanamaru.shared.lessons.SymbolKind
 
+import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 /** The curriculum's units: each point with its theme, its words, found in the
@@ -123,14 +124,34 @@ final class Units(
     )
   }
 
-  /** The unit under way, where it stands; none once every unit is acquired. A
-    * unit is not acquired while its symbols are not learned, the kanji not
-    * ready.
+  /** The unit under way, where it stands: the first the learner has not moved
+    * on from, acquired or not (an acquired one waits for the learner to move
+    * on, or to go on practising it); none once every unit is left. A unit is
+    * not acquired while its symbols are not learned, the kanji not ready.
     */
   def current: Option[UnitStanding] = {
-    val now = standing()
-    points.iterator.map(progressOf(_, now)).find(!_.acquired)
+    val left = learner.unitsLeft()
+    points.find(point => !left(point.id)).map(progressOf(_, standing()))
   }
+
+  /** Once the unit under way is acquired: it and the units right after it
+    * acquired too (by a placement, or practised ahead), which the learner
+    * leaves together; then the unit that comes next, none past the last.
+    */
+  def onward: Option[(List[CurriculumPoint], Option[CurriculumPoint])] = {
+    val left = learner.unitsLeft()
+    val now = standing()
+    val ahead = points.dropWhile(point => left(point.id))
+    val (acquired, rest) =
+      ahead.span(point => progressOf(point, now).acquired)
+    Option.when(acquired.nonEmpty)(acquired -> rest.headOption)
+  }
+
+  /** Moves the learner on from the unit under way, once it is acquired, and
+    * from those right after it acquired too ([[onward]]).
+    */
+  def moveOn(at: Instant): Unit =
+    onward.foreach((acquired, _) => learner.leaveUnits(acquired.map(_.id), at))
 
   /** The units up to the one under way (all of them past the last), in order.
     */
@@ -187,6 +208,14 @@ final case class Standing(cards: Map[(ItemKind, String), List[ItemCard]]) {
   def symbolPassed(symbol: String): Boolean =
     List(CardKind.Reading, CardKind.Writing)
       .forall(passed(kindOf(symbol), symbol, _))
+
+  /** A word met: with a card. */
+  def wordMet(word: Long): Boolean =
+    cards.contains((ItemKind.Word, word.toString))
+
+  /** A kana or kanji's reading or writing past its first steps. */
+  def symbolCardPassed(symbol: String, card: CardKind): Boolean =
+    passed(kindOf(symbol), symbol, card)
 
   /** A kana or kanji met: with a card. */
   def symbolMet(symbol: String): Boolean =

@@ -4,7 +4,7 @@ import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
 import hanamaru.shared.kana.{Kana, Script}
 import hanamaru.shared.session.*
-import hanamaru.shared.writing.WritingStep
+import hanamaru.shared.writing.{WritingAttempt, WritingStep}
 
 import scala.scalajs.js
 
@@ -46,11 +46,6 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
 
   private def answer(session: Long, sessionAnswer: SessionAnswer): Unit =
     bus.send(AppCommand.AnswerSession(session, sessionAnswer))
-
-  private def scriptName(script: Script): String = script match {
-    case Script.Hiragana => Tr("hiragana", "hiragana")
-    case Script.Katakana => Tr("katakana", "katakana")
-  }
 
   private def kanaOf(character: String): Kana =
     Kana.find(character).getOrElse(throw IllegalStateException(character))
@@ -138,15 +133,36 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
     )
   }
 
-  private def writing(session: Long, kana: Kana): HtmlElement = div(
+  // not remembered: shown and written again before the answer, kept as missed,
+  // is sent
+  private def writing(session: Long, kana: Kana): HtmlElement = {
+    val forgotten = Var(Option.empty[WritingAttempt])
+    div(
+      child <-- forgotten.signal.map {
+        case Some(attempt) =>
+          Relearn(
+            bus,
+            kana.character,
+            () => answer(session, SessionAnswer.Writing(attempt))
+          ).node
+        case None => fromMemory(session, kana, forgotten.writer)
+      }
+    )
+  }
+
+  private def fromMemory(
+      session: Long,
+      kana: Kana,
+      forgot: Observer[Option[WritingAttempt]]
+  ): HtmlElement = div(
     p(
       cls := "placement-prompt",
       Tr(
-        s"Write from memory, in ${scriptName(kana.script)}:",
-        s"Écris de mémoire, en ${scriptName(kana.script)} :"
+        s"Write from memory, in ${KanaReading.scriptName(kana.script)}:",
+        s"Écris de mémoire, en ${KanaReading.scriptName(kana.script)} :"
       )
     ),
-    span(cls := "placement-reading", Kana.shownReading(kana)),
+    KanaReading(kana, "placement-reading"),
     StrokesOf(
       bus,
       kana.character,
@@ -155,22 +171,26 @@ class SessionPage(bus: AppBus) extends ReactiveElement {
           WritingExercise(
             strokes,
             WritingStep.FromMemory,
-            canStartAgain = false
+            canStartAgain = false,
+            canForget = true
           )
         exercise.node.amend(
-          child.maybe <-- exercise.attempts.map(attempt =>
-            Some(
-              button(
-                cls := "primary",
-                Tr("Continue", "Continuer"),
-                onMountFocus,
-                onClick.mapTo(SessionAnswer.Writing(attempt)) --> (answer(
-                  session,
-                  _
-                ))
+          exercise.attempts.filter(_.forgotten).map(Some(_)) --> forgot,
+          child.maybe <-- exercise.attempts
+            .filterNot(_.forgotten)
+            .map(attempt =>
+              Some(
+                button(
+                  cls := "primary",
+                  Tr("Continue", "Continuer"),
+                  onMountFocus,
+                  onClick.mapTo(SessionAnswer.Writing(attempt)) --> (answer(
+                    session,
+                    _
+                  ))
+                )
               )
             )
-          )
         )
       }
     )

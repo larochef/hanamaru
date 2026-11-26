@@ -87,8 +87,8 @@ class ApiClient(baseUri: Uri) {
   ): EventStream[AppResult[List[DictionaryWord]]] =
     call(DictionaryRoutes.coreWords, (from, count))
 
-  def series(): EventStream[AppResult[List[SeriesTask]]] =
-    call(VocabularyRoutes.series, ())
+  def series(of: SeriesOf): EventStream[AppResult[List[SeriesTask]]] =
+    call(VocabularyRoutes.series, of)
 
   def answerVocabulary(
       answer: VocabularyAnswer
@@ -140,14 +140,24 @@ class ApiClient(baseUri: Uri) {
   def unit(): EventStream[AppResult[Option[UnitProgress]]] =
     call(LessonRoutes.unit, ())
 
+  def unitRecap(point: String): EventStream[AppResult[UnitRecap]] =
+    call(LessonRoutes.recap, point)
+
+  def moveOn(): EventStream[AppResult[Option[UnitProgress]]] =
+    call(LessonRoutes.moveOn, ())
+
   def kanjiOfGrade(grade: Int): EventStream[AppResult[List[Kanji]]] =
     call(KanjiRoutes.grade, grade)
 
   def kanji(literal: String): EventStream[AppResult[KanjiDetail]] =
     call(KanjiRoutes.kanji, literal)
 
-  def characterPractice(): EventStream[AppResult[List[CharacterExercise]]] =
-    call(CharacterRoutes.practice, ())
+  def characterPractice(
+      of: CharactersOf
+  ): EventStream[AppResult[List[CharacterExercise]]] = of match {
+    case CharactersOf.MyLesson      => call(CharacterRoutes.practice, ())
+    case CharactersOf.OfUnit(point) => call(CharacterRoutes.ofUnit, point)
+  }
 
   def answerKanaReading(
       answer: KanaReadingAnswer

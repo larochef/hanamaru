@@ -14,6 +14,9 @@ textarea {
   --faint: #e4dfd3;
   --muted: #7a746a;
   --accent: #c0392b;
+  /* the script a kana is asked in */
+  --hiragana: #2f6db5;
+  --katakana: #8a5a2c;
 }
 
 body {
@@ -145,8 +148,38 @@ a.kana-cell:hover {
   font-size: 2rem;
 }
 
-.character-script {
-  color: var(--muted);
+/* a unit acquired: the choice to move on */
+.unit-acquired {
+  border: 2px solid var(--accent);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.unit-acquired h2 {
+  color: var(--accent);
+}
+
+/* a reading to write: its script's colour, and its name below it */
+.kana-reading {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-weight: bold;
+}
+
+.kana-reading.in-hiragana {
+  color: var(--hiragana);
+}
+
+.kana-reading.in-katakana {
+  color: var(--katakana);
+}
+
+.kana-script {
+  font-size: 0.9rem;
+  font-weight: normal;
+  letter-spacing: 0.05em;
 }
 
 .demonstration,
@@ -1135,4 +1168,108 @@ button:disabled {
 
 .kanji-readings {
   font-size: 1.2rem;
+}
+
+/* a unit gone over: its lesson, words and symbols */
+.unit-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 1rem 0;
+}
+
+.unit-nav-link {
+  min-width: 1.8rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--faint);
+  border-radius: 0.4rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.unit-nav-link.is-selected {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.unit-section {
+  margin: 1.5rem 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--faint);
+}
+
+.unit-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--faint);
+  border-radius: 0.5rem;
+}
+
+.unit-words {
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  max-width: 100%;
+}
+
+.unit-words td {
+  padding: 0.3rem 0.8rem 0.3rem 0;
+  vertical-align: baseline;
+}
+
+.unit-words .word-writing {
+  font-size: 1.3rem;
+}
+
+.unit-words .word-reading {
+  color: var(--muted);
+}
+
+.standing {
+  font-size: 0.85rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.8rem;
+  border: 1px solid var(--faint);
+  white-space: nowrap;
+}
+
+.standing.is-learning {
+  border-color: var(--hiragana);
+  color: var(--hiragana);
+}
+
+.standing.is-acquired {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.unit-kanji {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.unit-kanji-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 0.8rem;
+  border: 1px solid var(--faint);
+  border-radius: 0.5rem;
+  min-width: 9rem;
+}
+
+.unit-kanji-literal {
+  font-size: 3rem;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.unit-kanji-readings {
+  color: var(--muted);
 }

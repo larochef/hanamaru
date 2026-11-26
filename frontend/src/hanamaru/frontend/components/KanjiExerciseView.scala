@@ -18,7 +18,7 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
     extends ReactiveElement {
 
   private enum Stage {
-    case Shown, Asked, Guided, FromMemory
+    case Shown, Asked, Guided, FromMemory, Forgotten
     case Judged(verdict: KanjiReadingVerdict)
   }
 
@@ -74,29 +74,32 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
       ),
       heading(exercise.kanji),
       wordShown(exercise.word),
-      StrokesOf(bus, exercise.kanji.literal, StrokeDemonstration(_).node),
+      WritingPractice(bus, exercise.kanji.literal).node,
       continueButton(next)
     )
 
   private def asked(judged: KanjiReadingVerdict => Unit): HtmlElement = {
     val field = KanaInput()
+    val stylusField = StylusField(bus, field, Var(true))
     val submitted = EventBus[KanjiReadingAnswer]()
     div(
       cls := "series-task",
       p(cls := "placement-prompt", Tr("How is it read?", "Comment se lit :")),
+      // its meaning only once answered: given, it gives the word away
       span(cls := "word-big", lang := "ja", writingOf(exercise.word)),
-      div(cls := "series-meaning", exercise.word.firstMeaning),
       form(
-        onSubmit.preventDefault.mapTo(
+        onSubmit.preventDefault.map { _ =>
+          stylusField.keep(field.value)
           KanjiReadingAnswer(
             exercise.kanji.literal,
             exercise.word.id,
             field.value
           )
-        ) --> submitted.writer,
+        } --> submitted.writer,
         field,
         button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
       ),
+      stylusField.node,
       button(
         Tr("I don't know", "Je ne sais pas"),
         onClick.mapTo(
@@ -149,30 +152,25 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
     div(cls := "series-meaning", exercise.word.firstMeaning)
   )
 
+  // its writing new: shown as it is written, practised freely, then written
+  // from memory
   private def guided(next: () => Unit): HtmlElement =
     div(
       withBlank,
       p(
         cls := "placement-prompt",
-        Tr("First over its model:", "D'abord sur son modèle :")
+        Tr(
+          "How it is written: practise it, then write it from memory.",
+          "Comment il s'écrit : entraîne-toi, puis écris-le de mémoire."
+        )
       ),
-      StrokesOf(
-        bus,
-        exercise.kanji.literal,
-        strokes => {
-          val writing =
-            WritingExercise(strokes, WritingStep.Guided, canStartAgain = true)
-          writing.node.amend(
-            child.maybe <-- writing.attempts
-              .filter(_.completed)
-              .map(_ => Some(continueButton(next)))
-          )
-        }
-      )
+      WritingPractice(bus, exercise.kanji.literal).node,
+      continueButton(next)
     )
 
-  // written, it is corrected in place, and the word shown whole
-  private def fromMemory(next: () => Unit): HtmlElement =
+  // written, it is corrected in place, and the word shown whole; not
+  // remembered, `forgot`
+  private def fromMemory(next: () => Unit, forgot: () => Unit): HtmlElement =
     div(
       withBlank,
       StrokesOf(
@@ -182,15 +180,17 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
           val writing = WritingExercise(
             strokes,
             WritingStep.FromMemory,
-            canStartAgain = false
+            canStartAgain = false,
+            canForget = true
           )
           writing.node.amend(
-            writing.attempts --> (attempt =>
+            writing.attempts --> { attempt =>
               bus.send(AppCommand.RecordKanjiWriting(attempt))
-            ),
-            child.maybe <-- writing.attempts.mapTo(
-              Some(div(wordShown(exercise.word), continueButton(next)))
-            )
+              if (attempt.forgotten) forgot()
+            },
+            child.maybe <-- writing.attempts
+              .filterNot(_.forgotten)
+              .mapTo(Some(div(wordShown(exercise.word), continueButton(next))))
           )
         }
       )
@@ -213,7 +213,14 @@ class KanjiExerciseView(bus: AppBus, exercise: KanjiExercise, next: () => Unit)
         case Stage.Judged(verdict) => judgedView(verdict, next)
         case Stage.Guided          =>
           guided(() => stage.set(Stage.FromMemory))
-        case Stage.FromMemory => fromMemory(next)
+        case Stage.FromMemory =>
+          fromMemory(next, () => stage.set(Stage.Forgotten))
+        // not remembered: shown and written again, its review kept as missed
+        case Stage.Forgotten =>
+          div(
+            wordShown(exercise.word),
+            Relearn(bus, exercise.kanji.literal, next).node
+          )
       }
     )
   }

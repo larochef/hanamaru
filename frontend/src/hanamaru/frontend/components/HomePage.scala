@@ -16,7 +16,11 @@ import com.raquo.laminar.api.L.*
 class HomePage(bus: AppBus) extends ReactiveElement {
 
   private val today: Signal[Option[AppResult[Today]]] = bus.events.events
-    .collect { case AppEvent.PageShown(Page.Home) => () }
+    .collect {
+      case AppEvent.PageShown(Page.Home) => ()
+      // moved on from a unit: today's plan is the next unit's
+      case AppEvent.UnitMovedOn(_) => ()
+    }
     .flatMapSwitch(_ =>
       bus.request(AppCommand.LoadToday) { case AppEvent.TodayLoaded(today) =>
         today
@@ -90,6 +94,25 @@ class HomePage(bus: AppBus) extends ReactiveElement {
       Option.when(plan.characters)(Tr("kana or kanji", "des kana ou kanji"))
 
   private def lessonCard(today: Today): HtmlElement =
+    today.unit
+      .flatMap(_.onward)
+      .fold(lessonUnderWay(today))(onward =>
+        card(
+          Tr("My lesson", "Ma leçon"),
+          UnitAcquired(
+            bus,
+            onward,
+            PageLink(
+              bus,
+              Page.LessonSession,
+              cls := "button",
+              Tr("Go on with this unit", "Continuer sur cette unité")
+            ).node
+          ).node
+        )
+      )
+
+  private def lessonUnderWay(today: Today): HtmlElement =
     card(
       Tr("My lesson", "Ma leçon"),
       today.unit.fold(
@@ -136,8 +159,8 @@ class HomePage(bus: AppBus) extends ReactiveElement {
           Tr("A series of words", "Une série de mots")
         ),
         Tr(
-          ": the words due and those of the unit.",
-          " : les mots dus et ceux de l'unité."
+          ": the words due, those of the unit, then any you have met.",
+          " : les mots dus, ceux de l'unité, puis n'importe lesquels déjà vus."
         )
       ),
       li(

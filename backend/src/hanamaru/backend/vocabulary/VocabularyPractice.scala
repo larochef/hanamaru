@@ -8,7 +8,7 @@ import hanamaru.backend.writing.{WritingAttempts, WritingReview}
 import hanamaru.shared.learner.Grade
 import hanamaru.shared.vocabulary.*
 
-import java.time.Instant
+import java.time.{Duration, Instant}
 import scala.util.Random
 
 import com.github.plokhotnyuk.jsoniter_scala.core.writeToString
@@ -38,39 +38,129 @@ final class VocabularyPractice(
     * they are all met, those of them not stable yet; past the last unit, the
     * core vocabulary in the order it is learned. A unit's words all met, no new
     * word comes until the unit is acquired, its lesson included; a first unit's
-    * words wait until its kana are met.
+    * words wait until its kana are met. A series the learner asked for
+    * ([[SeriesOf.Free]]) is filled up with words met ([[Rotation]]), those not
+    * reviewed for a day first: it never comes empty, and every word comes back.
+    * One unit's ([[SeriesOf.OfUnit]]): [[ofUnit]].
     */
-  def series(at: Instant): Either[String, List[SeriesWord]] = dictionary.map {
-    words =>
-      val due = learner
-        .dueKeys(ItemKind.Word, at.toEpochMilli, largestSeries)
-        .flatMap(_.toLongOption)
-      val met = learner.metKeys(ItemKind.Word).flatMap(_.toLongOption)
-      val newCount = (largestSeries - due.size).min(mostNew).max(0)
-      val dueWords = words.words(due)
-      val now = units.standing()
-      // A word is asked in a sentence once its production has passed its
-      // first steps: context too early takes attention from the word itself.
-      def stable(word: Long) = now.stable(word)
-      val fresh = units.current match {
-        // the first unit's words wait for its hiragana: they are written with
-        // them
-        case Some(standing) if !standing.symbolsMet => Nil
-        case Some(standing)                         =>
-          val unmet = standing.words.filterNot(word => met(word.id))
-          val unsettled = standing.words.filter(word =>
-            met(word.id) && !due.contains(word.id) && !stable(word.id)
+  def series(at: Instant, of: SeriesOf): Either[String, List[SeriesWord]] =
+    of match {
+      case SeriesOf.MyLesson      => byUnits(at, fill = false)
+      case SeriesOf.Free          => byUnits(at, fill = true)
+      case SeriesOf.OfUnit(point) => ofUnit(point, at)
+    }
+
+  private def byUnits(
+      at: Instant,
+      fill: Boolean
+  ): Either[String, List[SeriesWord]] = dictionary.map { words =>
+    val due = learner
+      .dueKeys(ItemKind.Word, at.toEpochMilli, largestSeries)
+      .flatMap(_.toLongOption)
+    val met = learner.metKeys(ItemKind.Word).flatMap(_.toLongOption)
+    val newCount = (largestSeries - due.size).min(mostNew).max(0)
+    val dueWords = words.words(due)
+    val now = units.standing()
+    // A word is asked in a sentence once its production has passed its
+    // first steps: context too early takes attention from the word itself.
+    def stable(word: Long) = now.stable(word)
+    // the words reviewed lately, which a rotation takes last
+    lazy val lately = learner
+      .reviewedSince(ItemKind.Word, at.minus(Duration.ofDays(1)).toEpochMilli)
+      .flatMap(_.toLongOption)
+    val fresh = units.current match {
+      // an acquired unit practised on, the learner not moved on yet: its
+      // words in turn
+      case Some(standing) if standing.acquired =>
+        Rotation
+          .drawn(
+            standing.words
+              .filter(word => met(word.id) && !due.contains(word.id)),
+            newCount,
+            word => lately(word.id),
+            Random
           )
-          unmet.take(newCount).map(SeriesWord(_, isNew = true)) ++
-            unsettled
-              .take((newCount - unmet.size).max(0))
-              .map(SeriesWord(_, isNew = false))
-        case None =>
-          words.nextWords(met, newCount).map(SeriesWord(_, isNew = true))
+          .map(word =>
+            SeriesWord(word, isNew = false, inSentence = stable(word.id))
+          )
+      // the first unit's words wait for its hiragana: they are written with
+      // them
+      case Some(standing) if !standing.symbolsMet => Nil
+      case Some(standing)                         =>
+        val unmet = standing.words.filterNot(word => met(word.id))
+        val unsettled = standing.words.filter(word =>
+          met(word.id) && !due.contains(word.id) && !stable(word.id)
+        )
+        unmet.take(newCount).map(SeriesWord(_, isNew = true)) ++
+          unsettled
+            .take((newCount - unmet.size).max(0))
+            .map(SeriesWord(_, isNew = false))
+      case None =>
+        words.nextWords(met, newCount).map(SeriesWord(_, isNew = true))
+    }
+    val planned = dueWords.map(word =>
+      SeriesWord(word, isNew = false, inSentence = stable(word.id))
+    ) ++ fresh
+    val room = largestSeries - planned.size
+    val filled =
+      if (!fill || room <= 0) Nil
+      else {
+        val taken = planned.map(_.word.id).toSet
+        words
+          .words(
+            Rotation.drawn(
+              met.toList.filterNot(taken),
+              room,
+              lately,
+              Random
+            )
+          )
+          .map(word =>
+            SeriesWord(word, isNew = false, inSentence = stable(word.id))
+          )
       }
-      dueWords.map(word =>
-        SeriesWord(word, isNew = false, inSentence = stable(word.id))
-      ) ++ fresh
+    planned ++ filled
+  }
+
+  /** A series on one unit's words (the unit one of those so far), asked for by
+    * the learner on the unit's page: those due first, then a few never met,
+    * then the others met, in turn ([[Rotation]]).
+    */
+  private def ofUnit(
+      point: String,
+      at: Instant
+  ): Either[String, List[SeriesWord]] = for {
+    _ <- dictionary
+    unit <- units.soFar.find(_.id == point).toRight(s"No unit $point so far")
+  } yield {
+    val words = units.wordsOf(unit)
+    val now = units.standing()
+    val met = learner.metKeys(ItemKind.Word).flatMap(_.toLongOption)
+    val dueNow = learner
+      .cards(ItemKind.Word)
+      .filter(_.due <= at.toEpochMilli)
+      .flatMap(_.key.toLongOption)
+      .toSet
+    val due = words.filter(word => dueNow(word.id)).take(largestSeries)
+    // the first unit's words are written in hiragana: none new before they
+    // are met
+    val fresh =
+      if (!units.progressOf(unit, now).symbolsMet) Nil
+      else words.filterNot(word => met(word.id)).take(mostNew)
+    val lately = learner
+      .reviewedSince(ItemKind.Word, at.minus(Duration.ofDays(1)).toEpochMilli)
+      .flatMap(_.toLongOption)
+    val others = Rotation.drawn(
+      words.filter(word => met(word.id) && !dueNow(word.id)),
+      largestSeries - due.size - fresh.size,
+      word => lately(word.id),
+      Random
+    )
+    due.map(word =>
+      SeriesWord(word, isNew = false, inSentence = now.stable(word.id))
+    ) ++ fresh.map(SeriesWord(_, isNew = true)) ++ others.map(word =>
+      SeriesWord(word, isNew = false, inSentence = now.stable(word.id))
+    )
   }
 
   /** A sentence for a word, made of the words the learner has met, its kanji

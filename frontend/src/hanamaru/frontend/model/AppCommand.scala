@@ -1,11 +1,11 @@
 package hanamaru.frontend.model
 
-import hanamaru.shared.characters.KanaReadingAnswer
+import hanamaru.shared.characters.{CharactersOf, KanaReadingAnswer}
 import hanamaru.shared.kanji.KanjiReadingAnswer
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
 import hanamaru.shared.session.{SessionAnswer, SessionStart}
-import hanamaru.shared.vocabulary.{SelfGrade, VocabularyAnswer}
+import hanamaru.shared.vocabulary.*
 import hanamaru.shared.writing.{PadCharacter, WritingAttempt}
 
 sealed trait AppCommand
@@ -55,7 +55,7 @@ object AppCommand {
   final case class LoadCoreWords(from: Int, count: Int) extends AppCommand
 
   /** Asks for the words of a rapid series. */
-  case object LoadSeries extends AppCommand
+  final case class LoadSeries(of: SeriesOf) extends AppCommand
 
   /** Has an answer judged and kept. */
   final case class AnswerVocabulary(answer: VocabularyAnswer) extends AppCommand
@@ -97,6 +97,12 @@ object AppCommand {
   /** Asks for the unit under way. */
   case object LoadUnit extends AppCommand
 
+  /** Asks for a unit gathered to be gone over. */
+  final case class LoadUnitRecap(point: String) extends AppCommand
+
+  /** Moves on from the unit under way, acquired. */
+  case object MoveOnUnit extends AppCommand
+
   /** Asks for a school grade's kanji. */
   final case class LoadKanjiGrade(grade: Int) extends AppCommand
 
@@ -104,7 +110,7 @@ object AppCommand {
   final case class LoadKanji(literal: String) extends AppCommand
 
   /** Asks for a lesson session's kana and kanji exercises. */
-  case object LoadCharacterPractice extends AppCommand
+  final case class LoadCharacterPractice(of: CharactersOf) extends AppCommand
 
   /** A kana's reading, to judge and keep. */
   final case class AnswerKanaReading(answer: KanaReadingAnswer)

@@ -70,11 +70,25 @@ object KanjiPracticeTests extends TestSuite {
               )
             reviewed(ItemKind.Grammar, point.id, CardKind.Usage)
           }
+          units.moveOn(at)
           val student = units
             .wordsOf(Curriculum.points.head)
             .find(_.writings.headOption.contains("学生"))
             .get
           val fresh = practice.exercises(at).toOption.get
+          // each in a word whose other kanji are taught so far: 学 in 学生
+          // (生, of the same unit), never in 大学 or 大学生 (大, of a unit to
+          // come), whatever the draw
+          assert(
+            (1 to 20).forall(_ =>
+              practice
+                .exercises(at)
+                .toOption
+                .get
+                .filter(_.kanji.literal == "学")
+                .forall(!_.word.writings.headOption.exists(_.contains("大")))
+            )
+          )
           // two new kanji, read in words of their own (学 and 生 both in 学生
           // would ask the same reading twice)
           assert(

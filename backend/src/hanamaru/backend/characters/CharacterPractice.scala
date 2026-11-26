@@ -31,6 +31,15 @@ final class CharacterPractice(
 ) {
   import CharacterPractice.*
 
+  /** A unit's kanji gone over out of turn, from its page
+    * ([[KanjiPractice.ofUnit]]).
+    */
+  def ofUnit(
+      point: String,
+      at: Instant
+  ): Either[String, List[CharacterExercise]] =
+    kanji.ofUnit(point, at).map(_.map(CharacterExercise.Kanji(_)))
+
   /** A session's kana and kanji exercises. */
   def exercises(at: Instant): List[CharacterExercise] =
     kana(learner.cards(ItemKind.Kana), at.toEpochMilli) ++

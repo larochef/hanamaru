@@ -7,12 +7,28 @@ import sttp.tapir.json.jsoniter.*
 
 object VocabularyRoutes {
 
-  /** A rapid series, planned: its words (those due first, then new ones) shown
-    * and asked in order.
+  // which words, in the address: `?free=true`, `?unit=<point>`, or neither
+  private val seriesOf: EndpointInput[SeriesOf] =
+    query[Boolean]("free")
+      .default(false)
+      .and(query[Option[String]]("unit"))
+      .map((free, unit) =>
+        unit.fold(if (free) SeriesOf.Free else SeriesOf.MyLesson)(
+          SeriesOf.OfUnit(_)
+        )
+      ) {
+        case SeriesOf.MyLesson      => (false, None)
+        case SeriesOf.Free          => (true, None)
+        case SeriesOf.OfUnit(point) => (false, Some(point))
+      }
+
+  /** A rapid series, planned: its words ([[SeriesOf]]) shown and asked in
+    * order.
     */
-  val series: PublicEndpoint[Unit, String, List[SeriesTask], Any] =
+  val series: PublicEndpoint[SeriesOf, String, List[SeriesTask], Any] =
     Routes.baseRoute.get
       .in("vocabulary" / "series")
+      .in(seriesOf)
       .errorOut(Routes.refused)
       .out(jsonBody[List[SeriesTask]])
 

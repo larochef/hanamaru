@@ -75,7 +75,8 @@ object Application {
         hidden <-- page.map(!_.isInstanceOf[Page.KanjiCharacter]),
         KanjiPage(bus)
       ),
-      div(hidden <-- page.map(_ != Page.Credits), Credits())
+      div(hidden <-- page.map(_ != Page.Credits), Credits()),
+      div(hidden <-- page.map(!_.isInstanceOf[Page.Unit]), UnitPage(bus))
     ),
     footerTag(
       cls := "page-foot",

@@ -29,14 +29,21 @@ is every kyōiku kanji.
   the positions a fast pen passes between two events (coalesced events). The
   screen is vertical for now, so the writing area is large and the gestures
   forgiving. A flat tablet may come later and must need no redesign.
-- **Three steps per character**, as tabs of the character's page:
+- **Three steps per character**, as tabs of the character's page, and of a
+  new kana or kanji shown in a lesson or a session (`WritingPractice`), there
+  practice only, nothing kept as a review, before the lesson's own steps:
   1. **Demonstration**: strokes animated one by one from KanjiVG, each drawn
      from its start to its end over the faint model, numbered as it is drawn,
      on a box with the dashed cross of practice paper; it can be replayed.
   2. **Guided**: the learner writes over the faint model. A wrong stroke is
      named, erased, and drawn again.
   3. **From memory**: an empty box, the character hidden, its reading as the
-     prompt. The learner **writes the whole character as they think it goes**
+     prompt. In a review (My lesson, an Express session), the learner may
+     say **they do not remember it**: the review is kept as missed (`forgotten`
+     in the attempt, so that the attempts tuning the matcher leave it out),
+     the character is shown again stroke by stroke and written over its
+     model, as practice, and the session goes on; its card comes back soon.
+     The learner **writes the whole character as they think it goes**
      (the last stroke can be erased), says it is done, and **only then is it
      corrected** (`WritingCorrection`, in `shared`): every stroke drawn is
      judged against the stroke expected at its place, and the correction shows
@@ -104,7 +111,13 @@ is every kyōiku kanji.
     than the expected one; when the expected one fits too, the later one must
     fit twice as well, so that of two strokes alike (ほ's bars) the expected
     one drawn a little off is still taken for itself, while a dakuten's two
-    strokes drawn the other way round are caught.
+    strokes drawn the other way round are caught. Once the character is
+    written, a stroke taken for the one right after it is judged with the
+    next stroke drawn: the pair, their shared shift taken away, decides by
+    where each is from the other. Hands put a dakuten a little off as a whole,
+    its first stroke then nearer the second's place: on 266 voiced kana
+    written from memory, this took the strokes wrongly out of order from 33
+    to 5, those 5 really reversed (ジ's ticks).
   - The verdicts are *accepted*, *wrong direction*, *wrong order* (naming the
     stroke drawn) and *misdrawn*. A stroke under 2 units is a slip of the pen
     and is ignored.

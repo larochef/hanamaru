@@ -2,7 +2,7 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
-import hanamaru.shared.characters.CharacterExercise
+import hanamaru.shared.characters.{CharacterExercise, CharactersOf}
 import hanamaru.shared.kana.Kana
 
 import com.raquo.laminar.api.L.*
@@ -11,13 +11,17 @@ import com.raquo.laminar.api.L.*
   * after the other ([[KanaExerciseView]], [[KanjiExerciseView]]). Once all are
   * done, `goOn` leads on.
   */
-class CharacterPractice(bus: AppBus, goOn: () => Unit) extends ReactiveElement {
+class CharacterPractice(
+    bus: AppBus,
+    goOn: () => Unit,
+    of: CharactersOf = CharactersOf.MyLesson
+) extends ReactiveElement {
 
   private val at = Var(0)
 
   private val exercises: EventStream[AppResult[List[CharacterExercise]]] =
-    bus.request(AppCommand.LoadCharacterPractice) {
-      case AppEvent.CharacterPracticeLoaded(exercises) => exercises
+    bus.request(AppCommand.LoadCharacterPractice(of)) {
+      case AppEvent.CharacterPracticeLoaded(`of`, exercises) => exercises
     }
 
   private def exerciseView(

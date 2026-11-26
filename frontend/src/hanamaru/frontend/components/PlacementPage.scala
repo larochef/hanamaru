@@ -2,7 +2,7 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
-import hanamaru.shared.kana.{Kana, Script}
+import hanamaru.shared.kana.Kana
 import hanamaru.shared.placement.*
 import hanamaru.shared.writing.WritingStep
 
@@ -45,11 +45,6 @@ class PlacementPage(bus: AppBus) extends ReactiveElement {
   private def answer(placementAnswer: PlacementAnswer): Unit =
     bus.send(AppCommand.AnswerPlacement(placementAnswer))
 
-  private def scriptName(script: Script): String = script match {
-    case Script.Hiragana => Tr("hiragana", "hiragana")
-    case Script.Katakana => Tr("katakana", "katakana")
-  }
-
   private def introduction: HtmlElement = div(
     p(
       Tr(
@@ -87,8 +82,8 @@ class PlacementPage(bus: AppBus) extends ReactiveElement {
       button(
         cls := "link",
         Tr(
-          s"I don't know the ${scriptName(kana.script)} at all",
-          s"Je ne connais pas du tout les ${scriptName(kana.script)}"
+          s"I don't know the ${KanaReading.scriptName(kana.script)} at all",
+          s"Je ne connais pas du tout les ${KanaReading.scriptName(kana.script)}"
         ),
         onClick --> { _ =>
           if (question.claimAnswer()) {
@@ -113,11 +108,11 @@ class PlacementPage(bus: AppBus) extends ReactiveElement {
     p(
       cls := "placement-prompt",
       Tr(
-        s"Write from memory, in ${scriptName(kana.script)}:",
-        s"Écris de mémoire, en ${scriptName(kana.script)} :"
+        s"Write from memory, in ${KanaReading.scriptName(kana.script)}:",
+        s"Écris de mémoire, en ${KanaReading.scriptName(kana.script)} :"
       )
     ),
-    span(cls := "placement-reading", Kana.shownReading(kana)),
+    KanaReading(kana, "placement-reading"),
     child.maybe <-- bus
       .request(AppCommand.LoadStrokes(kana.character)) {
         case AppEvent.StrokesLoaded(strokes)
@@ -178,7 +173,7 @@ class PlacementPage(bus: AppBus) extends ReactiveElement {
 
   private def scriptSummary(result: ScriptResult): HtmlElement = div(
     cls := "placement-result",
-    h3(scriptName(result.script).capitalize),
+    h3(KanaReading.scriptName(result.script).capitalize),
     if (result.skipped) {
       p(
         Tr(

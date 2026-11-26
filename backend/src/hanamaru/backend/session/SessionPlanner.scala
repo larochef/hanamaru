@@ -4,6 +4,8 @@ import hanamaru.backend.learner.*
 import hanamaru.shared.kana.Kana
 import hanamaru.shared.session.SessionExercise
 
+import scala.util.Random
+
 /** What an Express session asks next, from the kana's cards as they stand:
   *   1. the cards due, those being learned or relearned first (a card missed
   *      comes back a few minutes later, within the session), then the most
@@ -11,9 +13,10 @@ import hanamaru.shared.session.SessionExercise
   *   2. the first reading of the kana met but never read;
   *   3. a few new kana, in the chart's order, only once nothing is due: a busy
   *      day's reviews are not buried under new kana;
-  *   4. the cards before they are due, those being learned first, then the
-  *      soonest due: a session asked for is not ended early, even on a day with
-  *      nothing due, and each card asked comes back only after the others.
+  *   4. once nothing is due, any card of the session's kana ([[Rotation]]),
+  *      those it has not asked yet (`asked`) first: a session asked for is not
+  *      ended early, and covers every kana rather than going round the few
+  *      being learned, whose next steps are minutes away.
   * Only the session's `kana` are asked (a script's, or all). Writing is asked
   * only with the stylus at hand, and the same card never twice in a row when
   * there is another. Nothing once the time is up.
@@ -34,7 +37,9 @@ object SessionPlanner {
       introduced: Int,
       maxNew: Int,
       last: Option[SessionExercise],
-      kana: List[Kana] = Kana.all
+      kana: List[Kana] = Kana.all,
+      asked: Set[(String, CardKind)] = Set.empty,
+      random: Random = Random()
   ): Option[SessionExercise] = {
     // the session's kana only: a script, or both
     val inPlay = kana.map(_.character).toSet
@@ -75,10 +80,12 @@ object SessionPlanner {
         card.character == each.character && card.kind == taught
       )
     )
-    lazy val early =
-      notJustAsked(
-        allowed.sortBy(card => (!learning(card), card.due))
-      )(exercise)
+    lazy val anyOther = Rotation.drawn(
+      notJustAsked(allowed)(exercise),
+      1,
+      card => asked((card.character, card.kind)),
+      random
+    )
     if (now >= endsAt) {
       None
     } else {
@@ -90,7 +97,7 @@ object SessionPlanner {
             .filter(_ => introduced < maxNew && endsAt - now >= newKanaMillis)
             .map(kana => SessionExercise.NewKana(kana.character, stylus))
         )
-        .orElse(early.headOption.map(exercise))
+        .orElse(anyOther.headOption.map(exercise))
     }
   }
 }

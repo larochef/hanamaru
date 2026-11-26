@@ -9,10 +9,10 @@ import com.raquo.laminar.api.L.*
 class CharacterService(bus: AppBus, apiClient: ApiClient) {
 
   bus.commands.events.foreach {
-    case command @ AppCommand.LoadCharacterPractice =>
-      AppStreams.runOnce(apiClient.characterPractice()) {
+    case command @ AppCommand.LoadCharacterPractice(of) =>
+      AppStreams.runOnce(apiClient.characterPractice(of)) {
         case Right(exercises) =>
-          bus.publish(AppEvent.CharacterPracticeLoaded(exercises))
+          bus.publish(AppEvent.CharacterPracticeLoaded(of, exercises))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }

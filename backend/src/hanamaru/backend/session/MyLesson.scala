@@ -4,6 +4,7 @@ import hanamaru.backend.characters.CharacterPractice
 import hanamaru.backend.lessons.Lessons
 import hanamaru.backend.vocabulary.VocabularyPractice
 import hanamaru.shared.lessons.LessonPlan
+import hanamaru.shared.vocabulary.SeriesOf
 
 import java.time.Instant
 
@@ -19,7 +20,8 @@ final class MyLesson(
   def plan(now: Instant): LessonPlan =
     lessons.plan(
       now,
-      wordsToPractise = vocabulary.series(now).exists(_.nonEmpty),
+      wordsToPractise =
+        vocabulary.series(now, SeriesOf.MyLesson).exists(_.nonEmpty),
       charactersToPractise = characters.exercises(now).nonEmpty
     )
 }

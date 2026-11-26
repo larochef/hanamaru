@@ -137,7 +137,8 @@ object Main extends OxApp {
           lessons,
           exercises,
           ExerciseJudge(tutor, () => reference.analyser),
-          myLesson
+          myLesson,
+          UnitRecaps(units, () => reference.kanji)
         ).endpoints
       )
       .addEndpoints(

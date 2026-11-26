@@ -55,6 +55,18 @@ class LessonService(bus: AppBus, apiClient: ApiClient) {
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
+    case command @ AppCommand.LoadUnitRecap(point) =>
+      AppStreams.runOnce(apiClient.unitRecap(point)) {
+        case Right(recap) => bus.publish(AppEvent.UnitRecapLoaded(recap))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
+    case command @ AppCommand.MoveOnUnit =>
+      AppStreams.runOnce(apiClient.moveOn()) {
+        case Right(unit)  => bus.publish(AppEvent.UnitMovedOn(unit))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
     case command @ AppCommand.LoadLessonPlan =>
       AppStreams.runOnce(apiClient.lessonPlan()) {
         case Right(plan)  => bus.publish(AppEvent.LessonPlanLoaded(plan))

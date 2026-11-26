@@ -35,14 +35,16 @@ class NewKanaLesson(bus: AppBus, session: Long, kana: Kana, stylus: Boolean)
     cls := "character-heading",
     span(cls := "character-model", lang := "ja", kana.character),
     div(
-      span(cls := "character-reading", Kana.shownReading(kana)),
+      KanaReading(kana, "character-reading"),
       span(cls := "character-script", Tr("new kana", "nouveau kana"))
     )
   )
 
+  // without the stylus, only shown
   private def shown: HtmlElement = div(
     heading,
-    StrokesOf(bus, kana.character, StrokeDemonstration(_).node),
+    if (stylus) WritingPractice(bus, kana.character).node
+    else StrokesOf(bus, kana.character, StrokeDemonstration(_).node),
     continueTo(if (stylus) Stage.Guided else Stage.Read)
   )
 
@@ -72,7 +74,7 @@ class NewKanaLesson(bus: AppBus, session: Long, kana: Kana, stylus: Boolean)
       cls := "placement-prompt",
       Tr("Now from memory:", "Maintenant de mémoire :")
     ),
-    span(cls := "placement-reading", Kana.shownReading(kana)),
+    KanaReading(kana, "placement-reading"),
     StrokesOf(
       bus,
       kana.character,

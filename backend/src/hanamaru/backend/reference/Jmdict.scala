@@ -1,9 +1,11 @@
 package hanamaru.backend.reference
 
+import hanamaru.backend.storage.Database
+
 import java.io.{BufferedInputStream, InputStream}
 import java.net.URI
 import java.nio.file.*
-import java.sql.{Connection, DriverManager}
+import java.sql.DriverManager
 import java.util.zip.GZIPInputStream
 import javax.xml.stream.*
 import scala.collection.mutable.ListBuffer
@@ -26,10 +28,15 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 object Jmdict {
   val uri: URI = URI.create("http://ftp.edrdg.org/pub/Nihongo/JMdict.gz")
 
-  /** The shape of the database it is imported into: a database of another shape
-    * is imported again.
+  /** The database's schema, moved on by its migrations. */
+  val schema: Database.Schema =
+    Database.Schema("Dictionary", "db/dictionary", baselined = true)
+
+  /** What is imported, kept in the database under `schema` (its name from the
+    * first imports): a database imported otherwise is imported again. Its
+    * tables' shape moves on by [[schema]]'s migrations instead.
     */
-  val schemaVersion = "2"
+  val importVersion = "2"
 
   /** The languages whose glosses are kept. */
   val languages: Set[String] = Set("eng", "fre")
@@ -252,9 +259,13 @@ object Jmdict {
     Files.delete(partial)
     var count = 0
     try {
+      Database.migrate(partial, schema)
       Using.resource(DriverManager.getConnection(s"jdbc:sqlite:$partial")) {
         connection =>
-          schema(connection)
+          Using.resource(connection.createStatement()) { statement =>
+            statement.execute("PRAGMA journal_mode = OFF")
+            statement.execute("PRAGMA synchronous = OFF")
+          }
           connection.setAutoCommit(false)
           Using.Manager { use =>
             def prepared(sql: String) = use(connection.prepareStatement(sql))
@@ -327,7 +338,6 @@ object Jmdict {
             info.executeBatch()
           }.get
           connection.commit()
-          indexes(connection)
       }
       Files.move(
         partial,
@@ -341,45 +351,4 @@ object Jmdict {
     }
   }
 
-  private def schema(connection: Connection): Unit =
-    Using.resource(connection.createStatement()) { statement =>
-      statement.execute("PRAGMA journal_mode = OFF")
-      statement.execute("PRAGMA synchronous = OFF")
-      // a word: its JMdict number, its frequency rank, whether it is common
-      statement.execute(
-        "CREATE TABLE word (id INTEGER PRIMARY KEY, rank INTEGER, common INTEGER NOT NULL)"
-      )
-      // its written forms and readings, in JMdict's order; info and
-      // restricted_to are JSON lists
-      statement.execute(
-        """CREATE TABLE form (word_id INTEGER NOT NULL, position INTEGER NOT NULL,
-          |kana INTEGER NOT NULL, text TEXT NOT NULL, common INTEGER NOT NULL,
-          |info TEXT NOT NULL, restricted_to TEXT NOT NULL)""".stripMargin
-      )
-      // its senses, by language; codes and glosses are JSON lists
-      statement.execute(
-        """CREATE TABLE sense (word_id INTEGER NOT NULL, position INTEGER NOT NULL,
-          |language TEXT NOT NULL, parts_of_speech TEXT NOT NULL, misc TEXT NOT NULL,
-          |glosses TEXT NOT NULL)""".stripMargin
-      )
-      statement.execute(
-        "CREATE TABLE dictionary_info (key TEXT PRIMARY KEY, value TEXT NOT NULL)"
-      )
-      // the core vocabulary: the JLPT level of the list a word is learned
-      // from (5, the first words, to 1), and its place in that list
-      statement.execute(
-        """CREATE TABLE core_word (word_id INTEGER PRIMARY KEY, level INTEGER NOT NULL,
-          |position INTEGER NOT NULL)""".stripMargin
-      )
-    }
-
-  private def indexes(connection: Connection): Unit =
-    Using.resource(connection.createStatement()) { statement =>
-      statement.execute("CREATE INDEX word_by_rank ON word (rank)")
-      statement.execute("CREATE INDEX form_by_word ON form (word_id, position)")
-      statement.execute("CREATE INDEX form_by_text ON form (text)")
-      statement.execute(
-        "CREATE INDEX sense_by_word ON sense (word_id, position)"
-      )
-    }
 }

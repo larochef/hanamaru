@@ -97,6 +97,29 @@ object StrokeMatcherTests extends TestSuite {
           .verdict == StrokeVerdict.Accepted
       )
     }
+    test(
+      "a dakuten drawn in order but off its place: judged by where each stroke is from the other"
+    ) {
+      val dakuten =
+        List(SvgPath.points("M80,15l6,8"), SvgPath.points("M86,12l6,8"))
+      // both drawn up and to the right: the first nearer the second's place
+      val drawn = dakuten.map(shifted(_, 5, -3))
+      assert(
+        StrokeMatcher.judge(drawn(0), dakuten, 0).verdict == StrokeVerdict
+          .WrongOrder(2)
+      )
+      assert(
+        StrokeMatcher
+          .judge(drawn(0), dakuten, 0, Some(drawn(1)))
+          .verdict == StrokeVerdict.Accepted
+      )
+      // the right one first, off its place as well, is still out of order
+      assert(
+        StrokeMatcher
+          .judge(drawn(1), dakuten, 0, Some(drawn(0)))
+          .verdict == StrokeVerdict.WrongOrder(2)
+      )
+    }
     test("a stroke drawn right but a little off its place") {
       assert(judged(shifted(strokes(0), 12, 14), 0) == StrokeVerdict.Accepted)
     }

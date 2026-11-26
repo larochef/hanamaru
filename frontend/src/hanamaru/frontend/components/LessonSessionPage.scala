@@ -4,6 +4,7 @@ import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
 import hanamaru.shared.ReferenceDataState
 import hanamaru.shared.lessons.*
+import hanamaru.shared.vocabulary.SeriesOf
 
 import com.raquo.laminar.api.L.*
 
@@ -11,7 +12,8 @@ import com.raquo.laminar.api.L.*
   * review, each practised in its exercises; a series of words, the unit's new
   * ones among them; then the unit's lesson, read and practised, when it was
   * never learned; then the kana and kanji due, and the unit's new ones; then
-  * what was done, and where the unit stands.
+  * what was done, and where the unit stands: acquired, the choice to move on to
+  * the next unit or to go on with this one, each starting a session again.
   */
 class LessonSessionPage(bus: AppBus) extends ReactiveElement {
 
@@ -33,11 +35,21 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
     .collect { case AppEvent.PageShown(page) => page == Page.LessonSession }
     .startWith(false)
 
-  // planned each time the page is shown
-  private val plan: Signal[Option[AppResult[List[Step]]]] = shown
-    .combineWith(ready)
-    .changes
-    .distinct
+  // a session again on the same page: going on with an acquired unit
+  private val again = EventBus[Unit]()
+
+  // planned each time the page is shown, and again once moved on from a unit
+  // or going on with it
+  private val plan: Signal[Option[AppResult[List[Step]]]] = EventStream
+    .merge(
+      shown.combineWith(ready).changes.distinct,
+      EventStream
+        .merge(
+          again.events,
+          bus.events.events.collect { case AppEvent.UnitMovedOn(_) => () }
+        )
+        .sample(shown.combineWith(ready))
+    )
     .flatMapSwitch {
       case (true, true) =>
         bus
@@ -83,7 +95,12 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
               s"Étape ${index + 1} sur $total : les mots"
             )
           ),
-          VocabularySeries(bus, EventStream.fromValue(()), Some(goOn)),
+          VocabularySeries(
+            bus,
+            EventStream.fromValue(()),
+            SeriesOf.MyLesson,
+            Some(goOn)
+          ),
           button(
             Tr("Skip the words", "Passer les mots"),
             onClick --> (_ => goOn())
@@ -129,7 +146,28 @@ class LessonSessionPage(bus: AppBus) extends ReactiveElement {
     }
   }
 
+  // the unit as the session left it: acquired, the choice to move on
+  private def acquired: HtmlElement = div(
+    child.maybe <-- bus
+      .request(AppCommand.LoadUnit) { case AppEvent.UnitLoaded(unit) => unit }
+      .map(
+        _.toOption.flatten
+          .flatMap(_.onward)
+          .map(onward =>
+            UnitAcquired(
+              bus,
+              onward,
+              button(
+                Tr("Go on with this unit", "Continuer sur cette unité"),
+                onClick --> (_ => again.writer.onNext(()))
+              )
+            ).node
+          )
+      )
+  )
+
   private def summary(steps: List[Step]): HtmlElement = div(
+    acquired,
     h2(Tr("Session over", "Séance terminée")),
     if (steps.isEmpty)
       p(

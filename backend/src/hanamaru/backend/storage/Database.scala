@@ -12,8 +12,8 @@ import com.typesafe.scalalogging.Logger
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
 
-/** The learner's SQLite database, its schema brought up to date by Flyway when
-  * it opens, from the migrations in the resources' `db/migration`.
+/** A SQLite database: the learner's, or one of the reference data, its schema
+  * brought up to date by Flyway when it opens ([[Database.Schema]]).
   *
   * One connection, one caller at a time: a single learner's data, whose
   * requests are short. Plain SQL with `?` parameters; a value is a String, an
@@ -52,37 +52,52 @@ final class Database(connection: Connection) extends AutoCloseable {
 object Database {
   private val logger = Logger("hanamaru.backend.storage")
 
+  /** A database's schema: its Flyway migrations, in the resources at
+    * `location`, and the name its log line gives it. A `baselined` database may
+    * have been made before its migrations: found with tables but no migration
+    * history, it is taken to be at its first migration.
+    */
+  final case class Schema(name: String, location: String, baselined: Boolean)
+
+  /** The learner's data. */
+  val learner: Schema =
+    Schema("Learner data", "db/migration", baselined = false)
+
   // Flyway's own logs are kept to its warnings: this line says where the
   // schema stands, and what this start changed.
-  private def migrated(result: MigrateResult): String = {
+  private def migrated(schema: Schema, result: MigrateResult): String = {
     val version = Option(result.targetSchemaVersion)
       .orElse(Option(result.initialSchemaVersion))
       .fold("no schema")(version => s"schema version $version")
     val applied = result.migrations.asScala.toList
       .map(migration => s"V${migration.version} ${migration.description}")
     if (applied.isEmpty) {
-      s"Learner data: $version, up to date"
+      s"${schema.name}: $version, up to date"
     } else {
-      s"Learner data: $version, applied ${applied.mkString(", ")}"
+      s"${schema.name}: $version, applied ${applied.mkString(", ")}"
     }
   }
 
-  /** The learner's database, its schema brought up to date. */
-  def open(file: Path): Database = {
-    val url = s"jdbc:sqlite:$file"
+  /** Brings the schema of the database in `file` up to date. */
+  def migrate(file: Path, schema: Schema): Unit = {
     val result = Flyway
       .configure()
-      .dataSource(url, null, null)
-      .locations("classpath:db/migration")
+      .dataSource(s"jdbc:sqlite:$file", null, null)
+      .locations(s"classpath:${schema.location}")
+      .baselineOnMigrate(schema.baselined)
+      .baselineVersion("1")
       .load()
       .migrate()
-    logger.info(migrated(result))
+    logger.info(migrated(schema, result))
+  }
+
+  /** The database in `file`, its schema brought up to date. */
+  def open(file: Path, schema: Schema = learner): Database = {
+    migrate(file, schema)
     connect(file)
   }
 
-  /** A database whose schema is its own business, as one rebuilt from reference
-    * data.
-    */
+  /** A database as it is, its schema untouched. */
   def connect(file: Path): Database = {
     val connection = DriverManager.getConnection(s"jdbc:sqlite:$file")
     Using.resource(connection.createStatement()) { statement =>

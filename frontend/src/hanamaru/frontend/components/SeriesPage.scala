@@ -2,6 +2,7 @@ package hanamaru.frontend.components
 
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
+import hanamaru.shared.vocabulary.SeriesOf
 
 import com.raquo.laminar.api.L.*
 
@@ -13,7 +14,7 @@ class SeriesPage(bus: AppBus) extends ReactiveElement {
   private val pageShown: EventStream[Unit] =
     bus.events.events.collect { case AppEvent.PageShown(Page.Series) => () }
 
-  private val series = VocabularySeries(bus, pageShown)
+  private val series = VocabularySeries(bus, pageShown, SeriesOf.Free)
 
   override lazy val node: HtmlElement = div(
     cls := "series-page",

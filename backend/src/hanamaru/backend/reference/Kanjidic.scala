@@ -1,5 +1,7 @@
 package hanamaru.backend.reference
 
+import hanamaru.backend.storage.Database
+
 import java.io.{BufferedInputStream, InputStream}
 import java.net.URI
 import java.nio.file.*
@@ -22,8 +24,15 @@ object Kanjidic {
   import Jmdict.given
   val uri: URI = URI.create("http://ftp.edrdg.org/pub/Nihongo/kanjidic2.xml.gz")
 
-  /** The shape of the database it is imported into. */
-  val schemaVersion = "1"
+  /** The database's schema, moved on by its migrations. */
+  val schema: Database.Schema =
+    Database.Schema("Kanji", "db/kanji", baselined = true)
+
+  /** What is imported, kept in the database under `schema` (its name from the
+    * first imports): a database imported otherwise is imported again. Its
+    * tables' shape moves on by [[schema]]'s migrations instead.
+    */
+  val importVersion = "1"
 
   /** A kanji as KANJIDIC2 gives it; `grade` 1 to 6 for the school years, 8 for
     * the rest of the jōyō list, 9 and 10 for name kanji.
@@ -138,26 +147,9 @@ object Kanjidic {
     Files.delete(partial)
     var count = 0
     try {
+      Database.migrate(partial, schema)
       Using.resource(DriverManager.getConnection(s"jdbc:sqlite:$partial")) {
         connection =>
-          Using.resource(connection.createStatement()) { statement =>
-            statement.executeUpdate(
-              """CREATE TABLE kanji (
-              |  literal TEXT PRIMARY KEY,
-              |  grade INTEGER,
-              |  strokes INTEGER NOT NULL,
-              |  frequency INTEGER,
-              |  on_readings TEXT NOT NULL,
-              |  kun_readings TEXT NOT NULL,
-              |  french TEXT NOT NULL,
-              |  english TEXT NOT NULL
-              |)""".stripMargin
-            )
-            statement.executeUpdate("CREATE INDEX kanji_grade ON kanji (grade)")
-            statement.executeUpdate(
-              "CREATE TABLE kanji_info (key TEXT PRIMARY KEY, value TEXT NOT NULL)"
-            )
-          }
           connection.setAutoCommit(false)
           Using.resource(
             connection.prepareStatement(

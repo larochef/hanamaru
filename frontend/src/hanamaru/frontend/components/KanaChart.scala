@@ -8,9 +8,11 @@ import hanamaru.shared.learner.{ItemStatus, KanaProgress}
 import com.raquo.laminar.api.L.*
 
 /** Every kana, script by script, laid out as the usual chart, each marked with
-  * where the learner stands on it; each leads to how it is written.
+  * where the learner stands on it; each leads to how it is written. `only` one
+  * script, the chart alone, as a unit's page shows its kana.
   */
-class KanaChart(bus: AppBus) extends ReactiveElement {
+class KanaChart(bus: AppBus, only: Option[Script] = None)
+    extends ReactiveElement {
 
   // loaded once, then again after each review, the placement test's included
   private val loaded: Signal[Option[AppResult[Map[String, KanaProgress]]]] =
@@ -129,7 +131,11 @@ class KanaChart(bus: AppBus) extends ReactiveElement {
         )
       })
 
-  override lazy val node: HtmlElement = div(
+  override lazy val node: HtmlElement = only.fold(whole)(script =>
+    div(cls := "kana-chart", progressLegend, scriptChart(script))
+  )
+
+  private def whole: HtmlElement = div(
     cls := "kana-chart",
     child.maybe <-- placementInvitation,
     div(

@@ -69,8 +69,8 @@ final class WritingReview(learner: LearnerStore) {
       )
 
   /** Writing from memory, graded by how it went: right, good; right but for the
-    * order or direction of some strokes, hard; wrong, again. Guided writing is
-    * practice, not a review.
+    * order or direction of some strokes, hard; wrong, or not remembered, again.
+    * Guided writing is practice, not a review.
     */
   def gradeOf(attempt: WritingAttempt): Option[Grade] =
     Option.when(attempt.step == WritingStep.FromMemory)(

@@ -26,6 +26,14 @@ object WritingCorrectionTests extends TestSuite {
       assert(WritingCorrection.outcome(attempt) == WritingOutcome.Right)
       assert(attempt.completed, attempt.expectedStrokes == 3)
     }
+    test("not remembered: wrong, whatever was drawn before") {
+      val attempt = written(model*).copy(forgotten = true)
+      assert(WritingCorrection.outcome(attempt) == WritingOutcome.Wrong)
+      assert(
+        WritingCorrection.outcome(written().copy(forgotten = true)) ==
+          WritingOutcome.Wrong
+      )
+    }
     test("a stroke the other way: right but for its direction") {
       val attempt = written(model(0), model(1).reverse, model(2))
       assert(

@@ -152,7 +152,18 @@ object UnitsTests extends TestSuite {
         // the words and the lesson without its hiragana: still under way
         assert(units.current.map(_.point.id).contains(first.id))
         learned(learner, Script.Hiragana, at)
+        // acquired: still the unit under way, until the learner moves on
+        assert(
+          units.current.exists(unit =>
+            unit.point.id == first.id && unit.acquired
+          )
+        )
+        assert(
+          units.onward.contains(List(first) -> Some(Curriculum.points(1)))
+        )
+        units.moveOn(at)
         assert(units.current.map(_.point.id).contains(Curriculum.points(1).id))
+        assert(units.onward.isEmpty)
       }
     }
     test("a unit with kanji opens the next once they are read and written") {
@@ -187,9 +198,21 @@ object UnitsTests extends TestSuite {
           reviewed(ItemKind.Grammar, point.id, CardKind.Usage)
         }
         reviewed(ItemKind.Kanji, "学", CardKind.Reading)
+        // the units before acquired, left together
+        val before = Curriculum.points.take(Units.firstUnitWithKanji)
+        assert(units.onward.contains(before -> Some(withKanji)))
+        units.moveOn(at)
         // read, not written yet: the unit is still under way
+        assert(
+          units.current.exists(unit =>
+            unit.point.id == withKanji.id && !unit.acquired
+          )
+        )
+        units.moveOn(at)
         assert(units.current.map(_.point.id).contains(withKanji.id))
         reviewed(ItemKind.Kanji, "学", CardKind.Writing)
+        assert(units.current.exists(_.acquired))
+        units.moveOn(at)
         assert(
           units.current
             .map(_._1.id)
@@ -284,6 +307,7 @@ object UnitsTests extends TestSuite {
           at
         )
         learned(learner, Script.Hiragana, at)
+        units.moveOn(at)
         assert(units.current.map(_.point.id).contains(Curriculum.points(1).id))
         // every word of the unit missed at its next review: relearning
         units
@@ -307,6 +331,7 @@ object UnitsTests extends TestSuite {
           at.plusSeconds(86400 * 10)
         )
         assert(units.current.map(_.point.id).contains(Curriculum.points(1).id))
+        assert(units.progressOf(first, units.standing()).acquired)
       }
     }
     test("the kanji spread across the units, a few each, every one once") {

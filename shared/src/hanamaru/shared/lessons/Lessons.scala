@@ -69,20 +69,36 @@ object SymbolsProgress {
 }
 
 /** What the unit under way waits for, first: its kana to be met (its words are
-  * written with them), its words, its lesson, or its symbols to be learned.
+  * written with them), its words, its lesson, or its symbols to be learned;
+  * acquired, the learner to move on from it.
   */
 enum UnitWaitsFor {
-  case KanaToMeet, Words, Lesson, Symbols
+  case KanaToMeet, Words, Lesson, Symbols, MovingOn
 }
 
 object UnitWaitsFor {
   given Schema[UnitWaitsFor] = Schema.derived
 }
 
+/** An acquired unit the learner may move on from: it and the units right after
+  * it acquired too, left together, and the unit that comes next (none past the
+  * last).
+  */
+final case class UnitOnward(
+    acquired: List[GrammarPoint],
+    next: Option[GrammarPoint]
+)
+
+object UnitOnward {
+  given Schema[UnitOnward] = Schema.derived
+}
+
 /** The unit under way: its point, its theme, its words, how many of them are
   * stable and how many must be, whether its point is practised, its symbols,
-  * and what it waits for; the next unit opens once the point is practised,
-  * enough words are stable and every symbol is learned.
+  * and what it waits for; it is acquired once the point is practised, enough
+  * words are stable and every symbol is learned, and then stays the unit under
+  * way, with where the learner may go on to (`onward`), until the learner moves
+  * on.
   */
 final case class UnitProgress(
     point: GrammarPoint,
@@ -92,7 +108,8 @@ final case class UnitProgress(
     wordsNeeded: Int,
     practised: Boolean,
     symbols: Option[SymbolsProgress],
-    waitsFor: UnitWaitsFor
+    waitsFor: UnitWaitsFor,
+    onward: Option[UnitOnward]
 )
 
 object UnitProgress {

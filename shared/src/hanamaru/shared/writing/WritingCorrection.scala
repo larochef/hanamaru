@@ -41,7 +41,12 @@ object WritingCorrection {
     drawn.zipWithIndex.map { (points, index) =>
       val judgement =
         if (index < model.size)
-          StrokeMatcher.judge(points.map(_.point), model, index)
+          StrokeMatcher.judge(
+            points.map(_.point),
+            model,
+            index,
+            drawn.lift(index + 1).map(_.map(_.point))
+          )
         else StrokeJudgement(StrokeVerdict.Misdrawn, 0)
       JudgedStroke(points, index, judgement)
     }
@@ -83,7 +88,9 @@ object WritingCorrection {
   def outcome(attempt: WritingAttempt): WritingOutcome = {
     val found = issues(attempt)
     val whole = attempt.completed && attempt.strokes.size == expectedOf(attempt)
-    if (whole && found.isEmpty) {
+    if (attempt.forgotten) {
+      WritingOutcome.Wrong
+    } else if (whole && found.isEmpty) {
       WritingOutcome.Right
     } else if (
       whole && found.forall {

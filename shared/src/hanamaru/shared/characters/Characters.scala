@@ -7,6 +7,14 @@ import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import sttp.tapir.Schema
 
+/** The kana and kanji practised: My lesson's (those due, then the unit's new
+  * ones), or one unit's kanji gone over out of turn, from its page.
+  */
+enum CharactersOf {
+  case MyLesson
+  case OfUnit(point: String)
+}
+
 /** What a kana or kanji exercise asks: the character read, or written. */
 enum CharacterAsked {
 

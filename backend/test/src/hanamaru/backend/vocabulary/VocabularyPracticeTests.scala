@@ -57,7 +57,7 @@ object VocabularyPracticeTests extends TestSuite {
       "a series planned: new words shown, every word asked both ways, new ones again"
     ) {
       withPractice { (practice, _) =>
-        val words = practice.series(start).toOption.get
+        val words = practice.series(start, SeriesOf.MyLesson).toOption.get
         val tasks = VocabularyPractice.planned(words)
         val fresh = words.filter(_.isNew)
         assert(
@@ -88,7 +88,7 @@ object VocabularyPracticeTests extends TestSuite {
     }
     test("a first series: new words in the order they are learned") {
       withPractice { (practice, _) =>
-        val series = practice.series(start).toOption.get
+        val series = practice.series(start, SeriesOf.MyLesson).toOption.get
         assert(series.map(_.word.id) == List(2000002L, 2000001L, 2000003L))
         assert(series.forall(_.isNew))
       }
@@ -127,11 +127,32 @@ object VocabularyPracticeTests extends TestSuite {
         assert(learner.metKeys(ItemKind.Word) == Set("2000002"))
         // the word met is not new any more; due again, it comes first
         val later =
-          practice.series(start.plus(Duration.ofDays(30))).toOption.get
+          practice
+            .series(start.plus(Duration.ofDays(30)), SeriesOf.MyLesson)
+            .toOption
+            .get
         assert(
           later.head == later.head.copy(isNew = false),
           later.head.word.id == 2000002L
         )
+      }
+    }
+    test(
+      "nothing due, nothing new: a series asked for is filled with words met"
+    ) {
+      withPractice { (practice, _) =>
+        val all = List(2000001L, 2000002L, 2000003L)
+        all.foreach(id =>
+          practice.answered(
+            VocabularyAnswer(id, Direction.Production, "?", 1000, true),
+            start
+          )
+        )
+        val soon = start.plus(Duration.ofSeconds(30))
+        // My lesson takes only what is due
+        assert(practice.series(soon, SeriesOf.MyLesson).toOption.get.isEmpty)
+        val free = practice.series(soon, SeriesOf.Free).toOption.get
+        assert(free.map(_.word.id).sorted == all, free.forall(!_.isNew))
       }
     }
     test("a new word said to be known and answered right is to confirm") {

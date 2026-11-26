@@ -54,7 +54,8 @@ object AppEvent {
   final case class CoreWordsLoaded(from: Int, words: List[DictionaryWord])
       extends AppEvent
 
-  final case class SeriesLoaded(tasks: List[SeriesTask]) extends AppEvent
+  final case class SeriesLoaded(of: SeriesOf, tasks: List[SeriesTask])
+      extends AppEvent
 
   final case class VocabularyJudged(
       answer: VocabularyAnswer,
@@ -96,13 +97,20 @@ object AppEvent {
 
   final case class UnitLoaded(unit: Option[UnitProgress]) extends AppEvent
 
+  final case class UnitRecapLoaded(recap: UnitRecap) extends AppEvent
+
+  /** Moved on from an acquired unit: the unit under way now. */
+  final case class UnitMovedOn(unit: Option[UnitProgress]) extends AppEvent
+
   final case class KanjiGradeLoaded(grade: Int, kanji: List[Kanji])
       extends AppEvent
 
   final case class KanjiLoaded(detail: KanjiDetail) extends AppEvent
 
-  final case class CharacterPracticeLoaded(exercises: List[CharacterExercise])
-      extends AppEvent
+  final case class CharacterPracticeLoaded(
+      of: CharactersOf,
+      exercises: List[CharacterExercise]
+  ) extends AppEvent
 
   final case class KanaReadingJudged(
       answer: KanaReadingAnswer,

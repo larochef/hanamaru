@@ -26,7 +26,7 @@ class KanaExerciseView(
 ) extends ReactiveElement {
 
   private enum Stage {
-    case Shown, Guided, FromMemory, Read
+    case Shown, Guided, FromMemory, Read, Forgotten
     case Judged(result: ReadingResult)
   }
 
@@ -47,14 +47,14 @@ class KanaExerciseView(
     cls := "character-heading",
     span(cls := "character-model", lang := "ja", kana.character),
     div(
-      span(cls := "character-reading", Kana.shownReading(kana)),
+      KanaReading(kana, "character-reading"),
       span(cls := "character-script", Tr("new kana", "nouveau kana"))
     )
   )
 
   private def shown: HtmlElement = div(
     heading,
-    StrokesOf(bus, kana.character, StrokeDemonstration(_).node),
+    WritingPractice(bus, kana.character).node,
     continueButton(() => stage.set(Stage.Guided))
   )
 
@@ -83,9 +83,12 @@ class KanaExerciseView(
   private def fromMemory: HtmlElement = div(
     p(
       cls := "placement-prompt",
-      Tr("Write from memory:", "Écris de mémoire :")
+      Tr(
+        s"Write from memory, in ${KanaReading.scriptName(kana.script)}:",
+        s"Écris de mémoire, en ${KanaReading.scriptName(kana.script)} :"
+      )
     ),
-    span(cls := "placement-reading", Kana.shownReading(kana)),
+    KanaReading(kana, "placement-reading"),
     StrokesOf(
       bus,
       kana.character,
@@ -93,13 +96,17 @@ class KanaExerciseView(
         val writing = WritingExercise(
           strokes,
           WritingStep.FromMemory,
-          canStartAgain = false
+          canStartAgain = false,
+          canForget = true
         )
         writing.node.amend(
-          writing.attempts --> (attempt =>
+          writing.attempts --> { attempt =>
             bus.send(AppCommand.RecordWriting(attempt))
-          ),
-          child.maybe <-- writing.attempts.mapTo(Some(continueButton(next)))
+            if (attempt.forgotten) stage.set(Stage.Forgotten)
+          },
+          child.maybe <-- writing.attempts
+            .filterNot(_.forgotten)
+            .mapTo(Some(continueButton(next)))
         )
       }
     )
@@ -127,6 +134,7 @@ class KanaExerciseView(
   } { word =>
     // typed in romaji, shown in katakana as it is typed
     val field = KanaInput(katakana = true)
+    val stylusField = StylusField(bus, field, Var(true))
     val answers = EventBus[KanaReadingAnswer]()
     def answer(typed: Option[String]) =
       KanaReadingAnswer(kana.character, typed, Some(word.id))
@@ -141,11 +149,14 @@ class KanaExerciseView(
         word.readings.headOption.getOrElse("")
       ),
       form(
-        onSubmit.preventDefault.mapTo(answer(Some(field.value))) -->
-          answers.writer,
+        onSubmit.preventDefault.map { _ =>
+          stylusField.keep(field.value)
+          answer(Some(field.value))
+        } --> answers.writer,
         field,
         button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
       ),
+      stylusField.node,
       button(
         Tr("I don't know", "Je ne sais pas"),
         onClick.mapTo(answer(None)) --> answers.writer
@@ -177,6 +188,8 @@ class KanaExerciseView(
       case Stage.FromMemory     => fromMemory
       case Stage.Read           => read
       case Stage.Judged(result) => judged(result)
+      // not remembered: shown and written again, its review kept as missed
+      case Stage.Forgotten => Relearn(bus, kana.character, next).node
     }
   )
 }

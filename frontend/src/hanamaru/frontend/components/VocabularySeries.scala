@@ -15,11 +15,12 @@ import com.raquo.laminar.api.L.*
   * it, then asked twice for itself; a word missed comes back a few questions
   * later. After each answer the whole word is shown. A series is asked each
   * time `starts` fires; once it is over, `goOn`, when given, leads on to what
-  * follows it.
+  * follows it. Its words are those `of` says ([[SeriesOf]]).
   */
 class VocabularySeries(
     bus: AppBus,
     starts: EventStream[Unit],
+    of: SeriesOf,
     goOn: Option[() => Unit] = None
 ) extends ReactiveElement {
 
@@ -59,20 +60,21 @@ class VocabularySeries(
   private val loaded: EventStream[AppResult[List[SeriesTask]]] = EventStream
     .merge(starts, startedAgain.events)
     .flatMapSwitch(_ =>
-      bus.request(AppCommand.LoadSeries) { case AppEvent.SeriesLoaded(tasks) =>
-        tasks
+      bus.request(AppCommand.LoadSeries(of)) {
+        case AppEvent.SeriesLoaded(`of`, tasks) => tasks
       }
     )
 
   private val failure: Signal[Option[String]] = bus.events.events
     .collect {
       case AppEvent.RequestFailed(
-            AppCommand.LoadSeries | _: AppCommand.AnswerVocabulary |
+            AppCommand.LoadSeries(`of`) | _: AppCommand.AnswerVocabulary |
             _: AppCommand.SelfGradeVocabulary,
             reason
           ) =>
         Some(reason)
-      case AppEvent.SeriesLoaded(_) | AppEvent.VocabularyJudged(_, _) => None
+      case AppEvent.SeriesLoaded(`of`, _) | AppEvent.VocabularyJudged(_, _) =>
+        None
     }
     .startWith(None)
 
