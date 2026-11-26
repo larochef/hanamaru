@@ -15,6 +15,7 @@ Mill locks `out/` for as long as a command runs, a `backend.run` and the IDE's b
 ## Commands
 
 - Compile: `./mill __.compile`, or `./mill [module].compile`. Warnings are always errors, by `-Wconf:any:e` in `build.mill`, not `-Werror`: scalafix's own compile must see unused imports as warnings to remove them
+- Tests: `./mill __.test`. The heavy handwriting checks (the stroke matcher on every school kanji, the recogniser on all the learner wrote) are in `backend.calibration`, which `__.test` leaves out: run `./mill backend.calibration` whenever `shared/.../writing` changes
 - After development is complete, always run `./mill __.fix + __.reformat` (scalafix import ordering, then scalafmt)
 
 ## Dependencies

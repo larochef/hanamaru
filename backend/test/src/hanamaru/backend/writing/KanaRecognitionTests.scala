@@ -9,14 +9,12 @@ import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
 
-import com.github.plokhotnyuk.jsoniter_scala.core.readFromString
 import utest.*
 
 /** The kana recogniser: each kana written as its model, a little shaken, is
   * recognised as itself, or as its twin in the other script (へ and ヘ). Needs
-  * KanjiVG in the cache. The characters the learner wrote from memory, when the
-  * application has kept some, are recognised too, and how well is printed: the
-  * material the recogniser is tuned on.
+  * KanjiVG in the cache. What the learner wrote is measured apart, in
+  * `backend.calibration`.
   */
 object KanaRecognitionTests extends TestSuite {
 
@@ -73,81 +71,6 @@ object KanaRecognitionTests extends TestSuite {
             )(s"$character as ${best.character} (${best.distance})")
           }
           assert(kana.size > 150, wrong.isEmpty)
-      }
-    }
-    test("the kana the learner wrote from memory, recognised") {
-      (strokes, Some(places.writingAttempts).filter(Files.exists(_))) match {
-        case (Some(kana), Some(file)) =>
-          // each recognised among the kana of its script, as the field is
-          val recognisers = Script.values.toList
-            .map(script => script -> CharacterRecognizer.ofKana(kana, script))
-            .toMap
-          val ranked = Files
-            .readAllLines(file)
-            .asScala
-            .map(readFromString[WritingAttempt](_))
-            .filter(attempt =>
-              attempt.step == WritingStep.FromMemory && !attempt.forgotten
-            )
-            .toList
-            .flatMap(attempt =>
-              scriptOf(attempt.character).map(script =>
-                attempt -> recognisers(script).ranked(
-                  attempt.strokes.map(_.points.map(_.point))
-                )
-              )
-            )
-          // those the matcher judged right: the others are often another kana
-          val wellWritten = ranked.filter((attempt, _) =>
-            WritingCorrection.outcome(attempt) == WritingOutcome.Right
-          )
-          def within(count: Int) = wellWritten.count((attempt, candidates) =>
-            candidates
-              .take(count)
-              .exists(candidate => same(candidate.character, attempt.character))
-          )
-          val missed = wellWritten.collect {
-            case (attempt, best :: _)
-                if !same(best.character, attempt.character) =>
-              s"${attempt.character}→${best.character}"
-          }
-          println(
-            s"RECOGNISED ${wellWritten.size} kana written right from memory: first ${within(1)}, among three ${within(3)}; missed ${missed.mkString(" ")}"
-          )
-        case _ =>
-          println("No kana written from memory kept: recognition not measured")
-      }
-    }
-    test("the kana the learner wrote in the pad, recognised") {
-      (strokes, Some(places.padCharacters).filter(Files.exists(_))) match {
-        case (Some(kana), Some(file)) =>
-          val recognisers = Script.values.toList
-            .map(script => script -> CharacterRecognizer.ofKana(kana, script))
-            .toMap
-          val ranked = Files
-            .readAllLines(file)
-            .asScala
-            .map(readFromString[PadCharacter](_))
-            .toList
-            .flatMap(written =>
-              scriptOf(written.character).map(script =>
-                written -> recognisers(script)
-                  .ranked(written.strokes.map(_.map(_.point)))
-                  .filterNot(candidate => Kana.isSmall(candidate.character))
-              )
-            )
-          def within(count: Int) = ranked.count((written, candidates) =>
-            candidates.take(count).exists(_.character == written.character)
-          )
-          val missed = ranked.collect {
-            case (written, best :: _) if best.character != written.character =>
-              s"${written.character}→${best.character}"
-          }
-          println(
-            s"IN THE PAD ${ranked.size} kana: first ${within(1)}, among three ${within(3)}; missed ${missed.mkString(" ")}"
-          )
-        case _ =>
-          println("No kana written in the pad kept: recognition not measured")
       }
     }
   }

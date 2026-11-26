@@ -167,6 +167,14 @@ object backend extends BaseScala {
       mvn"com.lihaoyi::utest:0.9.5",
     )
   }
+
+  // the heavy checks, on the whole reference data and on all the learner has
+  // written: run apart, `__.test` leaving them out
+  object calibration extends ScalaTests with TestModule.Utest with ScalafmtModule {
+    def mvnDeps: T[Seq[Dep]] = Seq(
+      mvn"com.lihaoyi::utest:0.9.5",
+    )
+  }
 }
 
 object frontend extends BaseScalaJS {
