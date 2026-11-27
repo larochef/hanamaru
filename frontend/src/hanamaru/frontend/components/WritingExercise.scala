@@ -178,13 +178,23 @@ class WritingExercise(
 
   private def freeControls: HtmlElement = div(
     cls := "writing-controls",
-    button(
-      Tr("Erase the last stroke", "Effacer le dernier trait"),
-      disabled <-- accepted.signal
+    ToolButton(
+      ToolButton.Face.Icon(ButtonIcon.Shape.Undo),
+      Tr("Take away the last stroke", "Annuler le dernier trait"),
+      () => accepted.update(_.dropRight(1)),
+      accepted.signal
         .combineWith(ended.signal)
-        .map((strokes, isEnded) => strokes.isEmpty || isEnded),
-      onClick --> (_ => accepted.update(_.dropRight(1)))
-    ),
+        .map((strokes, isEnded) => strokes.nonEmpty && !isEnded)
+    ).node,
+    ToolButton(
+      ToolButton.Face.Icon(ButtonIcon.Shape.Eraser),
+      Tr("Rub out the whole drawing", "Effacer tout le tracé"),
+      () => accepted.set(Nil),
+      accepted.signal
+        .combineWith(ended.signal)
+        .map((strokes, isEnded) => strokes.nonEmpty && !isEnded)
+    ).node,
+    span(cls := "tools-spacer"),
     button(
       cls := "primary",
       doneLabel.getOrElse(Tr("Done", "Terminé")),

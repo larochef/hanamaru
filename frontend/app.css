@@ -17,6 +17,9 @@ textarea {
   /* the script a kana is asked in */
   --hiragana: #2f6db5;
   --katakana: #8a5a2c;
+  --kanji: #2f7a4a;
+  /* the border of a tool's button */
+  --tool: #d6cfbf;
 }
 
 body {
@@ -504,8 +507,7 @@ button:disabled {
   margin-top: 0;
 }
 
-.session-context,
-.stylus-choice {
+.session-context {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -718,26 +720,6 @@ button:disabled {
   border-radius: 0.5rem;
 }
 
-.kana-input {
-  width: 14rem;
-}
-
-/* the script kana are typed in: katakana tinted, the switch beside */
-.kana-field {
-  display: inline-flex;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.kana-input.is-katakana {
-  background: #eef3fb;
-}
-
-.script-switch {
-  min-width: 2.6rem;
-  font-size: 1.3rem;
-}
-
 /* the script an answer is expected in */
 .expected-script {
   margin: 0.25rem 0;
@@ -789,8 +771,8 @@ button:disabled {
 }
 
 .character-place {
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2.8rem;
+  height: 2.8rem;
   border: 1px solid var(--faint);
   border-radius: 0.2rem;
   background: #fff;
@@ -817,8 +799,8 @@ button:disabled {
 
 /* a kanji to write: a box a size up, its border doubled */
 .character-place.is-kanji {
-  width: 3rem;
-  height: 3rem;
+  width: 3.2rem;
+  height: 3.2rem;
   border-style: double;
   border-width: 3px;
 }
@@ -840,13 +822,6 @@ button:disabled {
   max-width: 20rem;
 }
 
-.sentence-pad {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-self: stretch;
-}
-
 .kanji-reminder {
   color: var(--muted);
 }
@@ -861,16 +836,22 @@ button:disabled {
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  min-height: 2.75rem;
+  padding-left: 0.9rem;
+  color: var(--muted);
 }
 
 .pad-candidates button[lang="ja"] {
-  min-width: 3rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   font-size: 1.4rem;
+  color: var(--ink);
 }
 
 /* writing from memory: the controls, then the correction */
 .writing-controls {
   display: flex;
+  align-items: center;
   gap: 0.75rem;
 }
 
@@ -1106,10 +1087,6 @@ button:disabled {
 .exercise-choices button {
   min-width: 3.5rem;
   font-size: 1.4rem;
-}
-
-.sentence-input .kana-input {
-  width: 24rem;
 }
 
 .typed-answer {
@@ -1753,4 +1730,308 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+}
+
+/* An answer written: two frames, each with what acts on it, and nothing else:
+   the answer, its text changed by its tools; the box written in, its drawing
+   changed by its own, beside what it recognises, in that script's colour. */
+.written-answer,
+.series-task form.written-answer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-self: stretch;
+}
+
+.answer-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-self: stretch;
+}
+
+.answer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.frame-label {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.input-choice {
+  display: flex;
+  border: 1px solid var(--tool);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.input-choice button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.input-choice button.is-chosen {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.input-choice .button-icon,
+.writing-tool .button-icon,
+.answer-submit .button-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.answer-frame {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3.5rem;
+  padding: 0.4rem 0.5rem 0.4rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 0.75rem;
+  background: #fffdf8;
+}
+
+.answer-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.answer-content .word-sentence {
+  margin: 0;
+}
+
+.answer-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.2rem 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 2rem;
+  caret-color: var(--accent);
+}
+
+.answer-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tools-separator {
+  width: 1px;
+  height: 2rem;
+  background: var(--faint);
+}
+
+.tools-spacer {
+  flex: 1;
+}
+
+.writing-tool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 3rem;
+  height: 3rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--tool);
+  border-radius: 0.6rem;
+  background: #fff;
+  font-size: 1.3rem;
+}
+
+/* a mark alone sits high on one side of its em box: drawn larger, its box
+   kept to the button's width, the mark brought to the middle */
+.writing-tool .tool-mark {
+  display: inline-block;
+  width: 1.4rem;
+  font-size: 2.4rem;
+  line-height: 1;
+  transform: translate(0.12em, 0.3em);
+}
+
+.writing-tool.next-character {
+  font-size: 1rem;
+}
+
+.answer-hint {
+  margin: 0;
+  padding-left: 0.9rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.writing-box-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.is-hiragana {
+  --mode: var(--hiragana);
+}
+
+.is-katakana {
+  --mode: var(--katakana);
+}
+
+.is-kanji {
+  --mode: var(--kanji);
+}
+
+.writing-box-frame {
+  display: flex;
+  align-self: flex-start;
+  max-width: 100%;
+  border: 3px solid var(--mode, var(--ink));
+  border-radius: 0.9rem;
+  background: #fffdf8;
+  overflow: hidden;
+}
+
+.writing-box-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.writing-box-main .kana-pad {
+  padding: 0.5rem;
+}
+
+.writing-box-main .kana-pad .writing-box {
+  width: 20rem;
+  max-width: 100%;
+}
+
+.writing-box-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-top: 1px solid var(--faint);
+  background: #f6f2e9;
+}
+
+.writing-box-mode {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  color: var(--mode, var(--ink));
+}
+
+.script-modes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.script-modes.is-column {
+  flex-direction: column;
+  align-items: center;
+  padding: 0.6rem;
+  border-left: 1px solid var(--faint);
+  background: #f6f2e9;
+}
+
+.script-modes-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.script-mode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  width: 4.5rem;
+  height: 4.1rem;
+  padding: 0;
+  border: 2px solid var(--tool);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.script-mode.is-chosen {
+  border-color: var(--mode);
+  background: var(--mode);
+  color: #fff;
+}
+
+.script-mode:disabled {
+  border-style: dashed;
+  border-color: var(--faint);
+  background: var(--paper);
+  color: #a59f94;
+  opacity: 1;
+}
+
+.script-mode-sign {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.script-mode-name {
+  font-size: 0.75rem;
+}
+
+/* typed: the scripts in a row, under the field */
+.script-modes.is-row .script-mode {
+  flex-direction: row;
+  gap: 0.4rem;
+  width: auto;
+  height: 3rem;
+  padding: 0 0.9rem;
+}
+
+.script-modes.is-row .script-mode-sign {
+  font-size: 1.4rem;
+}
+
+.script-modes.is-row .script-mode-name {
+  font-size: 0.85rem;
+}
+
+/* the end of every answer: "I don't know", then the answer beside it, clear
+   of the tutor's button in the page's corner */
+.answer-actions {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.answer-actions button {
+  min-height: 3rem;
+}
+
+button.answer-submit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3.2rem;
+  padding: 0 2rem;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
 }

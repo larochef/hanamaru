@@ -86,27 +86,49 @@ is every kyōiku kanji.
   on next (a test measures it on them). The distance does not tell a right recognition from a wrong one, so
   the pause, not a threshold, decides when a character is taken; only a
   scribble is refused.
+- **One way to write an answer** (built, `AnswerPanel`, `HandwrittenWord`,
+  `WritingBox`), the same in every exercise, each button where it always is,
+  in the frame of what it changes:
+  - **the answer**, under the choice of stylus or keyboard (`InputChoice`), in
+    a frame with what changes its text: 小, ゛ and ゜ on the characters
+    selected, else the last one, and ⌫ taking them away; under it, the kana
+    the last one may be instead;
+  - **the box written in**, in a frame with what changes its drawing: the last
+    stroke taken away, the whole drawing rubbed out (the answer untouched),
+    the drawing taken as it is; beside it, what it recognises, あ hiragana,
+    ア katakana, 漢 kanji, chosen in one touch, the frame in that script's
+    colour (blue, brown, green); a script that does not serve stays in its
+    place, faded;
+  - **typed**, the scripts in a row under the field, kanji left to the
+    stylus;
+  - at the end, "I don't know", then the answer beside it (on the right, it
+    was under the tutor's button).
+
+  With the stylus, the fields never open the screen's keyboard (it moved the
+  page at each change of script), and no tool takes the focus.
 - **Writing a word** from memory (a vocabulary answer, [`08`](08-vocabulary-practice.md)):
-  its characters one after the other in the pad, each shown small, as drawn,
-  in its place; the learner may go back a character, and says when the word
-  is written; no correction in between, all are corrected together then
+  its characters one after the other in the box, each shown small, as drawn,
+  in its place, one place for each character expected; the learner may take
+  the last one away, and says when the word is written; the script is
+  theirs to choose, in kana each character recognised in the one chosen, so
+  that a word written in the other is wrong; its dakuten and small kana are
+  drawn, being what is corrected; no correction in between, all are corrected together then
   against the characters expected. A kanji's place is a larger box; a kanji
   is taken when the pen rests only once all its strokes are drawn: the pen
   pauses between its many strokes.
 - **Writing a sentence** (a lesson's translation exercise,
   [`06`](06-curriculum-and-lessons.md)): each kana recognised goes at the end
   of the answer field, which can still be typed in; the other kana it may be
-  are offered, to put in its place, and the last character can be erased.
-  The field's switch says what the pad recognises among: あ hiragana, ア
-  katakana, 漢 the kanji the learner writes (offered only when there are
-  some). Kana and kanji are never recognised together: a kanji begun looks
+  are offered, to put in its place. The script chosen beside the box says
+  what it recognises among: あ hiragana, ア katakana, 漢 the kanji the
+  learner writes (only when there are some). Kana and kanji are never recognised together: a kanji begun looks
   like a kana (本 begun is ナ). A kanji is taken when the pen rests once it
   has as many strokes as the kanji it is closest to.
   Small kana are not recognised there: told from their large ones by size
-  alone, they were taken for each other; a button, 小, makes the last kana
-  small (しや to しゃ), or large again. Two more add or take away a dakuten
-  (゛, か to が) or a handakuten (゜, は to ぱ), for a kana taken before its
-  marks were drawn. In a word, the small kana is written
+  alone, they were taken for each other; a button of the answer, 小, makes
+  the kana selected, else the last one, small (しや to しゃ), or large again.
+  Two more add or take away a dakuten (゛, か to が) or a handakuten (゜, は to
+  ぱ), for a kana taken before its marks were drawn. In a word, the small kana is written
   small, as it is judged against the character expected. A box whose kana
   is not among the three the recogniser finds closest is another kana (て
   written for ん, its one stroke within ん's tolerance): the word written is

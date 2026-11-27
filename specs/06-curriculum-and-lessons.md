@@ -122,9 +122,9 @@ can be repeated with fresh content until it is acquired.
     answer away, always the point's: typed, every particle is thought of;
   - **the sentence translated** from French, typed in kana, the script
     expected said under it ("in hiragana, with one word in katakana"); the
-    kana field has a switch, あ or ア, for the script it types in; or written
-    with the stylus, kana after kana, each recognised and put in the field
-    ([`05`](05-writing.md)), and the kanji the learner writes, the field
+    script it types in is chosen under it, あ or ア; or written with the
+    stylus, kana after kana, each recognised and put in the field
+    ([`05`](05-writing.md)), and the kanji the learner writes, the box
     switched to them (あ, ア, 漢). Right in
     the other script, the answer is right, and the words in katakana named.
     A word written with kanji, all or some (会しゃ), is read back as its kana

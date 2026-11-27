@@ -14,7 +14,8 @@ import com.raquo.laminar.api.L.*
   * `written`, and the box cleared for the next one, a drawing far from any kana
   * left in the box, to be finished, erased or taken all the same; a kanji,
   * among a few, only once the learner says it is written, as the pen rests
-  * between its many strokes. `strokes` are the characters'.
+  * between its many strokes. `strokes` are the characters'. Its controls are
+  * its frame's ([[WritingBox]]).
   */
 class KanaPad(strokes: List[CharacterStrokes], asked: () => KanaPad.Asked)
     extends ReactiveElement {
@@ -51,12 +52,25 @@ class KanaPad(strokes: List[CharacterStrokes], asked: () => KanaPad.Asked)
 
   val written: EventStream[Written] = taken.events
 
+  /** Whether anything is drawn in the box. */
+  val hasDrawn: Signal[Boolean] = drawn.signal.map(_.nonEmpty)
+
   /** The box emptied, what was drawn in it dropped. */
   def clear(): Unit = {
     stopWaiting()
     drawn.set(Nil)
     unrecognised.set(false)
   }
+
+  /** The last stroke drawn taken away. */
+  def undo(): Unit = {
+    stopWaiting()
+    unrecognised.set(false)
+    drawn.update(_.dropRight(1))
+  }
+
+  /** What is drawn taken as a character now, recognised or not. */
+  def takeNow(): Unit = if (drawn.now().nonEmpty) take(anyway = true)
 
   private def stopWaiting(): Unit = {
     resting.foreach(clearTimeout)
@@ -127,25 +141,6 @@ class KanaPad(strokes: List[CharacterStrokes], asked: () => KanaPad.Asked)
             "Pas reconnu comme un kana : termine-le, efface un trait, ou passe au suivant quand même."
           )
         )
-      )
-    ),
-    div(
-      cls := "writing-controls",
-      button(
-        typ := "button",
-        Tr("Erase the last stroke", "Effacer le dernier trait"),
-        disabled <-- drawn.signal.map(_.isEmpty),
-        onClick --> { _ =>
-          stopWaiting()
-          unrecognised.set(false)
-          drawn.update(_.dropRight(1))
-        }
-      ),
-      button(
-        typ := "button",
-        Tr("Next character", "Caractère suivant"),
-        disabled <-- drawn.signal.map(_.isEmpty),
-        onClick --> (_ => take(anyway = true))
       )
     ),
     onUnmountCallback(_ => stopWaiting())

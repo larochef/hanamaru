@@ -50,12 +50,13 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
   one asked; otherwise missed. The prompt shows the first French sense (up to
   three glosses) and, small, the first English one, which makes up for
   JMdict's French senses in a doubtful order.
-- **Production with the stylus** (the series' "Answer with the stylus", on by
-  default): the word written from memory with the kanji the learner writes
+- **Production with the stylus** (stylus or keyboard chosen beside the
+  answer, the stylus first): the word written from memory with the kanji the learner writes
   (`KanjiHand`: those whose writing card they have, met in a focus or since),
   the others in kana (会しゃいん while 社 is not learned yet), as the server
-  sends it (`SeriesWord.inKanji`); or, as the learner switches, in kana, as its
-  first reading. One character after the other in one box, a kana taken once
+  sends it (`SeriesWord.inKanji`); or, as the learner chooses あ or ア, in
+  kana, as its first reading: the script is theirs to know, the word written
+  in the other wrong. One character after the other in one box, a kana taken once
   the pen rests, a kanji once the pen rests with all its strokes drawn; the learner says
   when the word is written; corrected at the end as writing from memory is
   ([`05`](05-writing.md)): right when every character is right and the word
@@ -86,7 +87,7 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
   translation.
 - **The script said**: typed production says whether the word is written in
   hiragana or katakana, and the kana field starts in that script (あ / ア
-  switch beside it).
+  under it).
 - **Meaning recall** is graded by code first: right when the answer is one of
   the word's glosses, French or English, whatever the accents, case, leading
   article, "to", "to be" or words in brackets. Otherwise the **tutor** is asked

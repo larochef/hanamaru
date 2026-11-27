@@ -84,17 +84,30 @@ class KanjiExerciseView(
   private def asked(
       judged: (KanjiReadingAnswer, KanjiReadingVerdict) => Unit
   ): HtmlElement = {
-    val field = KanaInput()
-    val stylusField = StylusField(bus, field, Var(true))
+    val mode = Var(KanaInput.Mode.Hiragana)
+    val stylus = Var(true)
+    val field = KanaInput(mode, stylus = stylus.signal)
+    val panel = AnswerPanel(
+      bus,
+      () => field,
+      stylus,
+      mode,
+      Set(KanaInput.Mode.Hiragana, KanaInput.Mode.Katakana),
+      field.node
+    )
     val submitted = EventBus[KanjiReadingAnswer]()
+    def dontKnow(): Unit = submitted.writer.onNext(
+      KanjiReadingAnswer(exercise.kanji.literal, exercise.word.id, "", kept)
+    )
     div(
       cls := "series-task",
       p(cls := "placement-prompt", Tr("How is it read?", "Comment se lit :")),
       // its meaning only once answered: given, it gives the word away
       span(cls := "word-big", lang := "ja", exercise.shown),
       form(
+        cls := "written-answer",
         onSubmit.preventDefault.map { _ =>
-          stylusField.keep(field.value)
+          panel.keep(field.value)
           KanjiReadingAnswer(
             exercise.kanji.literal,
             exercise.word.id,
@@ -102,15 +115,8 @@ class KanjiExerciseView(
             kept
           )
         } --> submitted.writer,
-        field,
-        button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
-      ),
-      stylusField.node,
-      button(
-        Tr("I don't know", "Je ne sais pas"),
-        onClick.mapTo(
-          KanjiReadingAnswer(exercise.kanji.literal, exercise.word.id, "", kept)
-        ) --> submitted.writer
+        panel.node,
+        AnswerActions(() => dontKnow()).node
       ),
       submitted.events.flatMapSwitch(answer =>
         bus

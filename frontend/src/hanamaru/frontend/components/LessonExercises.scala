@@ -111,11 +111,18 @@ class LessonExercises(
       index: Int,
       exercise: LessonExercise
   ): HtmlElement = {
+    // particles are written in hiragana, all blanks alike
+    val mode = Var(KanaInput.Mode.Hiragana)
     val fields = exercise.parts
       .filter(_.marked)
-      .map(_ => KanaInput(place = KanaInput.Place.InSentence))
+      .map(_ =>
+        KanaInput(
+          mode,
+          place = KanaInput.Place.InSentence,
+          stylus = stylus.signal
+        )
+      )
     val current = Var(0)
-    val stylusField = new StylusField(bus, () => fields(current.now()), stylus)
     def typed = fields.map(_.value.filterNot(_.isWhitespace)).mkString(" ")
     val (shown, _) = exercise.parts.foldLeft(
       (List.empty[HtmlElement], fields.zipWithIndex)
@@ -140,6 +147,14 @@ class LessonExercises(
           left
         )
     }
+    val panel = AnswerPanel(
+      bus,
+      () => fields(current.now()),
+      stylus,
+      mode,
+      Set(KanaInput.Mode.Hiragana),
+      p(cls := "word-sentence", lang := "ja", shown)
+    )
     div(
       p(
         cls := "placement-prompt",
@@ -147,25 +162,19 @@ class LessonExercises(
           Tr("Write the particle:", "Écris la particule :")
         else Tr("Write the particles:", "Écris les particules :")
       ),
+      p(cls := "example-french", exercise.french),
       form(
+        cls := "written-answer",
         onMountCallback(_ => fields.headOption.foreach(_.focus())),
         onSubmit.preventDefault --> { _ =>
-          stylusField.keep(typed.filterNot(_.isWhitespace))
+          panel.keep(typed.filterNot(_.isWhitespace))
           submit(index, typed)
         },
-        p(cls := "word-sentence", lang := "ja", shown),
-        p(cls := "example-french", exercise.french),
-        div(
-          cls := "answer-form",
-          button(typ := "submit", cls := "primary", Tr("Answer", "Valider")),
-          button(
-            typ := "button",
-            Tr("I don't know", "Je ne sais pas"),
-            onClick --> (_ => submit(index, fields.map(_ => "").mkString(" ")))
-          )
-        )
-      ),
-      stylusField.node
+        panel.node,
+        AnswerActions(() =>
+          submit(index, fields.map(_ => "").mkString(" "))
+        ).node
+      )
     )
   }
 
@@ -231,8 +240,18 @@ class LessonExercises(
           )
         )
       case ExerciseKind.Translation =>
-        val field = KanaInput(kanji = exercise.kanjiWritten)
-        val stylusField = StylusField(bus, field, stylus)
+        val mode = Var(KanaInput.Mode.Hiragana)
+        val field =
+          KanaInput(mode, kanji = exercise.kanjiWritten, stylus = stylus.signal)
+        val panel = AnswerPanel(
+          bus,
+          () => field,
+          stylus,
+          mode,
+          Set(KanaInput.Mode.Hiragana, KanaInput.Mode.Katakana) ++
+            Option.when(exercise.kanjiWritten.nonEmpty)(KanaInput.Mode.Kanji),
+          field.node
+        )
         val inKatakana = exercise.wordsInKatakana
         div(
           p(
@@ -262,24 +281,18 @@ class LessonExercises(
                     s", with $inKatakana words in ",
                     s", avec $inKatakana mots en "
                   ),
-                span(cls := "script-name", "katakana"),
-                Tr(" (switch: あ / ア)", " (bouton あ / ア)")
+                span(cls := "script-name", "katakana")
               )
             )
           ),
           form(
-            cls := "answer-form",
+            cls := "written-answer",
             onSubmit.preventDefault --> { _ =>
-              stylusField.keep(field.value)
+              panel.keep(field.value)
               submit(index, field.value)
             },
-            field.node.amend(cls := "sentence-input"),
-            button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
-          ),
-          stylusField.node,
-          button(
-            Tr("I don't know", "Je ne sais pas"),
-            onClick --> (_ => submit(index, ""))
+            panel.node,
+            AnswerActions(() => submit(index, "")).node
           )
         )
     }
