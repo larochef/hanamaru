@@ -105,15 +105,15 @@ object CharacterRecognizer {
 
   /** How much each difference counts: the strokes compared one by one, against
     * the line they make (`byStroke`, the rest); a stroke more or fewer than the
-    * model's; the character drawn larger or smaller, or elsewhere; and how far
-    * along a line a point may be matched to one of the model's (`warp`, a share
-    * of the line): a part drawn longer than the model's, ん's descent and a
-    * small hump, is not another kana (し). Tuned on characters written from
-    * memory.
+    * model's (a one-line て is close to こ's two strokes joined, で to ご); the
+    * character drawn larger or smaller, or elsewhere; and how far along a line
+    * a point may be matched to one of the model's (`warp`, a share of the
+    * line): a part drawn longer than the model's, ん's descent and a small hump,
+    * is not another kana (し). Tuned on characters written from memory.
     */
   final case class Weights(
       byStroke: Double = 0.85,
-      strokeCount: Double = 0.08,
+      strokeCount: Double = 0.15,
       size: Double = 0.2,
       place: Double = 0.15,
       direction: Double = 0.2,

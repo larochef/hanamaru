@@ -18,10 +18,13 @@ import scala.util.Random
 import com.github.plokhotnyuk.jsoniter_scala.core.writeToString
 
 /** The kanji of the units, practised in lesson sessions, each in a word the
-  * learner knows: read first, its reading typed; written once its reading has
-  * passed its first steps, or after four readings at most. A kanji is new only
-  * once one of the units' words written with it is stable, or met long enough
-  * ago ([[Waiting]]): the word is known before its kanji.
+  * learner knows. A new kanji is learned in a focus ([[CharacterFocus]]), its
+  * reading and writing in turn, before any review; it is new only once one of
+  * the units' words written with it is stable, or met long enough ago
+  * ([[Waiting]]): the word is known before its kanji. Then reviewed: its
+  * reading typed, its writing from memory; a kanji met before focuses existed
+  * is written once its reading has passed its first steps, or after four
+  * readings at most.
   */
 final class KanjiPractice(
     book: () => Option[KanjiBook],
@@ -119,8 +122,20 @@ final class KanjiPractice(
     } yield (0 until CharacterFocus.rounds).toList.flatMap { round =>
       val word = words(round % words.size)
       List(
-        KanjiExercise(kanji, word, CharacterAsked.Reading, round == 0),
-        KanjiExercise(kanji, word, CharacterAsked.Writing, round == 0)
+        KanjiExercise(
+          kanji,
+          word,
+          shown(word),
+          CharacterAsked.Reading,
+          round == 0
+        ),
+        KanjiExercise(
+          kanji,
+          word,
+          shown(word),
+          CharacterAsked.Writing,
+          round == 0
+        )
       )
     }
 
@@ -161,7 +176,7 @@ final class KanjiPractice(
         for {
           kanji <- kanjiBook.kanji(literal)
           word <- wordFor(literal, words, now, taught.toSet)
-        } yield KanjiExercise(kanji, word, asked, isNew)
+        } yield KanjiExercise(kanji, word, shown(word), asked, isNew)
       val due = taught
         .flatMap(literal =>
           List(
@@ -212,7 +227,7 @@ final class KanjiPractice(
         for {
           kanji <- kanjiBook.kanji(literal)
           word <- wordFor(literal, words, now, taught)
-        } yield KanjiExercise(kanji, word, asked, isNew)
+        } yield KanjiExercise(kanji, word, shown(word), asked, isNew)
       Random.shuffle(
         units
           .kanjiOf(unit)
@@ -233,14 +248,17 @@ final class KanjiPractice(
       )
     }
 
+  private def formsOf(literal: String): List[String] =
+    book().flatMap(_.kanji(literal)).fold(Nil)(KanjiReadings.formsOf)
+
+  private def shown(word: DictionaryWord): String =
+    KanjiHand.shown(word, formsOf, units.allKanji)
+
   /** A kanji's reading in a word, judged (the word's reading, in either
     * script), and kept as a review of its reading: right when the word is, or
     * when the kanji's own part of it is, a slip elsewhere in the word aside
     * ([[KanjiReadings]]).
     */
-  private def formsOf(literal: String): List[String] =
-    book().flatMap(_.kanji(literal)).fold(Nil)(KanjiReadings.formsOf)
-
   def read(
       answer: KanjiReadingAnswer,
       at: Instant

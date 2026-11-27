@@ -57,6 +57,12 @@ enum Page {
   /** A unit gathered to be gone over: its lesson, its words, its symbols. */
   case Unit(point: String)
 
+  /** The questions asked to the tutor, and a question of one's own. */
+  case Questions
+
+  /** Free practice: sentences on everything learned so far, both ways. */
+  case FreePractice
+
   def path: String = this match {
     case Home            => "/"
     case Chart           => "/kana"
@@ -72,6 +78,8 @@ enum Page {
     case LessonSession           => "/lesson"
     case KanjiChart              => "/kanji"
     case Credits                 => "/credits"
+    case Questions               => "/questions"
+    case FreePractice            => "/practice"
     case KanjiCharacter(literal) =>
       s"/kanji/${URIUtils.encodeURIComponent(literal)}"
     case Lesson(point) =>
@@ -102,6 +110,8 @@ object Page {
       case List("lesson")               => LessonSession
       case List("kanji")                => KanjiChart
       case List("credits")              => Credits
+      case List("questions")            => Questions
+      case List("practice")             => FreePractice
       case List("kanji", literal)       =>
         KanjiCharacter(URIUtils.decodeURIComponent(literal))
       case List("grammar", point) =>

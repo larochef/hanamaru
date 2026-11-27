@@ -20,7 +20,7 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
 
   private enum Step {
     case Review(point: GrammarPoint)
-    case Series(of: SeriesOf)
+    case Series(of: SeriesOf, inKanji: List[String])
     case Learn(point: GrammarPoint)
     case Characters(of: CharactersOf)
   }
@@ -41,7 +41,7 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
         .request(AppCommand.LoadLessonPlan) {
           case AppEvent.LessonPlanLoaded(plan) =>
             plan.reviews.map(Step.Review(_)) ++
-              plan.series.map(Step.Series(_)) ++
+              plan.series.map(Step.Series(_, plan.inKanji)) ++
               plan.next.map(Step.Learn(_)) ++
               plan.characters.map(Step.Characters(_))
         }
@@ -50,6 +50,12 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
     .startWith(None)
 
   private val at = Var(0)
+
+  // a step left aside: below the step, apart from its own buttons
+  private def skip(label: String, goOn: () => Unit): HtmlElement = div(
+    cls := "step-skip",
+    button(label, onClick --> (_ => goOn()))
+  )
 
   private def stepView(step: Step, index: Int, total: Int): HtmlElement = {
     val goOn = () => at.set(index + 1)
@@ -64,13 +70,10 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
             )
           ),
           h2(point.title),
-          LessonExercises(bus, point.id, Some(goOn)),
-          button(
-            Tr("Skip this review", "Passer cette révision"),
-            onClick --> (_ => goOn())
-          )
+          LessonExercises(bus, ExercisesOf.Lesson(point.id), Some(goOn)),
+          skip(Tr("Skip this review", "Passer cette révision"), goOn)
         )
-      case Step.Series(of) =>
+      case Step.Series(of, inKanji) =>
         div(
           p(
             cls := "in-english",
@@ -79,16 +82,28 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
               s"Étape ${index + 1} sur $total : les mots"
             )
           ),
+          // the known words whose kanji are now all written
+          Option.when(inKanji.nonEmpty)(
+            div(
+              cls := "in-kanji-now",
+              h3(Tr("Words to write in kanji", "Mots à écrire en kanji")),
+              p(
+                Tr(
+                  "You now write all the kanji of these words you know:",
+                  "Tu sais maintenant écrire tous les kanji de ces mots que tu connais :"
+                ),
+                " ",
+                span(lang := "ja", inKanji.mkString("、"))
+              )
+            )
+          ),
           VocabularySeries(
             bus,
             EventStream.fromValue(()),
             of,
             Some(goOn)
           ),
-          button(
-            Tr("Skip the words", "Passer les mots"),
-            onClick --> (_ => goOn())
-          )
+          skip(Tr("Skip the words", "Passer les mots"), goOn)
         )
       case Step.Characters(of) =>
         div(
@@ -100,10 +115,7 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
             )
           ),
           CharacterPractice(bus, goOn, of),
-          button(
-            Tr("Skip the kana and kanji", "Passer les kana et kanji"),
-            onClick --> (_ => goOn())
-          )
+          skip(Tr("Skip the kana and kanji", "Passer les kana et kanji"), goOn)
         )
       case Step.Learn(point) =>
         val lesson = bus.request(AppCommand.LoadLesson(point.id)) {
@@ -122,10 +134,7 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
             case Right(loaded) => LessonView(bus, loaded, Some(goOn)).node
             case Left(reason)  => p(cls := "error", reason)
           },
-          button(
-            Tr("Skip the lesson", "Passer la leçon"),
-            onClick --> (_ => goOn())
-          )
+          skip(Tr("Skip the lesson", "Passer la leçon"), goOn)
         )
     }
   }
@@ -164,7 +173,7 @@ class LessonSession(bus: AppBus) extends ReactiveElement {
       ul(steps.map {
         case Step.Review(point) =>
           li(Tr("Reviewed: ", "Révisé : "), point.title)
-        case Step.Series(of) =>
+        case Step.Series(_, _) =>
           li(Tr("A series of words", "Une série de mots"))
         case Step.Learn(point)  => li(Tr("Lesson: ", "Leçon : "), point.title)
         case Step.Characters(_) => li(Tr("Kana and kanji", "Des kana et kanji"))

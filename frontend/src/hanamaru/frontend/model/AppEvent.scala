@@ -7,6 +7,7 @@ import hanamaru.shared.kanji.*
 import hanamaru.shared.learner.*
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
+import hanamaru.shared.questions.*
 import hanamaru.shared.session.*
 import hanamaru.shared.vocabulary.*
 import hanamaru.shared.writing.{CharacterStrokes, WritingAttempt}
@@ -78,7 +79,7 @@ object AppEvent {
       extends AppEvent
 
   final case class ExercisesLoaded(
-      point: String,
+      of: ExercisesOf,
       exercises: List[LessonExercise]
   ) extends AppEvent
 
@@ -137,4 +138,18 @@ object AppEvent {
       attempt: WritingAttempt,
       outcome: Option[ReviewOutcome]
   ) extends AppEvent
+
+  /** A question kept, with the tutor's answer if it gave one. */
+  final case class TutorAnswered(question: TutorQuestion, asked: AskedQuestion)
+      extends AppEvent
+
+  final case class QuestionsLoaded(questions: List[AskedQuestion])
+      extends AppEvent
+
+  /** What the learner has before them now, for the tutor: shown by a screen as
+    * it changes, until it is left.
+    */
+  final case class ContextShown(context: QuestionContext) extends AppEvent
+
+  final case class ContextLeft(context: QuestionContext) extends AppEvent
 }

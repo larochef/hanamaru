@@ -25,6 +25,7 @@ class LessonApi(
     LessonRoutes.moveOn.handleSuccess(_ => lessons.movedOn(Instant.now())),
     LessonRoutes.text.handle(lessons.text),
     LessonRoutes.exercises.handle(exercises.exercises),
+    LessonRoutes.free.handle(_ => exercises.free()),
     LessonRoutes.answer.handleSuccess(judge.judged),
     LessonRoutes.done.handle(result => exercises.done(result, Instant.now()))
   )

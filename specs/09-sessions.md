@@ -31,7 +31,19 @@ and a free afternoon are both useful.
     practice opens in the page; the kanji chart, by school grade, is not the
     units' order.
   - Then, smaller, what can be practised or looked up freely: a series of
-    words, the grammar's lessons, the vocabulary, the kanji, the kana chart.
+    words, **free practice** (below), the grammar's lessons, the vocabulary,
+    the kanji, the kana chart.
+- **Free practice** (built, `/practice`): apart from the lessons, six
+  sentences the tutor writes on everything learned so far, each asked one
+  way, translated from French and its meaning given in turn, judged as the
+  lessons' are. So that the unit under way is no more there than the rest,
+  the code draws what each sentence is on ([`07`](07-text-generation.md)):
+  a point among those up to the last one met, each as often as the others,
+  and two words met, one that says what is done or how (a verb, an
+  adjective) and one other, none twice. Every learned point in a sentence is
+  marked, so a slip is forgiven only in its nouns. Recorded as nothing: it
+  changes no review. Even only in expectation, one practice after another:
+  nothing remembers what earlier ones were on.
 
   The menu: Today and My lesson, where the learner goes on; then, quieter,
   "Look up": the kana (until they are settled: 90% known, their memory
@@ -121,8 +133,9 @@ and a free afternoon are both useful.
      order, each practised in its exercises (or skipped);
   2. a **vocabulary series** ([`08`](08-vocabulary-practice.md)): the words
      due, then the new words of the unit under way, or those of its words not
-     stable yet, in the room the words due leave; none when there is nothing
-     to practise;
+     stable yet, in the room the words due leave; then the known words to be
+     written in kanji, due or new (the new ones named above the series, "Mots
+     à écrire en kanji"); none when there is nothing to practise;
   3. the **lesson of the unit under way**, when its point was never practised
      nor placed: its explanation, examples, reading text and exercises, after
      its first words, so that its text can use them. Its exercises done are its
@@ -137,8 +150,9 @@ and a free afternoon are both useful.
      placement test reads more than it writes) is written as a new one is. A katakana due for its
      reading is read in a loanword written with it (テ in テレビ), one the
      learner has met if any, else one of the core vocabulary's most basic, its
-     reading typed in kana (long vowels as ー or not) and its meaning shown
-     after: katakana live in words, which lessons in hiragana seldom give.
+     reading typed in romaji, left as typed (shown in katakana, or written
+     with the stylus, the word would only be copied; long vowels lengthened or
+     not), and its meaning shown after: katakana live in words, which lessons in hiragana seldom give.
      ヌ, ヲ, ヂ and ヅ, in no such word, are read alone. Then the kanji, each in a word of
      the units the learner knows: those due, read or written, the most overdue
      first (six at most); then the writing of those read well enough (their
@@ -153,7 +167,9 @@ and a free afternoon are both useful.
      typed or wrote it, beside the answer expected. Reading comes
      before writing, and a word before its kanji. The word a kanji is asked
      in has the fewest other kanji not taught so far, then not met yet (学 in
-     学生, not in 大学生, whose 大 comes later).
+     学生, not in 大学生, whose 大 comes later); its kanji no unit teaches are
+     shown in kana, as Japanese schoolbooks do (友だち, 子ども: 達 and 供 are
+     of grades 4 and 6), those of units to come in kanji.
 
   A **focus** (`CharacterFocus`) is how a new character, kana or kanji, is
   learned, before any review: about ten cards in one sitting, read and

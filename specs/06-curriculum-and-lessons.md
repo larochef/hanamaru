@@ -111,16 +111,25 @@ can be repeated with fresh content until it is acquired.
   text of several sentences cannot be made.
 - **Exercises** (built), asked on the lesson page, in the sentences of the
   point's examples and of a new reading text that show it, each asked once:
-  - **the particle chosen** (when the point's marks are one particle): the
-    sentence with a blank, its French, four choices (the particle, and others
-    learned first, then others; never another form of the same point, に for
-    へ);
+  - **the particles typed** (when the point has a particle): the sentence
+    with a blank for every particle learned so far it has, the point's and
+    the earlier ones' (in the lesson of の: わたし＿ ちち＿ いしゃです), each
+    blank a kana field (romaji turned into hiragana as it is typed), or
+    written with the stylus in the blank chosen (the one last gone to,
+    marked), its French under it; and, besides
+    the lesson's sentences, two from the examples of the particles learned
+    before (は, か in the lesson of の). A choice among four would give the
+    answer away, always the point's: typed, every particle is thought of;
   - **the sentence translated** from French, typed in kana, the script
     expected said under it ("in hiragana, with one word in katakana"); the
     kana field has a switch, あ or ア, for the script it types in; or written
     with the stylus, kana after kana, each recognised and put in the field
-    ([`05`](05-writing.md)). Right in
+    ([`05`](05-writing.md)), and the kanji the learner writes, the field
+    switched to them (あ, ア, 漢). Right in
     the other script, the answer is right, and the words in katakana named.
+    A word written with kanji, all or some (会しゃ), is read back as its kana
+    before the answer is compared; right all in kana, the words the learner
+    writes with kanji are recalled, as they write them.
 
   - **the form chosen** (built): for the points of a verb's polite
     endings (ます, ません, ました, ませんでした, ましょう, たい), the ending
@@ -139,11 +148,16 @@ can be repeated with fresh content until it is acquired.
   The page sends how each exercise went; the server counts them (a kanji
   written left out) and records the point's review.
 
-  Four choices at most (particles, then forms), three translations, two
-  meanings, two kanji. The code judges what it can: the
-  particle expected; the sentence expected, whatever its spaces, punctuation
+  Four sentences of particles or forms chosen at most (particles first),
+  three translations, two meanings, two kanji. The code judges what it can:
+  the particles expected, each in its blank (は, へ, を typed as they sound
+  are wrong, the spelling explained); the form expected; the sentence expected, whatever its spaces, punctuation
   and script, and は, へ, を typed as they sound (right, the spelling
-  explained). Anything else goes to the tutor (`ExerciseJudge`), who says
+  explained); a sentence right but for at most two slips within its nouns,
+  as the analyser reads them (にほん for にほんご, たなかさ for たなかさん),
+  right, the slip said: the exercises review the point, not the words around
+  it. Its point, particles, endings and conjugated words take no slip: one
+  there is a mistake of grammar (が for は, ません for ます). Anything else goes to the tutor (`ExerciseJudge`), who says
   whether it is right all the same (に for へ, another wording, a subject left
   out), corrects the learner's sentence as little as possible, and explains in
   French; its verdicts are shown as the tutor's. Its correction is laid out in

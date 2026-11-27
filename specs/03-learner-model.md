@@ -57,7 +57,10 @@ what it may use.
   practice, and an attempt given up is no answer: neither is a review. The
   chart of kana shows each one's status and which are due.
 - **Words** are items keyed by their JMdict number, with a *production* and a
-  *meaning* card ([`08`](08-vocabulary-practice.md)).
+  *meaning* card ([`08`](08-vocabulary-practice.md)). A known word written in
+  kanji is an item of its own (`word-kanji`, same key, a `writing` card), so
+  that learning its kanji form never makes the word itself unknown again, nor
+  a unit acquired open again.
 - **Prerequisites**: grammar points and words can name the points they rely on.
   Repeated failures on exercises tagged with a point lower that point's
   stability. When the tutor's diagnosis of a mistake names a missing

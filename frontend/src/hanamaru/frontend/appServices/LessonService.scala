@@ -28,10 +28,10 @@ class LessonService(bus: AppBus, apiClient: ApiClient) {
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
-    case command @ AppCommand.LoadExercises(point) =>
-      AppStreams.runOnce(apiClient.exercises(point)) {
+    case command @ AppCommand.LoadExercises(of) =>
+      AppStreams.runOnce(apiClient.exercises(of)) {
         case Right(exercises) =>
-          bus.publish(AppEvent.ExercisesLoaded(point, exercises))
+          bus.publish(AppEvent.ExercisesLoaded(of, exercises))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }

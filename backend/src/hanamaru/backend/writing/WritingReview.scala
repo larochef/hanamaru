@@ -39,20 +39,31 @@ final class WritingReview(learner: LearnerStore) {
       ReviewOutcome(grade, memory.due.toEpochMilli)
     }
 
-  /** A kana written within a word, as a review of its writing: one written
-    * wrong (or with strokes out of order) is always kept, so that it comes back
-    * to be practised; one written right only when its writing was due, not to
-    * crowd its schedule with the words it is in.
+  /** A character written within a word, as a review of its writing: a kana, or
+    * a kanji whose writing the learner has met. One written wrong (or with
+    * strokes out of order) is always kept, so that it comes back to be
+    * practised; one written right only when its writing was due, not to crowd
+    * its schedule with the words it is in. One that looks like another
+    * character is none of its writing: another word was written.
     */
   def writtenInWord(attempt: WritingAttempt, at: Instant): Unit =
     for {
-      kana <- Kana.find(attempt.character)
+      _ <- Option.when(attempt.looksLike.isEmpty)(())
+      kind <- Kana
+        .find(attempt.character)
+        .map(_ => ItemKind.Kana)
+        .orElse(
+          Option.when(cardOf(ItemKind.Kanji, attempt.character).nonEmpty)(
+            ItemKind.Kanji
+          )
+        )
       grade <- gradeOf(attempt)
-      if grade != Grade.Good || writingDue(kana.character, at)
+      if grade != Grade.Good ||
+        cardOf(kind, attempt.character).exists(_.due <= at.toEpochMilli)
     } {
       learner.reviewed(
-        ItemKind.Kana,
-        kana.character,
+        kind,
+        attempt.character,
         CardKind.Writing,
         grade,
         writeToString(attempt),
@@ -60,13 +71,10 @@ final class WritingReview(learner: LearnerStore) {
       )
     }
 
-  private def writingDue(character: String, at: Instant): Boolean =
+  private def cardOf(kind: ItemKind, character: String): Option[ItemCard] =
     learner
-      .kanaCards()
-      .exists(card =>
-        card.character == character && card.kind == CardKind.Writing &&
-          card.due <= at.toEpochMilli
-      )
+      .cards(kind)
+      .find(card => card.key == character && card.kind == CardKind.Writing)
 
   /** Writing from memory, graded by how it went: right, good; right but for the
     * order or direction of some strokes, hard; wrong, or not remembered, again.

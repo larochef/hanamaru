@@ -67,6 +67,32 @@ later conversation. The backend runs it and keeps it within the rules of
   [`06`](06-curriculum-and-lessons.md)), asked only when the code cannot tell:
   whether a particle or a sentence is right all the same, the learner's
   sentence corrected, and why, in French, Japanese in kana.
+- **Fifth role built: answering the learner's questions**
+  (`TutorQuestions`), in a chat a button away at the bottom right of every
+  page (`TutorChat`), over the pop-ins, and on the questions page. Each screen
+  tells the chat what the learner has before them as it changes
+  (`TutorContext`): a lesson's exercise (what it asks, in words, with the
+  answer expected), then the learner's answer and the verdict shown, the
+  correction and explanation included; a word of a series, shown, asked one
+  way (in its sentence, if any), then answered; a kanji read or written in its
+  word. Without one, the page's lesson (a lesson's or a unit's page), else a
+  question of the learner's own. The chat says what it is about above the
+  questions, and starts a new conversation when the learner moves on to
+  another sentence, word or lesson; while an exercise is being answered, the
+  tutor is told not to give its answer away. The tutor is given that context
+  and, from the server: the point's lesson, its examples and its unit (theme,
+  words, kanji), the sentence's words as the analyser and the dictionary read
+  them, the word's readings and senses, and every kanji in all of it with its
+  meanings and readings from KANJIDIC (those the unit teaches marked), not as
+  the tutor remembers them: without the kanji, asked how to say the sun, it
+  answered たいよう and never linked it to the 日 of にほん before it. Told to be honest rather than agreeable: a
+  learner doubting a right sentence is told it is right. Every question is
+  kept (`tutor_question`) before it is answered, with its context, its answer
+  and the model that gave it, so that
+  none is lost when the tutor is away; the questions page shows them all. On
+  a first trial, three questions on words (はは and おかあさん, あと and
+  うしろ, はやし and もり) were answered right in about 3 s, and three right
+  sentences said to be wrong were held right.
 - **The tutor's roles**, each a prompt of its own with what it may use (known
   words, current grammar point):
   - generate texts and exercises ([`07`](07-text-generation.md));
@@ -91,3 +117,7 @@ later conversation. The backend runs it and keeps it within the rules of
   [`11`](11-speech.md).
 - Caching generated content, and generating ahead of time (the next lesson's
   text prepared while the learner works).
+- A larger remote model (an API's) for the questions, and for writing more
+  varied exercises: what it would leave the machine, where its key is kept,
+  and whether the kept questions show the local tutor falls short. A sentence
+  the learner finds wrong is not replaced yet: the tutor only says so.

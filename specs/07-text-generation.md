@@ -40,6 +40,13 @@ learned, without anyone writing them by hand.
   again with the problems, three times at most. On the 66 points, 62 had a
   text at the first request (about 5 s; up to 13 s with retries); the others
   usually at the next; ます never does, and has none.
+- **Free sentences** (built, `TextWriter.onTargets`), for free practice
+  ([`09`](09-sessions.md)): the code gives each sentence its target, a point
+  and a word or two, drawn evenly, rather than a list to choose from (where
+  the tutor keeps to the same few). Each sentence is checked against its own
+  target: its point shown, one of its words used, nothing not learned yet
+  (`SentenceGrammar`); those refused are asked again, the problems named,
+  the others kept. Not measured against the tutor yet.
 - **Kanji as they are learned** (built): each word laid out keeps how it is
   written beside its kana (`SentencePart.written`), and as a sentence is
   served (`KanjiSight`, not as it is laid out and cached: the learner's kanji
@@ -77,7 +84,9 @@ learned, without anyone writing them by hand.
   sentences (たなかさんは…); hidden reviews of due words are not asked yet.
 - Naturalness: the model's Japanese can be wrong in ways validation does not
   catch. Options: a second pass where the model reviews its own text; a button
-  for the learner to flag a sentence; keeping texts that read well.
+  for the learner to flag a sentence (a question to the tutor on an
+  exercise's sentence is kept with it, [`10`](10-llm-runtime.md): a first
+  way to find them); keeping texts that read well.
 - Words whose reading depends on context (and *jukujikun*, where the reading
   belongs to the whole word, not to each kanji): how furigana are placed on them.
 - How a hidden review is graded: read without help, or looked up.

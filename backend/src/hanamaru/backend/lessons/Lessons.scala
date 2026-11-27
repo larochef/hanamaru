@@ -19,7 +19,7 @@ final class Lessons(
     dictionary: () => Option[Dictionary],
     learner: LearnerStore,
     writer: TextWriter,
-    units: Units
+    val units: Units
 ) {
   private val points = Curriculum.points
   private val laidOut = ConcurrentHashMap[String, GrammarLesson]()
@@ -176,6 +176,32 @@ final class Lessons(
     * so far, are the words allowed.
     */
   def written(index: Int, analysis: Analyser, words: Dictionary) = {
+    val (known, knownForms) = knownUpTo(index, analysis, words)
+    writer.written(index, analysis, known, knownForms, points)
+  }
+
+  /** Free sentences on targets ([[TextWriter.onTargets]]), the points learned
+    * being those up to `index`.
+    */
+  def freeSentences(
+      targets: List[TextWriter.Target],
+      index: Int,
+      analysis: Analyser,
+      words: Dictionary
+  ): List[(TextWriter.Target, TextWriter.Written, List[Token])] = {
+    val (known, knownForms) = knownUpTo(index, analysis, words)
+    writer.onTargets(targets, index, analysis, known, knownForms, points)
+  }
+
+  /** The words a text for the lesson at `index` may use: those the learner has
+    * met, and those of the lessons' examples so far, as written, and every form
+    * of them.
+    */
+  def knownUpTo(
+      index: Int,
+      analysis: Analyser,
+      words: Dictionary
+  ): (List[String], Set[String]) = {
     val met = words.words(
       learner.metKeys(ItemKind.Word).flatMap(_.toLongOption).toList
     )
@@ -185,7 +211,7 @@ final class Lessons(
     )
     val knownForms =
       ofLessonsForms ++ met.flatMap(word => word.writings ++ word.readings)
-    writer.written(index, analysis, known.distinct, knownForms, points)
+    (known.distinct, knownForms)
   }
 
   private val lessonWordsUpTo =
@@ -224,12 +250,20 @@ final class Lessons(
       tokens: List[Token],
       french: String,
       glosses: Glosses
+  ): LessonExample = marking(point.shownIn(tokens), tokens, french, glosses)
+
+  /** A sentence laid out as [[shown]], `marked` its tokens marked. */
+  def marking(
+      marked: Set[Int],
+      tokens: List[Token],
+      french: String,
+      glosses: Glosses
   ): LessonExample = {
     val words = tokens.map(token => token -> glosses.of(token)).toMap
     LessonExample(
       SentenceLayout.laidOut(
         tokens,
-        point.shownIn(tokens),
+        marked,
         // a word as it stands in the dictionary is read as the dictionary
         // reads it: はこ, not the ばこ the analyser may guess
         reading = token =>

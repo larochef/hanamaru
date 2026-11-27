@@ -3,20 +3,22 @@ package hanamaru.frontend.components
 import hanamaru.frontend.i18n.Tr
 import hanamaru.frontend.model.*
 import hanamaru.shared.lessons.*
+import hanamaru.shared.questions.{AskedFrom, QuestionContext}
 import hanamaru.shared.text.SentencePart
 
 import com.raquo.laminar.api.L.*
 
-/** A lesson's exercises, one after the other: a particle or a form chosen, a
-  * sentence translated from French, one's meaning given in French, a kanji
-  * written; each judged by the code, else corrected by the tutor (a meaning,
-  * the tutor away, by the learner), then the series recorded as one review of
-  * the point (the kanji written are the kanji's reviews); `onDone` offers to go
-  * on, in a session.
+/** A lesson's exercises, one after the other: a sentence's particles typed, a
+  * form chosen, a sentence translated from French, one's meaning given in
+  * French, a kanji written; each judged by the code, else corrected by the
+  * tutor (a meaning, the tutor away, by the learner), then the series recorded
+  * as one review of the point (the kanji written are the kanji's reviews);
+  * `onDone` offers to go on, in a session. Free ([[ExercisesOf.Free]]), they
+  * are recorded as nothing: only counted.
   */
 class LessonExercises(
     bus: AppBus,
-    point: String,
+    of: ExercisesOf,
     onDone: Option[() => Unit] = None
 ) extends ReactiveElement {
 
@@ -48,14 +50,29 @@ class LessonExercises(
   private def kept(kind: ExerciseKind, right: Boolean): Unit =
     outcomes.update(_ :+ ExerciseOutcome(kind, right))
 
-  // the next exercise, or the series recorded
+  // the next exercise, or the series recorded (free, only counted)
   private def next(index: Int): Unit =
     if (index + 1 < exercises.now().size) {
       step.set(Step.Asking(index + 1))
-    } else {
-      step.set(Step.Loading)
-      finished.writer.onNext(ExercisesDone(point, outcomes.now()))
-    }
+    } else
+      of match {
+        case ExercisesOf.Lesson(point) =>
+          step.set(Step.Loading)
+          finished.writer.onNext(ExercisesDone(point, outcomes.now()))
+        case ExercisesOf.Free =>
+          val done = outcomes.now()
+          step.set(Step.Done(done.count(_.right), done.size))
+      }
+
+  // the exercise under way, as the tutor is told it
+  private def asking(exercise: LessonExercise): QuestionContext =
+    QuestionContext(
+      AskedFrom.Exercise,
+      Some(exercise.point),
+      Some(exercise.japanese),
+      Some(exercise.french),
+      task = Some(LessonExercises.taskSaid(exercise))
+    )
 
   private def sentence(
       parts: List[SentencePart],
@@ -72,16 +89,76 @@ class LessonExercises(
     )
   )
 
+  // the sentence, each blank a kana field for its particle, typed or written
+  // with the stylus in the blank chosen; sent one per blank, spaced
+  private def particlesAsked(
+      index: Int,
+      exercise: LessonExercise
+  ): HtmlElement = {
+    val fields = exercise.parts
+      .filter(_.marked)
+      .map(_ => KanaInput(place = KanaInput.Place.InSentence))
+    val current = Var(0)
+    val stylusField = new StylusField(bus, () => fields(current.now()), stylus)
+    def typed = fields.map(_.value.filterNot(_.isWhitespace)).mkString(" ")
+    val (shown, _) = exercise.parts.foldLeft(
+      (List.empty[HtmlElement], fields.zipWithIndex)
+    ) {
+      case ((done, (field, blank) :: rest), part) if part.marked =>
+        (
+          done :+ span(
+            Option.when(part.spaceBefore)(" "),
+            field.node.amend(
+              cls("is-current") <-- current.signal.map(_ == blank),
+              field.focused.mapTo(blank) --> current.writer
+            )
+          ),
+          rest
+        )
+      case ((done, left), part) =>
+        (
+          done :+ span(
+            Option.when(part.spaceBefore)(" "),
+            PartText(part).node
+          ),
+          left
+        )
+    }
+    div(
+      p(
+        cls := "placement-prompt",
+        if (fields.size == 1)
+          Tr("Write the particle:", "Écris la particule :")
+        else Tr("Write the particles:", "Écris les particules :")
+      ),
+      form(
+        onMountCallback(_ => fields.headOption.foreach(_.focus())),
+        onSubmit.preventDefault --> { _ =>
+          stylusField.keep(typed.filterNot(_.isWhitespace))
+          submit(index, typed)
+        },
+        p(cls := "word-sentence", lang := "ja", shown),
+        p(cls := "example-french", exercise.french),
+        div(
+          cls := "answer-form",
+          button(typ := "submit", cls := "primary", Tr("Answer", "Valider")),
+          button(
+            typ := "button",
+            Tr("I don't know", "Je ne sais pas"),
+            onClick --> (_ => submit(index, fields.map(_ => "").mkString(" ")))
+          )
+        )
+      ),
+      stylusField.node
+    )
+  }
+
   private def asked(index: Int, exercise: LessonExercise): HtmlElement =
     exercise.kind match {
-      case ExerciseKind.Particle | ExerciseKind.Form =>
+      case ExerciseKind.Particle => particlesAsked(index, exercise)
+      case ExerciseKind.Form     =>
         div(
-          p(
-            cls := "placement-prompt",
-            if (exercise.kind == ExerciseKind.Form)
-              Tr("Which form?", "Quelle forme ?")
-            else Tr("Which particle?", "Quelle particule ?")
-          ),
+          p(cls := "placement-prompt", Tr("Which form?", "Quelle forme ?")),
           sentence(exercise.parts, blanked = true),
           p(cls := "example-french", exercise.french),
           div(
@@ -138,13 +215,22 @@ class LessonExercises(
           )
         )
       case ExerciseKind.Translation =>
-        val field = KanaInput()
+        val field = KanaInput(kanji = exercise.kanjiWritten)
         val stylusField = StylusField(bus, field, stylus)
         val inKatakana = exercise.wordsInKatakana
         div(
           p(
             cls := "placement-prompt",
-            Tr("Say it in Japanese, in kana:", "Dis-le en japonais, en kana :")
+            if (exercise.kanjiWritten.isEmpty)
+              Tr(
+                "Say it in Japanese, in kana:",
+                "Dis-le en japonais, en kana :"
+              )
+            else
+              Tr(
+                "Say it in Japanese, with the kanji you write:",
+                "Dis-le en japonais, avec les kanji que tu sais écrire :"
+              )
           ),
           div(cls := "series-meaning", exercise.french),
           p(
@@ -166,6 +252,7 @@ class LessonExercises(
             )
           ),
           form(
+            cls := "answer-form",
             onSubmit.preventDefault --> { _ =>
               stylusField.keep(field.value)
               submit(index, field.value)
@@ -237,6 +324,22 @@ class LessonExercises(
           span(
             cls := "in-english",
             Tr(" (the tutor's judgement)", " (selon le tuteur)")
+          )
+        )
+      ),
+      Option.when(
+        exercise.kind == ExerciseKind.Particle && !verdict.right &&
+          answer.exists(!_.isWhitespace)
+      )(
+        p(
+          Tr("You typed: ", "Tu as tapé : "),
+          span(
+            lang := "ja",
+            cls := "typed-answer",
+            answer
+              .split(" ", -1)
+              .map(each => if (each.isEmpty) "…" else each)
+              .mkString("、")
           )
         )
       ),
@@ -349,8 +452,8 @@ class LessonExercises(
     h2(Tr("Exercises", "Exercices")),
     loads.events --> (_ => step.set(Step.Loading)),
     loads.events.flatMapSwitch(_ =>
-      bus.request(AppCommand.LoadExercises(point)) {
-        case AppEvent.ExercisesLoaded(`point`, loaded) => loaded
+      bus.request(AppCommand.LoadExercises(of)) {
+        case AppEvent.ExercisesLoaded(`of`, loaded) => loaded
       }
     ) --> {
       case Right(loaded) =>
@@ -381,6 +484,62 @@ class LessonExercises(
       case Right(tally) => step.set(Step.Done(tally.right, tally.total))
       case Left(reason) => step.set(Step.Failed(reason))
     },
-    child <-- step.signal.combineWith(exercises.signal).map(shown)
+    child <-- step.signal.combineWith(exercises.signal).map(shown),
+    // what the tutor is told: the exercise under way, then the answer and
+    // its verdict
+    TutorContext(
+      bus,
+      step.signal.combineWith(exercises.signal).map {
+        case (Step.Asking(index), all)  => all.lift(index).map(asking)
+        case (Step.Judging(index), all) => all.lift(index).map(asking)
+        case (Step.Judged(index, answer, verdict), all) =>
+          all
+            .lift(index)
+            .map(exercise =>
+              asking(exercise).copy(
+                from = AskedFrom.Correction,
+                answer = Some(answer).filter(_.exists(!_.isWhitespace)),
+                verdict = Some(LessonExercises.verdictSaid(exercise, verdict))
+              )
+            )
+        case _ => None
+      }
+    ).node
   )
+}
+
+object LessonExercises {
+
+  /** What an exercise asks, in words, for the tutor. */
+  def taskSaid(exercise: LessonExercise): String = {
+    val blanked = exercise.parts
+      .map(part => if (part.marked) "＿" else part.text)
+      .mkString
+    exercise.kind match {
+      case ExerciseKind.Particle =>
+        s"Write the missing particles, each blank one: $blanked (expected: ${exercise.expected})"
+      case ExerciseKind.Form =>
+        s"Choose the missing form among ${exercise.choices.mkString(", ")}: $blanked (expected: ${exercise.expected})"
+      case ExerciseKind.Translation =>
+        s"Translate into Japanese, in kana: ${exercise.french} (expected: ${exercise.expected})"
+      case ExerciseKind.Meaning =>
+        s"Give the French meaning of: ${exercise.japanese}"
+      case ExerciseKind.KanjiWriting =>
+        s"Write the kanji ${exercise.expected} of the marked word, in: ${exercise.japanese}"
+    }
+  }
+
+  /** A verdict as the learner was shown it, in words, for the tutor. */
+  def verdictSaid(exercise: LessonExercise, verdict: ExerciseVerdict): String =
+    List(
+      Some(
+        if (verdict.toSelfGrade) "not judged (the tutor was away)"
+        else if (verdict.right) "right"
+        else "wrong"
+      ),
+      verdict.correction.map(parts =>
+        s"the answer corrected: ${parts.map(_.text).mkString}"
+      ),
+      verdict.explanation
+    ).flatten.mkString("; ")
 }

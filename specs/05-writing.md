@@ -23,7 +23,10 @@ is every kyōiku kanji.
   prompts, the answers), ぢ and づ show the romaji they are typed with too:
   "ji (di)", "zu (du)"; "di" and "du" are accepted as their readings only.
 - **Input**: an SVG box taking Pointer Events from the pen, or a mouse, but
-  never touch (`pointerType == "touch"`), so the palm and fingers are ignored.
+  never touch (`pointerType == "touch"`), so the palm and fingers are ignored:
+  a stroke follows the one pointer that began it, so a palm's events, the
+  cancel a browser sends as the pen comes near among them, never end it; a
+  stroke the browser cancels is kept as drawn.
   The box takes no browser gesture (`touch-action: none`), so the pen never
   scrolls the page. Each point is kept with its pressure and time, including
   the positions a fast pen passes between two events (coalesced events). The
@@ -62,7 +65,9 @@ is every kyōiku kanji.
   the same ("Next character"). The recogniser brings the drawing and each
   model to the same size and centre, and compares them stroke by stroke when
   they have as many strokes, and as one line (the pen's moves between strokes
-  included, so strokes written as one still compare), in place and in
+  included, so strokes written as one still compare, a stroke more or fewer
+  costing enough that て's one stroke is not こ's two joined, nor で a ご), in
+  place and in
   direction along the strokes (a corner, て, against a curve, つ), a long
   stroke counting more than a short one, each point matched to one a little
   further on or back on the model (dynamic time warping, within a tenth of
@@ -72,8 +77,10 @@ is every kyōiku kanji.
   model, the marks only as short strokes towards its upper right, wherever
   exactly (a hand puts で's dakuten above its corner, KanjiVG inside its
   curve, where it was taken for づ). On the kana written right from memory
-  kept so far, 994 in 1056 are recognised first (989 before the warping);
-  in the pad, 254 in 258, measured in `backend.calibration`. The kana of an answer written wholly in the pad are
+  kept so far, 1136 in 1191 are recognised first (1121 with a stroke more or
+  fewer costing half as much), 1186 among the first three; in the pad, 490 in
+  506 (486, で taken for ご 9 times of 32, now once), measured in
+  `backend.calibration`. The kana of an answer written wholly in the pad are
   kept, each with the kana it is in the answer as the learner left it, in
   `~/.local/share/hanamaru/pad-characters.jsonl`: what the recogniser is tuned
   on next (a test measures it on them). The distance does not tell a right recognition from a wrong one, so
@@ -83,17 +90,28 @@ is every kyōiku kanji.
   its characters one after the other in the pad, each shown small, as drawn,
   in its place; the learner may go back a character, and says when the word
   is written; no correction in between, all are corrected together then
-  against the characters expected.
+  against the characters expected. A kanji's place is a larger box; a kanji
+  is taken when the pen rests only once all its strokes are drawn: the pen
+  pauses between its many strokes.
 - **Writing a sentence** (a lesson's translation exercise,
   [`06`](06-curriculum-and-lessons.md)): each kana recognised goes at the end
   of the answer field, which can still be typed in; the other kana it may be
   are offered, to put in its place, and the last character can be erased.
+  The field's switch says what the pad recognises among: あ hiragana, ア
+  katakana, 漢 the kanji the learner writes (offered only when there are
+  some). Kana and kanji are never recognised together: a kanji begun looks
+  like a kana (本 begun is ナ). A kanji is taken when the pen rests once it
+  has as many strokes as the kanji it is closest to.
   Small kana are not recognised there: told from their large ones by size
   alone, they were taken for each other; a button, 小, makes the last kana
   small (しや to しゃ), or large again. Two more add or take away a dakuten
   (゛, か to が) or a handakuten (゜, は to ぱ), for a kana taken before its
   marks were drawn. In a word, the small kana is written
-  small, as it is judged against the character expected. A kana written
+  small, as it is judged against the character expected. A box whose kana
+  is not among the three the recogniser finds closest is another kana (て
+  written for ん, its one stroke within ん's tolerance): the word written is
+  another, wrong, and the correction says what the box looks like; it is no
+  review of the kana expected. A kana written
   wrong (or with strokes out of order) within a word is kept as a review of
   that kana's writing, so it comes back to be practised; one written right
   only when its writing was due, not to crowd its schedule.
@@ -106,8 +124,11 @@ is every kyōiku kanji.
     put together, at most 8 units (of the 109-unit box) plus 12% of the
     expected stroke's length.
   - **Place**: the distance between their centres, at most 22 units.
-  - **Direction**: the one, forward or backward, whose shape matches best. A
-    loop (a stroke ending about where it starts, as a handakuten's circle) has
+  - **Direction**: backward only when its shape matches clearly best, closer
+    than 0.8 times the forward one: a stroke near the same both ways (り's
+    first, its hook drawn as long as its descent) is drawn right. On 3,689
+    strokes written from memory, those really reversed are at most 0.55; two
+    at about 0.95 (り, な) no longer are. A loop (a stroke ending about where it starts, as a handakuten's circle) has
     no direction: it is compared from any start, both ways round.
   - **Order**: wrong when a later stroke fits, shape and place together, better
     than the expected one; when the expected one fits too, the later one must

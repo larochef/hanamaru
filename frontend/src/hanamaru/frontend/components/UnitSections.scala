@@ -61,8 +61,9 @@ class UnitSections(bus: AppBus, recap: UnitRecap, closed: () => Unit)
             case Left(reason)  => p(cls := "error", reason)
           }
       )
-    case Practice.Exercises => LessonExercises(bus, recap.point.id).node
-    case Practice.Words     =>
+    case Practice.Exercises =>
+      LessonExercises(bus, ExercisesOf.Lesson(recap.point.id)).node
+    case Practice.Words =>
       VocabularySeries(
         bus,
         EventStream.fromValue(()),
@@ -197,6 +198,7 @@ class UnitSections(bus: AppBus, recap: UnitRecap, closed: () => Unit)
 
   private def kanjiCard(each: RecapKanji): HtmlElement = div(
     cls := "unit-kanji-card",
+    kanjiStanding(each.standing),
     PageLink(
       bus,
       Page.KanjiCharacter(each.kanji.literal),
@@ -204,13 +206,15 @@ class UnitSections(bus: AppBus, recap: UnitRecap, closed: () => Unit)
       lang := "ja",
       each.kanji.literal
     ),
-    span(each.kanji.meanings.take(2).mkString(", ")),
+    span(
+      cls := "unit-kanji-meaning",
+      each.kanji.meanings.take(2).mkString(", ")
+    ),
     span(
       lang := "ja",
       cls := "unit-kanji-readings",
       (each.kanji.on.take(2) ++ each.kanji.kun.take(2)).mkString("、")
     ),
-    kanjiStanding(each.standing),
     // not met yet: learned in a focus, ahead of My lesson
     if (each.standing == KanjiStanding.NotMet)
       opener(Tr("Focus", "Focus"), Practice.Focus(each.kanji.literal))

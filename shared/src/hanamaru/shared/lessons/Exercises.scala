@@ -10,7 +10,7 @@ import sttp.tapir.Schema
 /** The ways a grammar point is practised in a sentence. */
 enum ExerciseKind {
 
-  /** The point's particle blanked, chosen among others. */
+  /** Every particle learned so far blanked in the sentence, each typed. */
   case Particle
 
   /** The point's form (an ending: ます, ました, たい…) blanked, chosen among the
@@ -33,9 +33,10 @@ enum ExerciseKind {
 }
 
 /** An exercise on a lesson's point: the sentence laid out in kana (its marked
-  * parts are what is blanked, for a particle), as written, in French, the
-  * choices offered for a particle, and the answer expected: the particle, or
-  * the sentence in kana.
+  * parts are what is blanked, for particles or a form), as written, in French,
+  * the choices offered for a form, and the answer expected: the particles, one
+  * per blank, spaced, the form, or the sentence in kana; for a translation, the
+  * kanji the learner writes, which the stylus also recognises.
   */
 final case class LessonExercise(
     point: String,
@@ -46,10 +47,13 @@ final case class LessonExercise(
     choices: List[String],
     expected: String,
     kanji: Option[KanjiExercise] = None,
-    wordsInKatakana: Int = 0
+    wordsInKatakana: Int = 0,
+    kanjiWritten: List[String] = Nil
 )
 
-/** An exercise answered: the particle chosen, or the sentence typed. */
+/** An exercise answered: the particles typed, one per blank, spaced (in kana or
+  * romaji, a blank left empty empty), the form chosen, or the sentence typed.
+  */
 final case class ExerciseAnswer(exercise: LessonExercise, answer: String)
 
 /** An answer judged: whether it is right, and when the code could not tell by
@@ -65,6 +69,14 @@ final case class ExerciseVerdict(
     toSelfGrade: Boolean = false
 )
 
+/** What exercises are on: a lesson's point, recorded as its review once done;
+  * or everything learned so far, freely, recorded as nothing.
+  */
+enum ExercisesOf {
+  case Lesson(point: String)
+  case Free
+}
+
 /** A lesson's exercises done: each one's kind, and whether it was right. */
 final case class ExercisesDone(point: String, outcomes: List[ExerciseOutcome])
 
@@ -75,6 +87,10 @@ final case class ExerciseOutcome(kind: ExerciseKind, right: Boolean)
   * of total (a kanji written is the kanji's review, not counted here).
   */
 final case class ExercisesTally(right: Int, total: Int)
+
+object ExercisesOf {
+  given Schema[ExercisesOf] = Schema.derived
+}
 
 object ExerciseKind {
   given Schema[ExerciseKind] = Schema.derived

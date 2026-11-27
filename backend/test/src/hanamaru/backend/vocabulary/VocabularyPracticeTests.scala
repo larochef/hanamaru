@@ -1,11 +1,14 @@
 package hanamaru.backend.vocabulary
 
+import hanamaru.backend.kanji.KanjiHand
+
 import hanamaru.backend.lessons.Units
-import hanamaru.backend.learner.{ItemKind, LearnerStore}
+import hanamaru.backend.learner.*
 import hanamaru.backend.models.*
 import hanamaru.backend.reference.SampleJmdict
 import hanamaru.backend.storage.Database
 import hanamaru.backend.writing.{WritingAttempts, WritingReview}
+import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.Grade
 import hanamaru.shared.vocabulary.*
 
@@ -45,7 +48,8 @@ object VocabularyPracticeTests extends TestSuite {
           WritingAttempts(directory.resolve("attempts.jsonl")),
           WritingReview(learner),
           SentenceWriter(LlamaClient(tutor, http), () => None),
-          Units(Nil, () => Some(dictionary), learner, () => Some(_ => None))
+          Units(Nil, () => Some(dictionary), learner, () => Some(_ => None)),
+          KanjiHand.of(() => None, learner)
         ),
         learner
       )
@@ -173,6 +177,85 @@ object VocabularyPracticeTests extends TestSuite {
         assert(verdict.grade.contains(Grade.Easy))
         assert(learner.metKeys(ItemKind.Word) == Set("2000001"))
         assert(learner.dueKeys(ItemKind.Word, start.toEpochMilli, 10).isEmpty)
+      }
+    }
+
+    test(
+      "known words written in kanji: stable, their kanji all written, others in kana"
+    ) {
+      def word(id: Long, writing: String, reading: String, kana: Boolean) =
+        DictionaryWord(id, 5, List(writing), List(reading), kana, Nil)
+      val words = List(
+        word(1, "会社", "かいしゃ", kana = false),
+        word(2, "友達", "ともだち", kana = false),
+        word(3, "学校", "がっこう", kana = false),
+        word(4, "分かる", "わかる", kana = true),
+        word(5, "先生", "せんせい", kana = false)
+      )
+      // 達 not taught: 友だち; 校 not written yet; 先生 not stable
+      val shown = Map(1L -> "会社", 2L -> "友だち", 3L -> "学校", 5L -> "先生")
+      val writable = VocabularyPractice.writableInKanji(
+        words,
+        _ != 5L,
+        Set("会", "社", "友", "学", "先", "生", "分"),
+        each => shown.getOrElse(each.id, "")
+      )
+      assert(writable.map(_._2) == List("会社", "友だち"))
+    }
+    test(
+      "the words asked in kanji: those due first, a few new ones a day, none twice"
+    ) {
+      val writable = (1L to 8L).toList.map(id =>
+        DictionaryWord(id, 5, List(s"字$id"), List("じ"), false, Nil) -> s"字$id"
+      )
+      val at = start.toEpochMilli
+      def card(id: Long, due: Long, first: Long) =
+        ItemCard(id.toString, CardKind.Writing, Phase.Review, due, 1, first)
+      val none = VocabularyPractice.inKanji(Nil, writable, start, Set.empty)
+      assert(
+        none.map(_.word.id) == (1L to 5L).toList,
+        none.forall(each => each.isNew && each.asked == WordAsked.InKanji)
+      )
+      // four met within the day, one due: one new left today
+      val met = (1L to 4L).toList.map(id =>
+        card(id, if (id == 3L) at - 1 else at + 1000, at - 1000)
+      )
+      val asked = VocabularyPractice.inKanji(met, writable, start, Set(5L))
+      assert(
+        asked.map(each => each.word.id -> each.isNew) == List(
+          3L -> false,
+          6L -> true
+        )
+      )
+    }
+    test("a word asked in kanji: only so, after the others, and graded apart") {
+      withPractice { (practice, learner) =>
+        val words = practice.series(start, SeriesOf.MyLesson).toOption.get
+        val cat = words.find(_.word.id == 2000002L).get
+        val inKanji = cat.copy(isNew = false, asked = WordAsked.InKanji)
+        val tasks =
+          VocabularyPractice.planned(words.filterNot(_ == cat) :+ inKanji)
+        assert(
+          tasks.collect {
+            case SeriesTask.Ask(word, direction, _, _) if word == inKanji =>
+              direction
+          } == List(Direction.InKanji),
+          tasks.last != SeriesTask.Ask(inKanji, Direction.Production)
+        )
+        def answer(typed: String) = practice
+          .answered(
+            VocabularyAnswer(2000002L, Direction.InKanji, typed, 1000, false),
+            start
+          )
+          .toOption
+          .get
+          .verdict
+        // in kana, right for the word, not in kanji
+        assert(answer("ねこ") == Verdict.Wrong, answer("猫") == Verdict.Right)
+        assert(
+          learner.metKeys(ItemKind.WordInKanji) == Set("2000002"),
+          learner.metKeys(ItemKind.Word).isEmpty
+        )
       }
     }
   }

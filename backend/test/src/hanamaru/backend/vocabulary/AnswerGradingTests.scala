@@ -1,5 +1,7 @@
 package hanamaru.backend.vocabulary
 
+import hanamaru.backend.kanji.{KanjiHand, KanjiHandTests}
+
 import hanamaru.shared.dictionary.{DictionaryWord, Meaning}
 import hanamaru.shared.vocabulary.Verdict
 import hanamaru.shared.writing.*
@@ -37,8 +39,12 @@ object AnswerGradingTests extends TestSuite {
       text =>
         List(school, television, cut, coin, alsoSchool).filter(
           _.readings.contains(text)
-        )
+        ),
+      hand.ways(asked)
     )
+
+  // 学 written, 校 not yet
+  private val hand = KanjiHand(KanjiHandTests.forms, () => Set("学"))
 
   val tests: Tests = Tests {
     test("production: any form, in either kana script, typed in romaji") {
@@ -46,6 +52,7 @@ object AnswerGradingTests extends TestSuite {
       assert(production("学校", school) == Verdict.Right)
       assert(production("terebi", television) == Verdict.Right)
       assert(production(" kitte ", cut) == Verdict.Right)
+      assert(production("学こう", school) == Verdict.Right)
     }
     test(
       "production: a long vowel, a small tsu or a voiced kana missed is nearly right"
@@ -77,7 +84,7 @@ object AnswerGradingTests extends TestSuite {
       assert(
         AnswerGrading.handwritten(
           List(written("テ", right), written("レ", right), written("ビ", right)),
-          television
+          hand.ways(television)
         ) == Verdict.Right
       )
       // only a stroke's direction wrong: the word is known, its writing not yet
@@ -89,20 +96,58 @@ object AnswerGradingTests extends TestSuite {
             written("こ", right),
             written("う", right)
           ),
-          school
+          hand.ways(school)
         ) == Verdict.NearMiss
       )
       assert(
         AnswerGrading.handwritten(
           List(written("が", StrokeVerdict.Misdrawn)),
-          school
+          hand.ways(school)
         ) == Verdict.Wrong
       )
       assert(
         AnswerGrading.handwritten(
           List(written("て", right), written("れ", right), written("び", right)),
-          television
+          hand.ways(television)
         ) == Verdict.Wrong
+      )
+      // a box whose kana looks like others: another word, its strokes aside
+      assert(
+        AnswerGrading.handwritten(
+          List(
+            written("テ", right),
+            written("レ", right),
+            written("ビ", right).copy(looksLike = List("ピ", "ヒ", "ド"))
+          ),
+          hand.ways(television)
+        ) == Verdict.Wrong
+      )
+    }
+    test(
+      "written with the stylus: with kanji, all or some of them, or in kana"
+    ) {
+      def written(character: String) = WritingAttempt(
+        character,
+        WritingStep.FromMemory,
+        List(
+          JudgedStroke(
+            List(DrawnPoint(1, 1, 0.5, 0)),
+            0,
+            StrokeJudgement(StrokeVerdict.Accepted, 1)
+          )
+        ),
+        completed = true,
+        expectedStrokes = 1
+      )
+      def verdict(characters: String*) = AnswerGrading.handwritten(
+        characters.toList.map(written),
+        hand.ways(school)
+      )
+      assert(
+        verdict("学", "校") == Verdict.Right,
+        verdict("学", "こ", "う") == Verdict.Right,
+        verdict("が", "っ", "こ", "う") == Verdict.Right,
+        verdict("学", "っ", "こ", "う") == Verdict.Wrong
       )
     }
     test("meaning: accents, case, articles and brackets do not count") {

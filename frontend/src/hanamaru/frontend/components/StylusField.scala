@@ -7,14 +7,21 @@ import hanamaru.shared.writing.{CharacterRecognizer, PadCharacter}
 
 import com.raquo.laminar.api.L.*
 
-/** The stylus beside a kana field, as the learner chooses (`stylus`): kana
-  * written in a pad, each put at the end of `field` once recognised, in the
-  * script the field is in, with the kana the last one may be instead and
-  * buttons to change it (small, dakuten, maru) or erase it. `keep` keeps the
-  * drawings of an answer, to tune the recognition.
+/** The stylus beside kana fields, as the learner chooses (`stylus`): kana
+  * written in a pad, each put at the end of the field it writes in now
+  * (`field`: a sentence's one, or the blank chosen among several) once
+  * recognised, in the script the field is in, with the kana the last one may be
+  * instead and buttons to change it (small, dakuten, maru) or erase it; or, the
+  * field switched to them (漢), among the kanji the learner writes. `keep` keeps
+  * the drawings of an answer, to tune the recognition.
   */
-class StylusField(bus: AppBus, field: KanaInput, stylus: Var[Boolean])
-    extends ReactiveElement {
+class StylusField(
+    bus: AppBus,
+    target: () => KanaInput,
+    stylus: Var[Boolean]
+) extends ReactiveElement {
+
+  private def field = target()
 
   // the kana written in the pad, in the order they are in the field
   private val padded = Var(List.empty[KanaPad.Written])
@@ -70,13 +77,20 @@ class StylusField(bus: AppBus, field: KanaInput, stylus: Var[Boolean])
     )
     ManyStrokesOf(
       bus,
-      CharacterRecognizer.kana,
+      CharacterRecognizer.kana + field.kanji.mkString,
       strokes => {
         // a small kana is made with its button: recognised by its size
         // alone, it was often taken for its large one, and the other way
         val pad = KanaPad(
           strokes.filterNot(character => Kana.isSmall(character.character)),
-          () => if (field.inKatakanaNow) Script.Katakana else Script.Hiragana
+          () =>
+            field.modeNow match {
+              case KanaInput.Mode.Kanji    => KanaPad.Asked.Kanji(field.kanji)
+              case KanaInput.Mode.Katakana =>
+                KanaPad.Asked.KanaOf(Script.Katakana)
+              case KanaInput.Mode.Hiragana =>
+                KanaPad.Asked.KanaOf(Script.Hiragana)
+            }
         )
         div(
           cls := "sentence-pad",
@@ -157,4 +171,11 @@ class StylusField(bus: AppBus, field: KanaInput, stylus: Var[Boolean])
     ),
     child <-- stylus.signal.map(on => if (on) pad else emptyNode)
   )
+}
+
+object StylusField {
+
+  /** The stylus writing in one field. */
+  def apply(bus: AppBus, field: KanaInput, stylus: Var[Boolean]): StylusField =
+    new StylusField(bus, () => field, stylus)
 }

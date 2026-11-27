@@ -10,6 +10,7 @@ import hanamaru.shared.kanji.*
 import hanamaru.shared.learner.*
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
+import hanamaru.shared.questions.*
 import hanamaru.shared.routes.*
 import hanamaru.shared.session.*
 import hanamaru.shared.vocabulary.*
@@ -110,8 +111,11 @@ class ApiClient(baseUri: Uri) {
   def lessonText(point: String): EventStream[AppResult[Option[LessonText]]] =
     call(LessonRoutes.text, point)
 
-  def exercises(point: String): EventStream[AppResult[List[LessonExercise]]] =
-    call(LessonRoutes.exercises, point)
+  def exercises(of: ExercisesOf): EventStream[AppResult[List[LessonExercise]]] =
+    of match {
+      case ExercisesOf.Lesson(point) => call(LessonRoutes.exercises, point)
+      case ExercisesOf.Free          => call(LessonRoutes.free, ())
+    }
 
   def answerExercise(
       answer: ExerciseAnswer
@@ -190,6 +194,12 @@ class ApiClient(baseUri: Uri) {
       attempt: WritingAttempt
   ): EventStream[AppResult[Option[ReviewOutcome]]] =
     call(KanjiRoutes.writing, attempt)
+
+  def askTutor(question: TutorQuestion): EventStream[AppResult[AskedQuestion]] =
+    call(QuestionRoutes.ask, question)
+
+  def questions(): EventStream[AppResult[List[AskedQuestion]]] =
+    call(QuestionRoutes.all, ())
 
   private def call[I, O](
       endpoint: PublicEndpoint[I, String, O, Any],

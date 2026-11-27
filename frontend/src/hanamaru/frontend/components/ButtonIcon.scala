@@ -14,6 +14,8 @@ class ButtonIcon(shape: ButtonIcon.Shape) extends ReactiveElement {
     case ButtonIcon.Shape.Previous => "M10 3L5 8l5 5"
     case ButtonIcon.Shape.Next     => "M6 3l5 5-5 5"
     case ButtonIcon.Shape.Down     => "M3 6l5 5 5-5"
+    // a speech bubble
+    case ButtonIcon.Shape.Chat => "M2.5 2.5h11v8H7.5l-3 3v-3h-2z"
   }
 
   override lazy val node: HtmlElement = span(
@@ -34,6 +36,6 @@ class ButtonIcon(shape: ButtonIcon.Shape) extends ReactiveElement {
 
 object ButtonIcon {
   enum Shape {
-    case Plus, Minus, Cross, Previous, Next, Down
+    case Plus, Minus, Cross, Previous, Next, Down, Chat
   }
 }

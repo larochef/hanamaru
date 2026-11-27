@@ -13,14 +13,15 @@ import java.text.Normalizer
 object AnswerGrading {
 
   /** A word typed for its meaning: right when it is one of the word's forms (in
-    * either kana script), nearly right when only a long vowel, a small つ or a
-    * voiced つ/ち tell it apart, another word when it is one sharing a meaning
-    * with it.
+    * either kana script, or one of the `ways` it is written by hand, kanji and
+    * kana mixed), nearly right when only a long vowel, a small つ or a voiced
+    * つ/ち tell it apart, another word when it is one sharing a meaning with it.
     */
   def production(
       typed: String,
       word: DictionaryWord,
-      withForm: String => List[DictionaryWord]
+      withForm: String => List[DictionaryWord],
+      ways: Set[String]
   ): Verdict = {
     val answer = Romaji
       .asHiragana(Romaji.toKana(typed.trim, finished = true))
@@ -28,7 +29,10 @@ object AnswerGrading {
     val readings = word.readings.map(Romaji.asHiragana)
     if (answer.isEmpty) {
       Verdict.Wrong
-    } else if (readings.contains(answer) || word.writings.contains(answer)) {
+    } else if (
+      readings.contains(answer) || word.writings.contains(answer) ||
+      ways(answer)
+    ) {
       Verdict.Right
     } else if (readings.exists(reading => loose(reading) == loose(answer))) {
       Verdict.NearMiss
@@ -40,21 +44,20 @@ object AnswerGrading {
     }
   }
 
-  /** A word written with the stylus, character by character, as its first
-    * reading: right when every character was written to its end with every
-    * stroke accepted; nearly, when only a stroke's order or direction was
-    * wrong; missed when a character was not written, or a stroke was not the
-    * one expected.
+  /** A word written with the stylus, character by character, one of the `ways`
+    * it is written (in kana, or with kanji): right when every character was
+    * written to its end with every stroke accepted; nearly, when only a
+    * stroke's order or direction was wrong; missed when a character was not
+    * written, or a stroke was not the one expected.
     */
   def handwritten(
       written: List[WritingAttempt],
-      word: DictionaryWord
+      ways: Set[String]
   ): Verdict = {
-    val expected = word.readings.headOption.toList.flatMap(characters)
     val outcomes = written.map(WritingCorrection.outcome)
     if (
-      written
-        .map(_.character) != expected || outcomes.contains(WritingOutcome.Wrong)
+      !ways(written.map(_.character).mkString) ||
+      outcomes.contains(WritingOutcome.Wrong)
     ) {
       Verdict.Wrong
     } else if (outcomes.forall(_ == WritingOutcome.Right)) {

@@ -51,12 +51,31 @@ varied practice, and whole sessions can be devoted to it ([`09`](09-sessions.md)
   three glosses) and, small, the first English one, which makes up for
   JMdict's French senses in a doubtful order.
 - **Production with the stylus** (the series' "Answer with the stylus", on by
-  default): the word written from memory in kana, as its first reading, one
-  character after the other in one box, each taken once the pen rests, the
-  learner saying when the word is written; corrected at the end as writing from memory is
-  ([`05`](05-writing.md)): right when every character is right, nearly
+  default): the word written from memory with the kanji the learner writes
+  (`KanjiHand`: those whose writing card they have, met in a focus or since),
+  the others in kana (会しゃいん while 社 is not learned yet), as the server
+  sends it (`SeriesWord.inKanji`); or, as the learner switches, in kana, as its
+  first reading. One character after the other in one box, a kana taken once
+  the pen rests, a kanji once the pen rests with all its strokes drawn; the learner says
+  when the word is written; corrected at the end as writing from memory is
+  ([`05`](05-writing.md)): right when every character is right and the word
+  is one of the ways it is written (each kanji as itself or in kana), nearly
   (graded *hard*) when only strokes' order or direction are wrong, otherwise
-  missed. The kanji form will be written the same way once kanji are learned.
+  missed. Answered in kana, right, the word as the learner writes it is
+  recalled under the verdict (`VocabularyVerdict.inKanji`), to encourage the
+  kanji without requiring them. A kanji written in a word is a review of its
+  writing as a kana is: wrong, always kept; right, only when due. Typed, the
+  same ways are right (kanji from an input method).
+- **Written in kanji, once its kanji are** (built, `Direction.InKanji`): a
+  stable word, usually written with kanji, whose kanji the units teach (one at
+  least) are all written past their first steps, is asked to be written in
+  kanji, its meaning and reading given, by hand only: those kanji as
+  themselves, the others in kana (会社いん: 員 is not taught). A card of its
+  own ([`03`](03-learner-model.md)): written in kana, the word is right for
+  its production, wrong for its kanji. My lesson's series and a free one ask
+  those due, then five new a day at most (a kanji learned may open many words
+  at once), five a series at most, after the words asked both ways; the new
+  ones are named at the start of the series.
 - **In a sentence, once stable**: a word whose production has passed its
   first steps is asked for itself in a sentence written by the tutor and
   checked by the code ([`07`](07-text-generation.md)), the word blanked, its
@@ -142,7 +161,9 @@ Ranked by expected benefit; the learner chooses which are built first:
    checked against the glosses, the tutor judging near matches only, its
    verdict checked by code.
 4. **Kanji form written with the stylus**, for words whose kanji are learned:
-   the existing stroke matcher.
+   the existing stroke matcher. Built within production (the kanji the
+   learner writes encouraged), then as a card of its own once they are all
+   written (above).
 5. **Cloze in a generated sentence** (made of known words, validated): the
    word blanked, its meaning given, typed; only once the word is stable.
 6. **Reading in a sentence**: a fresh sentence, the word underlined, its
@@ -164,7 +185,7 @@ main review, pitch drills.
 - Near misses in typed answers (a wrong long vowel, a missing small つ, ず for
   づ): graded *hard* or as misses; the right form shown either way.
 - Words with several right answers (synonyms, homophones in kana): any JMdict
-  word accepted, the intended one named; the kanji form needs its own card.
+  word accepted, the intended one named.
 - French glosses: present for 98% of the JLPT N5 to N2 words, but their senses
   are sometimes not in the English order (足: "allure (de la marche)" before
   "pied"), with repeats, and some entries overlap (いい and 良い). Which gloss a

@@ -2,6 +2,7 @@ package hanamaru.backend.lessons
 
 import hanamaru.backend.models.LlamaClient
 import hanamaru.backend.reference.{Analyser, Token}
+import hanamaru.shared.kana.Romaji
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
@@ -31,19 +32,8 @@ final class TextWriter(client: LlamaClient) {
       points: List[CurriculumPoint] = Curriculum.points
   ): Option[List[(Written, List[Token])]] = {
     val point = points(upTo)
-    val grammar = points
-      .take(upTo + 1)
-      .map(learned => s"- ${learned.pattern}: ${learned.title}")
-      .mkString("\n")
-    // the particles a beginner's sentence reaches for that are not learned yet:
-    // those of the points to come, and the usual ones no point teaches yet
-    val learnedForms =
-      points.take(upTo + 1).flatMap(_.signature.flatten).flatMap(_.form).toSet
-    val notYet = (points
-      .drop(upTo + 1)
-      .flatMap(_.signature.flatten)
-      .filter(_.pos.exists(_.startsWith("助詞")))
-      .flatMap(_.form) ++ usualParticles).distinct.filterNot(learnedForms)
+    val grammar = grammarUpTo(upTo, points)
+    val notYet = notYetAt(upTo, points)
     def attempt(
         left: Int,
         refused: List[String]
@@ -99,9 +89,144 @@ final class TextWriter(client: LlamaClient) {
       }
     attempt(attempts, Nil)
   }
+
+  /** Free sentences, one per target ([[Target]]): each must show its point, use
+    * one of its words, and ask nothing the learner has not learned
+    * (`SentenceGrammar`); those refused asked again with their problems named,
+    * a few times at most, the others kept. Each kept with its target and
+    * tokens, in the targets' order.
+    */
+  def onTargets(
+      targets: List[Target],
+      upTo: Int,
+      analyser: Analyser,
+      known: List[String],
+      knownForms: Set[String],
+      points: List[CurriculumPoint] = Curriculum.points
+  ): List[(Target, Written, List[Token])] = {
+    val grammar = grammarUpTo(upTo, points)
+    val notYet = notYetAt(upTo, points)
+    def attempt(
+        left: Int,
+        asked: List[(Target, List[String])]
+    ): List[(Target, Written, List[Token])] =
+      if (left == 0 || asked.isEmpty) Nil
+      else {
+        val lines = asked.zipWithIndex
+          .map { case ((target, refused), index) =>
+            s"${index + 1}. grammar point \"${target.point.pattern}: ${target.point.title}\"; word(s): ${target.words
+                .map(_.head)
+                .mkString(", ")}" + Option
+              .when(refused.nonEmpty)(
+                s" (your last sentence for it had these problems: ${refused.mkString("; ")})"
+              )
+              .getOrElse("")
+          }
+          .mkString("\n")
+        val written = client
+          .structured[Text](
+            system =
+              "You write single, independent sentences for a beginner learning Japanese to translate, in polite Japanese, with their French translation. The learner knows only the grammar and the words they are given: use nothing else, not even common words or particles they are not given. Each sentence short, simple, natural and complete, about its own situation; vary the people, places and situations from one sentence to the next.",
+            user =
+              s"""Write ${asked.size} sentences, in this order, each using its grammar point and its word(s):
+              |$lines
+              |Grammar the learner knows (use no other particle, ending or conjugation):
+              |$grammar
+              |Particles and forms the learner does not know yet, never to be used: ${notYet
+                  .mkString(", ")}.
+              |Other words the learner knows, to use as needed (and names of people, numbers): ${known
+                  .take(wordsGiven)
+                  .mkString(", ")}.""".stripMargin,
+            schema = exactly(asked.size),
+            maxTokens = 2048,
+            temperature = 0.8
+          )
+          .toOption
+          .fold(List.empty[Written])(_.sentences)
+        val judged = asked.zipWithIndex.map { case ((target, _), index) =>
+          val sentence = written.lift(index)
+          val tokens = sentence.fold(List.empty[Token])(each =>
+            analyser.tokens(each.japanese)
+          )
+          val problems = sentence.fold(List("no sentence written"))(_ =>
+            TextWriter.problems(target, tokens, upTo, knownForms, points)
+          )
+          (target, sentence, tokens, problems)
+        }
+        val kept = judged.collect {
+          case (target, Some(sentence), tokens, Nil) =>
+            (target, sentence, tokens)
+        }
+        val again = judged.collect {
+          case (target, _, _, problems) if problems.nonEmpty =>
+            logger.debug(
+              s"Sentence on ${target.point.id} refused: ${problems.mkString("; ")}"
+            )
+            target -> problems
+        }
+        kept ++ attempt(left - 1, again)
+      }
+    val done = attempt(attempts, targets.map(_ -> Nil))
+    targets.flatMap(target => done.find(_._1 eq target))
+  }
+
+  // the points learned up to one, for the tutor
+  private def grammarUpTo(upTo: Int, points: List[CurriculumPoint]) =
+    points
+      .take(upTo + 1)
+      .map(learned => s"- ${learned.pattern}: ${learned.title}")
+      .mkString("\n")
+
+  // the particles a beginner's sentence reaches for that are not learned yet:
+  // those of the points to come, and the usual ones no point teaches yet
+  private def notYetAt(upTo: Int, points: List[CurriculumPoint]) = {
+    val learnedForms =
+      points.take(upTo + 1).flatMap(_.signature.flatten).flatMap(_.form).toSet
+    (points
+      .drop(upTo + 1)
+      .flatMap(_.signature.flatten)
+      .filter(_.pos.exists(_.startsWith("助詞")))
+      .flatMap(_.form) ++ usualParticles).distinct.filterNot(learnedForms)
+  }
 }
 
 object TextWriter {
+
+  /** What a free sentence is to be on: a point, and words, each given by its
+    * forms, the first as the tutor is told it.
+    */
+  final case class Target(point: CurriculumPoint, words: List[List[String]])
+
+  /** What is wrong with a free sentence for its target: its point not shown,
+    * none of its words used, or something not learned yet.
+    */
+  def problems(
+      target: Target,
+      tokens: List[Token],
+      upTo: Int,
+      knownForms: Set[String],
+      points: List[CurriculumPoint] = Curriculum.points
+  ): List[String] = {
+    val forms = target.words.flatten.toSet
+    val used = tokens.exists(token =>
+      forms(token.dictionaryForm) || forms(token.surface) ||
+        forms(Romaji.asHiragana(token.dictionaryForm))
+    )
+    Option
+      .when(target.point.shownIn(tokens).isEmpty)(
+        s"the grammar point ${target.point.pattern} is not used"
+      )
+      .toList ++
+      Option
+        .when(forms.nonEmpty && !used)(
+          s"none of the words ${target.words.map(_.head).mkString(", ")} is used"
+        )
+        .toList ++
+      SentenceGrammar.demands(tokens, upTo, knownForms, points).problems
+  }
+
+  private def exactly(count: Int) =
+    s"""{"type":"object","properties":{"sentences":{"type":"array","minItems":$count,"maxItems":$count,"items":{"type":"object","properties":{"japanese":{"type":"string"},"french":{"type":"string"}},"required":["japanese","french"]}}},"required":["sentences"]}"""
 
   /** A sentence as the tutor writes it: in Japanese, and in French. */
   final case class Written(japanese: String, french: String)

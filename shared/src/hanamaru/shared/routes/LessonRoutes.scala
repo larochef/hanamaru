@@ -39,6 +39,15 @@ object LessonRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[List[LessonExercise]])
 
+  /** Free practice: sentences written by the tutor on everything learned so
+    * far, drawn evenly, each translated one way or the other.
+    */
+  val free: PublicEndpoint[Unit, String, List[LessonExercise], Any] =
+    Routes.baseRoute.get
+      .in("practice" / "free")
+      .errorOut(Routes.refused)
+      .out(jsonBody[List[LessonExercise]])
+
   /** An exercise's answer judged: by the code, else by the tutor. */
   val answer: PublicEndpoint[ExerciseAnswer, String, ExerciseVerdict, Any] =
     Routes.baseRoute.post

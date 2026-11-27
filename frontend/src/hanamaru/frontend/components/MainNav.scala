@@ -78,6 +78,14 @@ class MainNav(bus: AppBus, page: Signal[Page]) extends ReactiveElement {
         },
         Page.KanjiChart,
         Tr("Kanji", "Kanji")
+      ),
+      link(
+        {
+          case Page.Questions => true
+          case _              => false
+        },
+        Page.Questions,
+        Tr("Questions", "Questions")
       )
     )
   )

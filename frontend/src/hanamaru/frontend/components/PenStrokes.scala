@@ -11,7 +11,9 @@ import org.scalajs.dom
   * being drawn is kept in `drawing`; each one, once the pen is lifted, goes to
   * `ended`, and `started` is told when a stroke begins. Only the pen, or a
   * mouse, draws, and only while `draws`: the palm and fingers rest on the
-  * screen.
+  * screen, and what they do is none of the stroke's (a browser cancels a palm
+  * touching as the pen comes near). A stroke the browser cancels is ended as
+  * drawn, not lost.
   */
 object PenStrokes {
   private val size = CharacterStrokes.boxSize
@@ -23,6 +25,14 @@ object PenStrokes {
       started: () => Unit = () => ()
   ): Modifier[SvgElement] = {
     var strokeStart = 0.0
+    // the pointer drawing the stroke under way
+    var drawer = Option.empty[Double]
+    def isDrawer(event: dom.PointerEvent) = drawer.contains(event.pointerId)
+    def end(): Unit = {
+      drawer = None
+      drawing.now().foreach(ended)
+      drawing.set(None)
+    }
     def byPen(event: dom.PointerEvent) =
       event.pointerType != "touch" && draws()
     def drawnPoint(box: dom.Element, event: dom.PointerEvent): DrawnPoint = {
@@ -37,23 +47,21 @@ object PenStrokes {
     inContext { element =>
       Seq(
         onPointerDown.filter(byPen) --> { event =>
+          drawer = Some(event.pointerId)
           element.ref.setPointerCapture(event.pointerId)
           strokeStart = event.timeStamp
           started()
           drawing.set(Some(List(drawnPoint(element.ref, event))))
         },
-        onPointerMove.filter(byPen) --> { event =>
+        onPointerMove.filter(isDrawer) --> { event =>
           drawing.update(
             _.map(
               _ ++ movesOf(event).map(move => drawnPoint(element.ref, move))
             )
           )
         },
-        onPointerUp.filter(byPen) --> { _ =>
-          drawing.now().foreach(ended)
-          drawing.set(None)
-        },
-        onPointerCancel --> { _ => drawing.set(None) }
+        onPointerUp.filter(isDrawer) --> (_ => end()),
+        onPointerCancel.filter(isDrawer) --> (_ => end())
       )
     }
   }

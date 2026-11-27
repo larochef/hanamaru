@@ -81,6 +81,11 @@ class CorrectionView(character: CharacterStrokes, attempt: WritingAttempt)
         s"$count stroke(s) missing: this character has $total.",
         s"Il manque $count trait(s) : ce caractère en a $total."
       )
+    case WritingIssue.OtherCharacter(characters) =>
+      Tr(
+        s"What you wrote looks more like ${characters.mkString(", ")}.",
+        s"Ce que tu as écrit ressemble plutôt à ${characters.mkString(", ")}."
+      )
   }
 
   private def summary: HtmlElement = WritingCorrection.outcome(attempt) match {

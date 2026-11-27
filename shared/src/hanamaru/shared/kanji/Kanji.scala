@@ -39,12 +39,15 @@ object KanjiDetail {
 }
 
 /** A kanji exercise of a lesson session: the kanji, the word it is asked in (a
-  * word the learner knows), what is asked, and whether it is asked for the
-  * first time (the kanji then shown first, and written guided first).
+  * word the learner knows) and how it is shown (`shown`: the kanji the units
+  * teach as themselves, the others in kana, 友だち), what is asked, and whether it
+  * is asked for the first time (the kanji then shown first, and written guided
+  * first).
   */
 final case class KanjiExercise(
     kanji: Kanji,
     word: DictionaryWord,
+    shown: String,
     asked: CharacterAsked,
     isNew: Boolean
 )

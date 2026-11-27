@@ -9,7 +9,7 @@ import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import sttp.tapir.Schema
 
-/** The two ways a word is asked. */
+/** The ways a word is asked. */
 enum Direction {
 
   /** Its meaning in French given, the word typed in Japanese. */
@@ -17,6 +17,20 @@ enum Direction {
 
   /** The word given, its meaning typed in French. */
   case Meaning
+
+  /** Its meaning and reading given, the word written in kanji from memory, as
+    * [[SeriesWord.inKanji]] says: a known word whose kanji the learner now
+    * writes.
+    */
+  case InKanji
+}
+
+/** What a series asks of a word: itself and its meaning, the kanji it is
+  * written with encouraged; or, a known word whose kanji the learner writes,
+  * only to be written in kanji.
+  */
+enum WordAsked {
+  case BothWays, InKanji
 }
 
 /** The words a series is on: My lesson's (those due, then the unit's new ones);
@@ -32,13 +46,17 @@ object SeriesOf {
   given Schema[SeriesOf] = Schema.derived
 }
 
-/** A word of a series: new to the learner, or due for review; asked for itself
-  * in a sentence once it is stable enough (`inSentence`).
+/** A word of a series: new to the learner (or, `asked` in kanji, new to be
+  * written in kanji), or due for review; asked for itself in a sentence once it
+  * is stable enough (`inSentence`); written by hand as `inKanji` when the
+  * learner writes some of its kanji (the others in kana: 会しゃ), else in kana.
   */
 final case class SeriesWord(
     word: DictionaryWord,
     isNew: Boolean,
-    inSentence: Boolean = false
+    inSentence: Boolean = false,
+    inKanji: Option[String] = None,
+    asked: WordAsked = WordAsked.BothWays
 )
 
 /** A step of a series, as the server planned it: a new word shown, or a word
@@ -101,13 +119,16 @@ enum Verdict {
 
 /** An answer judged: its verdict, the grade it was given (none while the
   * learner is to say), whether the tutor recognised it as one of the meanings,
-  * which it names, and, missed, how many questions later it is asked again.
+  * which it names, missed, how many questions later it is asked again, and,
+  * answered in kana where the learner writes some of the word's kanji, the word
+  * as they write it (`inKanji`), to remind them.
   */
 final case class VocabularyVerdict(
     verdict: Verdict,
     grade: Option[Grade],
     tutorMatched: Option[String],
-    comesBack: Option[Int] = None
+    comesBack: Option[Int] = None,
+    inKanji: Option[String] = None
 )
 
 /** The learner's own word on an answer the code could not judge. */
@@ -124,6 +145,10 @@ final case class ComesBack(after: Option[Int])
 
 object Direction {
   given Schema[Direction] = Schema.derived
+}
+
+object WordAsked {
+  given Schema[WordAsked] = Schema.derived
 }
 
 object WordSentence {

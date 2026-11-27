@@ -20,6 +20,13 @@ enum ItemKind(val name: String) {
     * a word's reading and meaning (its writing card).
     */
   case Kanji extends ItemKind("kanji")
+
+  /** A word written in kanji, keyed by its JMdict number: written from memory
+    * (its writing card) once the learner writes every kanji of it the units
+    * teach. Apart from the word's own cards: learning it does not make a known
+    * word unknown again.
+    */
+  case WordInKanji extends ItemKind("word-kanji")
 }
 
 /** A way of testing an item, as the database names it. */

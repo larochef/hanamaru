@@ -5,6 +5,7 @@ import hanamaru.frontend.model.*
 import hanamaru.shared.characters.*
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.kanji.*
+import hanamaru.shared.questions.{AskedFrom, QuestionContext}
 import hanamaru.shared.writing.WritingStep
 
 import com.raquo.laminar.api.L.*
@@ -26,9 +27,6 @@ class KanjiExerciseView(
     case Shown, Asked, Guided, FromMemory, Forgotten
     case Judged(answer: KanjiReadingAnswer, verdict: KanjiReadingVerdict)
   }
-
-  private def writingOf(word: DictionaryWord): String =
-    word.writings.headOption.getOrElse("")
 
   private def readingOf(word: DictionaryWord): String =
     word.readings.headOption.getOrElse("")
@@ -63,7 +61,7 @@ class KanjiExerciseView(
   // the word, whole: as written, its reading and its meaning
   private def wordShown(word: DictionaryWord): HtmlElement = div(
     cls := "unit-word",
-    span(cls := "word-writing", lang := "ja", writingOf(word)),
+    span(cls := "word-writing", lang := "ja", exercise.shown),
     span(cls := "word-reading", lang := "ja", readingOf(word)),
     span(cls := "unit-meaning", word.firstMeaning)
   )
@@ -93,7 +91,7 @@ class KanjiExerciseView(
       cls := "series-task",
       p(cls := "placement-prompt", Tr("How is it read?", "Comment se lit :")),
       // its meaning only once answered: given, it gives the word away
-      span(cls := "word-big", lang := "ja", writingOf(exercise.word)),
+      span(cls := "word-big", lang := "ja", exercise.shown),
       form(
         onSubmit.preventDefault.map { _ =>
           stylusField.keep(field.value)
@@ -173,7 +171,7 @@ class KanjiExerciseView(
     span(
       cls := "word-big",
       lang := "ja",
-      writingOf(exercise.word).map(character =>
+      exercise.shown.map(character =>
         if (character.toString == exercise.kanji.literal) '□' else character
       )
     ),
@@ -237,8 +235,43 @@ class KanjiExerciseView(
       else if (reading) Stage.Asked
       else Stage.FromMemory
     )
+    // the kanji under way, as the tutor is told it
+    val about = QuestionContext(
+      AskedFrom.Exercise,
+      // as the dictionary writes it, for the server to find it there
+      word = exercise.word.writings.headOption,
+      task =
+        Some(
+          if (reading)
+            s"Read the word ${exercise.shown}, for its kanji ${exercise.kanji.literal} (expected: ${readingOf(exercise.word)})"
+          else
+            s"Write the kanji ${exercise.kanji.literal} of the word ${exercise.shown} (${readingOf(exercise.word)})"
+        )
+    )
     div(
       cls := "kanji-exercise",
+      TutorContext(
+        bus,
+        stage.signal.map {
+          case Stage.Judged(answer, verdict) =>
+            Some(
+              about.copy(
+                from = AskedFrom.Correction,
+                answer = Some(answer.typed).filter(_.nonEmpty),
+                verdict = Some(
+                  if (verdict.right) "right"
+                  else
+                    verdict.kanjiRead.fold(
+                      s"wrong: it reads ${verdict.reading}"
+                    )(part =>
+                      s"the kanji read right ($part), the word reads ${verdict.reading}"
+                    )
+                )
+              )
+            )
+          case _ => Some(about)
+        }
+      ).node,
       child <-- stage.signal.map {
         case Stage.Shown => shown(() => stage.set(Stage.Asked))
         case Stage.Asked =>

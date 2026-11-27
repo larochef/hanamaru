@@ -44,6 +44,13 @@ object StrokeMatcher {
   /** How far a stroke's centre may be from the expected one's. */
   val placeTolerance: Double = 22
 
+  /** How much closer a stroke must be to the expected one reversed than as it
+    * goes, for it to be drawn the other way: a stroke near the same both ways
+    * (り's first, its hook drawn as long as its descent) is given the benefit of
+    * the doubt. Those reversed on the learner's attempts are at most 0.55.
+    */
+  val reversedWithin: Double = 0.8
+
   /** Judges `drawn` as the stroke at `expected` (counted from 0) of a character
     * whose strokes are `strokes`; `next`, the stroke drawn after it, when the
     * character is judged once written.
@@ -86,12 +93,13 @@ object StrokeMatcher {
           next.exists(inOrder(line, _, target, strokes(index)))
       )
     // Short strokes, a dakuten's, stay within the tolerance even reversed: the
-    // direction is the one that matches best, not the one within it. A loop
-    // has no direction to judge.
+    // direction is the one that matches clearly best, not the one within it.
+    // A loop has no direction to judge.
     val verdict = nearestLater match {
       case Some((index, _)) => StrokeVerdict.WrongOrder(index + 1)
       case None if !fits    => StrokeVerdict.Misdrawn
-      case None if !isLoop(target) && shapeBackward < shapeForward =>
+      case None
+          if !isLoop(target) && shapeBackward < reversedWithin * shapeForward =>
         StrokeVerdict.WrongDirection
       case None => StrokeVerdict.Accepted
     }

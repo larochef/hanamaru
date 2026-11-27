@@ -48,6 +48,10 @@ final class LlamaServer(
   /** The name requests give the model. */
   def modelName: String = alias
 
+  /** The model's file, as set or by default: what answers. */
+  def modelFile: String =
+    settings.get(LocalSettings.modelFile).getOrElse(defaultFile)
+
   private def log: Path = logs.resolve("llama-server.log")
 
   /** Launches the server and keeps it running until `stop`; returns when it
@@ -56,7 +60,7 @@ final class LlamaServer(
   def run(): Unit = {
     val repository =
       settings.get(LocalSettings.modelRepository).getOrElse(defaultRepository)
-    val name = settings.get(LocalSettings.modelFile).getOrElse(defaultFile)
+    val name = modelFile
     (
       settings.get(LocalSettings.llamaServer),
       huggingFace.file(repository, name)

@@ -4,6 +4,7 @@ import hanamaru.frontend.i18n.{Language, Tr}
 import hanamaru.frontend.model.*
 import hanamaru.shared.dictionary.{DictionaryWord, Meaning}
 import hanamaru.shared.kana.Romaji
+import hanamaru.shared.questions.{AskedFrom, QuestionContext}
 import hanamaru.shared.vocabulary.*
 
 import scala.scalajs.js
@@ -275,15 +276,96 @@ class VocabularySeries(
         )
       )
     task.direction match {
-      case Direction.Production if stylus.now() =>
-        val (meanings, inEnglish) = frenchFirst(word)
-        val reading = word.readings.headOption.getOrElse("")
-        val writing = HandwrittenWord(bus, reading)
+      // a known word, written in kanji from memory, always by hand
+      case Direction.InKanji =>
+        val (meanings, _) = frenchFirst(word)
+        val form = task.word.inKanji.getOrElse(written(word).mkString)
+        val writing = HandwrittenWord(bus, form)
         div(
           cls := "series-task",
           p(
             cls := "placement-prompt",
-            Tr("Write from memory, in kana:", "Écris de mémoire, en kana :")
+            if (task.word.isNew)
+              Tr(
+                "New: you write all its kanji now. Write it in kanji, from memory:",
+                "Nouveau : tu sais écrire tous ses kanji. Écris-le en kanji, de mémoire :"
+              )
+            else
+              Tr(
+                "Write it in kanji, from memory:",
+                "Écris-le en kanji, de mémoire :"
+              )
+          ),
+          div(
+            cls := "series-meaning",
+            meanings.headOption.fold("")(_.glosses.take(3).mkString(", "))
+          ),
+          span(
+            cls := "word-reading",
+            lang := "ja",
+            word.readings.headOption.getOrElse("")
+          ),
+          writing.node.amend(
+            writing.written --> (characters =>
+              submitted.writer.onNext(
+                VocabularyAnswer(
+                  word.id,
+                  Direction.InKanji,
+                  characters.map(_.character).mkString,
+                  js.Date.now() - shownAt,
+                  alreadyKnown = false,
+                  written = characters,
+                  attempt = task.attempt
+                )
+              )
+            )
+          ),
+          div(
+            cls := "writing-controls",
+            button(
+              Tr("I don't know", "Je ne sais pas"),
+              onClick --> (_ => submit(""))
+            )
+          )
+        )
+      case Direction.Production if stylus.now() =>
+        val (meanings, inEnglish) = frenchFirst(word)
+        val reading = word.readings.headOption.getOrElse("")
+        // written with the kanji the learner writes, or, as they choose, in
+        // kana
+        val inKana = Var(task.word.inKanji.isEmpty)
+        def writingOf(written: String): HtmlElement = {
+          val writing = HandwrittenWord(bus, written)
+          writing.node.amend(
+            writing.written --> (characters =>
+              submitted.writer.onNext(
+                VocabularyAnswer(
+                  word.id,
+                  Direction.Production,
+                  written,
+                  js.Date.now() - shownAt,
+                  alreadyKnown = known.now().contains(word.id),
+                  written = characters,
+                  sentence = sentence,
+                  attempt = task.attempt
+                )
+              )
+            )
+          )
+        }
+        div(
+          cls := "series-task",
+          p(
+            cls := "placement-prompt",
+            child.text <-- inKana.signal.map(
+              if (_)
+                Tr("Write from memory, in kana:", "Écris de mémoire, en kana :")
+              else
+                Tr(
+                  "Write from memory, with the kanji you write:",
+                  "Écris de mémoire, avec les kanji que tu sais écrire :"
+                )
+            )
           ),
           inSentence(word),
           div(
@@ -297,30 +379,32 @@ class VocabularySeries(
                 div(cls := "in-english", english.glosses.take(2).mkString(", "))
               )
           ),
-          writing.node.amend(
-            writing.written --> (written =>
-              submitted.writer.onNext(
-                VocabularyAnswer(
-                  word.id,
-                  Direction.Production,
-                  reading,
-                  js.Date.now() - shownAt,
-                  alreadyKnown = known.now().contains(word.id),
-                  written = written,
-                  sentence = sentence,
-                  attempt = task.attempt
-                )
-              )
-            )
+          child <-- inKana.signal.map(kana =>
+            writingOf(task.word.inKanji.filterNot(_ => kana).getOrElse(reading))
           ),
-          button(
-            Tr("I don't know", "Je ne sais pas"),
-            onClick --> (_ => submit(""))
+          div(
+            cls := "writing-controls",
+            task.word.inKanji.map(_ =>
+              button(
+                typ := "button",
+                child.text <-- inKana.signal.map(
+                  if (_) Tr("With kanji", "Avec les kanji")
+                  else Tr("In kana", "En kana")
+                ),
+                onClick --> (_ => inKana.update(!_))
+              )
+            ),
+            button(
+              Tr("I don't know", "Je ne sais pas"),
+              onClick --> (_ => submit(""))
+            )
           )
         )
       case Direction.Production =>
         val katakana = word.readings.headOption.exists(Romaji.isKatakana)
-        val field = KanaInput(katakana)
+        val field = KanaInput(
+          if (katakana) KanaInput.Mode.Katakana else KanaInput.Mode.Hiragana
+        )
         val (meanings, inEnglish) = frenchFirst(word)
         div(
           cls := "series-task",
@@ -429,8 +513,31 @@ class VocabularySeries(
   ): HtmlElement = div(
     cls := "series-task",
     verdictLine(verdict),
+    // answered in kana: the word as the learner writes it, kanji and all
+    verdict.inKanji.map(written =>
+      p(
+        cls := "kanji-reminder",
+        Tr(
+          "With the kanji you write: ",
+          "Avec les kanji que tu sais écrire : "
+        ),
+        span(lang := "ja", written)
+      )
+    ),
     Option.when(verdict.verdict != Verdict.Right && answer.typed.nonEmpty)(
       YouWrote(answer.typed).node
+    ),
+    // asked in kanji, missed: how it is written
+    Option.when(
+      task.direction == Direction.InKanji && verdict.verdict != Verdict.Right
+    )(
+      task.word.inKanji.map(form =>
+        p(
+          cls := "kanji-reminder",
+          Tr("In kanji: ", "En kanji : "),
+          span(lang := "ja", form)
+        )
+      )
     ),
     wordShown(task.word.word),
     meaningsShown(task.word.word),
@@ -558,8 +665,62 @@ class VocabularySeries(
         }
     }
 
+  // the word under way, as the tutor is told it: shown, asked one way (in
+  // its sentence, if any), then answered and judged
+  private val told: Signal[Option[QuestionContext]] = queue.signal
+    .combineWith(phase.signal, sentences.signal)
+    .map { (tasks, now, written) =>
+      def about(word: DictionaryWord, task: String) = {
+        val sentence = written.get(word.id)
+        QuestionContext(
+          AskedFrom.Exercise,
+          word = this.written(word).headOption,
+          sentence = sentence.map(_.japanese),
+          french = sentence.map(_.french),
+          task = Some(task)
+        )
+      }
+      def taskOf(ask: SeriesTask.Ask) = ask.direction match {
+        case Direction.Production =>
+          s"Write in Japanese the word meaning: ${ask.word.word.firstMeaning} (expected: ${this.written(ask.word.word).mkString(" or ")})"
+        case Direction.Meaning =>
+          s"Give the meaning, in French, of: ${this.written(ask.word.word).mkString(", ")}"
+        case Direction.InKanji =>
+          s"Write in kanji, from memory, the word read ${ask.word.word.readings.headOption.getOrElse("")}, meaning: ${ask.word.word.firstMeaning} (expected: ${ask.word.inKanji.getOrElse("")})"
+      }
+      (tasks, now) match {
+        case (SeriesTask.Intro(word) :: _, Phase.Asking) =>
+          Some(about(word.word, "A new word, shown with its meanings"))
+        case ((ask: SeriesTask.Ask) :: _, Phase.Asking) =>
+          Some(about(ask.word.word, taskOf(ask)))
+        case (Nil, Phase.Asking)                      => None
+        case (_, Phase.Judged(task, answer, verdict)) =>
+          Some(
+            about(task.word.word, taskOf(task)).copy(
+              from = AskedFrom.Correction,
+              answer = Some(
+                if (answer.written.nonEmpty)
+                  answer.written.map(_.character).mkString
+                else answer.typed
+              ).filter(_.nonEmpty),
+              verdict = Some(verdict.verdict.toString)
+            )
+          )
+        case (_, Phase.SelfGrading(task, typed)) =>
+          Some(
+            about(task.word.word, taskOf(task)).copy(
+              from = AskedFrom.Correction,
+              answer = Some(typed),
+              verdict = Some("not judged: the learner compares their answer")
+            )
+          )
+        case (_, Phase.Done) => None
+      }
+    }
+
   override lazy val node: HtmlElement = div(
     cls := "vocabulary-series",
+    TutorContext(bus, told).node,
     label(
       cls := "session-context",
       input(

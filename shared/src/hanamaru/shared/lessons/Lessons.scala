@@ -129,13 +129,15 @@ final case class LessonText(sentences: List[LessonExample])
 /** A lesson session planned: the points to review, first; then the words to
   * practise in a series, if any; then the lesson to learn, the unit under way's
   * when its point was never practised (none once the curriculum is learned);
-  * then the kana or kanji to practise, if any.
+  * then the kana or kanji to practise, if any. `inKanji`: the known words the
+  * series asks to be written in kanji for the first time, as asked.
   */
 final case class LessonPlan(
     reviews: List[GrammarPoint],
     series: Option[SeriesOf],
     next: Option[GrammarPoint],
-    characters: Option[CharactersOf]
+    characters: Option[CharactersOf],
+    inKanji: List[String] = Nil
 ) {
   def isEmpty: Boolean =
     reviews.isEmpty && series.isEmpty && next.isEmpty && characters.isEmpty

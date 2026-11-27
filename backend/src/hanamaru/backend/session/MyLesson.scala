@@ -5,7 +5,7 @@ import hanamaru.backend.lessons.Lessons
 import hanamaru.backend.vocabulary.VocabularyPractice
 import hanamaru.shared.characters.CharactersOf
 import hanamaru.shared.lessons.LessonPlan
-import hanamaru.shared.vocabulary.SeriesOf
+import hanamaru.shared.vocabulary.{SeriesOf, WordAsked}
 
 import java.time.Instant
 
@@ -18,15 +18,23 @@ final class MyLesson(
     characters: CharacterPractice
 ) {
 
-  /** What is due, or new: none of it when nothing is. */
-  def plan(now: Instant): LessonPlan =
-    lessons.plan(
-      now,
-      Option.when(
-        vocabulary.series(now, SeriesOf.MyLesson).exists(_.nonEmpty)
-      )(SeriesOf.MyLesson),
-      Option.when(characters.exercises(now).nonEmpty)(CharactersOf.MyLesson)
-    )
+  /** What is due, or new: none of it when nothing is; the words new to be
+    * written in kanji named.
+    */
+  def plan(now: Instant): LessonPlan = {
+    val words = vocabulary.series(now, SeriesOf.MyLesson).getOrElse(Nil)
+    lessons
+      .plan(
+        now,
+        Option.when(words.nonEmpty)(SeriesOf.MyLesson),
+        Option.when(characters.exercises(now).nonEmpty)(CharactersOf.MyLesson)
+      )
+      .copy(inKanji =
+        words
+          .filter(word => word.isNew && word.asked == WordAsked.InKanji)
+          .flatMap(_.inKanji)
+      )
+  }
 
   /** A session the learner asks for, to make what is learned hold better: each
     * part what is due, else, nothing being, the unit under way gone over again:

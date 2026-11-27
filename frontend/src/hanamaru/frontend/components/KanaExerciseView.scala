@@ -11,11 +11,11 @@ import hanamaru.shared.writing.WritingStep
 import com.raquo.laminar.api.L.*
 
 /** A kana exercise: read (shown, its reading typed in romaji; a katakana in a
-  * loanword, the word's reading typed in kana), or written from its reading; a
-  * new kana is shown stroke by stroke first, then written over its model, then
-  * from memory. Each answer is kept as a review by the server, or, in a focus
-  * (`kept`), only judged; how it went is `answered`. Once done, `next` leads
-  * on.
+  * loanword, the word's reading typed in romaji too), or written from its
+  * reading; a new kana is shown stroke by stroke first, then written over its
+  * model, then from memory. Each answer is kept as a review by the server, or,
+  * in a focus (`kept`), only judged; how it went is `answered`. Once done,
+  * `next` leads on.
   */
 class KanaExerciseView(
     bus: AppBus,
@@ -143,16 +143,25 @@ class KanaExerciseView(
       )
     )
   } { word =>
-    // typed in romaji, shown in katakana as it is typed
-    val field = KanaInput(katakana = true)
-    val stylusField = StylusField(bus, field, Var(true))
+    // typed in romaji, left as typed: shown in katakana, or written with the
+    // stylus, the word would only be copied
+    val field = input(
+      cls := "reading-input",
+      placeholder := "romaji",
+      autoComplete := "off",
+      spellCheck := false,
+      onMountFocus
+    )
     val answers = EventBus[KanaReadingAnswer]()
     def answer(typed: Option[String]) =
       KanaReadingAnswer(kana.character, typed, Some(word.id), kept)
     div(
       p(
         cls := "placement-prompt",
-        Tr("How is this word read?", "Comment se lit ce mot ?")
+        Tr(
+          "How is this word read? Type its reading in romaji.",
+          "Comment se lit ce mot ? Écris sa lecture en romaji."
+        )
       ),
       span(
         cls := "word-big",
@@ -160,14 +169,14 @@ class KanaExerciseView(
         word.readings.headOption.getOrElse("")
       ),
       form(
-        onSubmit.preventDefault.map { _ =>
-          stylusField.keep(field.value)
-          answer(Some(field.value))
-        } --> answers.writer,
+        cls := "answer-form",
+        onSubmit.preventDefault
+          .map(_ => field.ref.value.trim)
+          .filter(_.nonEmpty)
+          .map(typed => answer(Some(typed))) --> answers.writer,
         field,
         button(typ := "submit", cls := "primary", Tr("Answer", "Valider"))
       ),
-      stylusField.node,
       button(
         Tr("I don't know", "Je ne sais pas"),
         onClick.mapTo(answer(None)) --> answers.writer

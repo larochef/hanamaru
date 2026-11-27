@@ -164,6 +164,17 @@ class HomePage(bus: AppBus) extends ReactiveElement {
         )
       ),
       li(
+        PageLink(
+          bus,
+          Page.FreePractice,
+          Tr("Free practice", "Entraînement libre")
+        ),
+        Tr(
+          ": sentences on everything learned so far, to translate both ways.",
+          " : des phrases sur tout ce qui est appris, à traduire dans les deux sens."
+        )
+      ),
+      li(
         PageLink(bus, Page.Grammar, Tr("The grammar", "La grammaire")),
         Tr(": every lesson, in order.", " : toutes les leçons, dans l'ordre.")
       ),

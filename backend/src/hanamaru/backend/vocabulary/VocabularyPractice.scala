@@ -1,10 +1,11 @@
 package hanamaru.backend.vocabulary
 
-import hanamaru.backend.kanji.KanjiSight
+import hanamaru.backend.kanji.{KanjiHand, KanjiSight}
 import hanamaru.backend.learner.*
-import hanamaru.backend.lessons.Units
-import hanamaru.backend.reference.Dictionary
+import hanamaru.backend.lessons.{Standing, Units}
+import hanamaru.backend.reference.{Dictionary, SentenceLayout}
 import hanamaru.backend.writing.{WritingAttempts, WritingReview}
+import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.learner.Grade
 import hanamaru.shared.vocabulary.*
 
@@ -25,7 +26,8 @@ final class VocabularyPractice(
     attempts: WritingAttempts,
     writing: WritingReview,
     sentences: SentenceWriter,
-    units: Units
+    units: Units,
+    kanji: KanjiHand
 ) {
   private val largestSeries = 10
   private val mostNew = 5
@@ -41,14 +43,44 @@ final class VocabularyPractice(
     * words wait until its kana are met. A series the learner asked for
     * ([[SeriesOf.Free]]) is filled up with words met ([[Rotation]]), those not
     * reviewed for a day first: it never comes empty, and every word comes back.
-    * One unit's ([[SeriesOf.OfUnit]]): [[ofUnit]].
+    * One unit's ([[SeriesOf.OfUnit]]): [[ofUnit]]. My lesson's and a free one
+    * then ask the known words to be written in kanji ([[inKanji]]).
     */
   def series(at: Instant, of: SeriesOf): Either[String, List[SeriesWord]] =
-    of match {
+    (of match {
       case SeriesOf.MyLesson      => byUnits(at, fill = false)
       case SeriesOf.Free          => byUnits(at, fill = true)
       case SeriesOf.OfUnit(point) => ofUnit(point, at)
+    }).map { words =>
+      // each written by hand with the kanji the learner writes
+      val written = kanji.writes()
+      val asked = words.map(each =>
+        each.copy(inKanji = kanji.asWritten(each.word, written))
+      )
+      of match {
+        case SeriesOf.OfUnit(_)                => asked
+        case SeriesOf.MyLesson | SeriesOf.Free =>
+          asked ++ inKanji(at, asked.map(_.word.id).toSet)
+      }
     }
+
+  // the known words to be written in kanji ([[VocabularyPractice.inKanji]])
+  private def inKanji(at: Instant, taken: Set[Long]): List[SeriesWord] = {
+    val now: Standing = units.standing()
+    val taught = units.allKanji
+    VocabularyPractice.inKanji(
+      learner.cards(ItemKind.WordInKanji),
+      VocabularyPractice.writableInKanji(
+        units.soFar.flatMap(units.wordsOf).distinctBy(_.id),
+        now.stable,
+        literal =>
+          taught(literal) && now.symbolCardPassed(literal, CardKind.Writing),
+        kanji.asTaught(_, taught)
+      ),
+      at,
+      taken
+    )
+  }
 
   private def byUnits(
       at: Instant,
@@ -198,15 +230,33 @@ final class VocabularyPractice(
         .headOption
         .toRight(s"No word ${answer.word}")
     } yield {
+      val ways = kanji.ways(word)
       val (verdict, tutorMatched) = answer.direction match {
         case Direction.Production if answer.written.nonEmpty =>
           answer.written.foreach { attempt =>
             attempts.record(attempt)
             writing.writtenInWord(attempt, at)
           }
-          AnswerGrading.handwritten(answer.written, word) -> None
+          AnswerGrading.handwritten(answer.written, ways) -> None
         case Direction.Production =>
-          AnswerGrading.production(answer.typed, word, words.withForm) -> None
+          AnswerGrading.production(
+            answer.typed,
+            word,
+            words.withForm,
+            ways
+          ) -> None
+        case Direction.InKanji =>
+          // its kanji the units teach required, any other may be too
+          val required = kanjiIn(kanji.asTaught(word, units.allKanji))
+          val accepted = ways.filter(way => required.forall(way.contains))
+          if (answer.written.nonEmpty) {
+            answer.written.foreach { attempt =>
+              attempts.record(attempt)
+              writing.writtenInWord(attempt, at)
+            }
+            AnswerGrading.handwritten(answer.written, accepted) -> None
+          } else if (accepted(answer.typed.trim)) Verdict.Right -> None
+          else Verdict.Wrong -> None
         case Direction.Meaning if answer.typed.trim.isEmpty =>
           Verdict.Wrong -> None
         case Direction.Meaning if AnswerGrading.meaning(answer.typed, word) =>
@@ -233,6 +283,18 @@ final class VocabularyPractice(
           at
         )
       )
+      // answered in kana, the word as the learner writes it, to remind them
+      val answeredWith =
+        if (answer.written.nonEmpty) answer.written.map(_.character).mkString
+        else answer.typed
+      val inKanji = Option
+        .when(
+          answer.direction == Direction.Production &&
+            verdict != Verdict.Wrong && !answeredWith.exists(
+              SentenceLayout.isKanji
+            )
+        )(kanji.asWritten(word, kanji.writes()))
+        .flatten
       VocabularyVerdict(
         verdict,
         grade,
@@ -240,7 +302,8 @@ final class VocabularyPractice(
         VocabularyPractice.comesBack(
           verdict == Verdict.Wrong,
           answer.attempt
-        )
+        ),
+        inKanji
       )
     }
 
@@ -266,36 +329,107 @@ final class VocabularyPractice(
       grade: Grade,
       answer: String,
       at: Instant
-  ): Unit =
+  ): Unit = {
+    val (item, card) = direction match {
+      case Direction.Production => ItemKind.Word -> CardKind.Production
+      case Direction.Meaning    => ItemKind.Word -> CardKind.Meaning
+      case Direction.InKanji    => ItemKind.WordInKanji -> CardKind.Writing
+    }
     learner.reviewed(
-      ItemKind.Word,
+      item,
       word.toString,
-      direction match {
-        case Direction.Production => CardKind.Production
-        case Direction.Meaning    => CardKind.Meaning
-      },
+      card,
       grade,
       answer,
       at,
       toConfirm = grade == Grade.Easy
     )
+  }
+
+  private def kanjiIn(written: String): List[String] =
+    VocabularyPractice.kanjiIn(written)
 }
 
 object VocabularyPractice {
+
+  // the words a series asks in kanji at most, those due first; and the new
+  // ones a day at most: a kanji learned may open many words at once
+  private val mostInKanji = 5
+  val newInKanjiADay = 5
+
+  /** The kanji of a word as written, each once (々 aside). */
+  def kanjiIn(written: String): List[String] =
+    AnswerGrading
+      .characters(written)
+      .filter(character =>
+        character != "々" && character.length == 1 &&
+          SentenceLayout.isKanji(character.head)
+      )
+      .distinct
+
+  /** The known words that can be written in kanji, with how (`asTaught`: the
+    * kanji the units teach as themselves, the others in kana, 友だち): stable,
+    * usually written with kanji, their kanji in that form (one at least) all
+    * written past their first steps (`written`).
+    */
+  def writableInKanji(
+      words: List[DictionaryWord],
+      stable: Long => Boolean,
+      written: String => Boolean,
+      asTaught: DictionaryWord => String
+  ): List[(DictionaryWord, String)] =
+    words
+      .filter(word => !word.usuallyKana && stable(word.id))
+      .flatMap { word =>
+        val form = asTaught(word)
+        val its = kanjiIn(form)
+        Option.when(its.nonEmpty && its.forall(written))(word -> form)
+      }
+
+  /** The known words a series asks in kanji (`writable`, each with its form):
+    * those whose card (`cards`) is due, then new ones, [[newInKanjiADay]] a day
+    * at most; none already in the series (`taken`).
+    */
+  def inKanji(
+      cards: List[ItemCard],
+      writable: List[(DictionaryWord, String)],
+      at: Instant,
+      taken: Set[Long]
+  ): List[SeriesWord] = {
+    val has = cards.map(_.key).toSet
+    val dayAgo = at.minus(Duration.ofDays(1)).toEpochMilli
+    val room = (newInKanjiADay - cards.count(_.firstReviewed >= dayAgo)).max(0)
+    val byKey =
+      writable.map((word, form) => word.id.toString -> (word, form)).toMap
+    def asked(word: DictionaryWord, form: String, isNew: Boolean) =
+      SeriesWord(word, isNew, inKanji = Some(form), asked = WordAsked.InKanji)
+    val due = cards
+      .filter(_.due <= at.toEpochMilli)
+      .sortBy(_.due)
+      .flatMap(card => byKey.get(card.key))
+      .map(asked(_, _, isNew = false))
+    val fresh = writable
+      .filterNot((word, _) => has(word.id.toString) || taken(word.id))
+      .take(room)
+      .map(asked(_, _, isNew = true))
+    (due.filterNot(each => taken(each.word.id)) ++ fresh).take(mostInKanji)
+  }
 
   // a missed question comes back this many questions later, twice at most
   private val comesBackAfter = 4
   private val mostReturns = 2
 
   /** A series planned: the new words shown first; every word asked for itself,
-    * then for its meaning, each in a mixed order; the new ones asked for
-    * themselves once more, at the end.
+    * then for its meaning, each in a mixed order; those to be written in kanji
+    * then, only so; the new ones asked for themselves once more, at the end.
     */
   def planned(words: List[SeriesWord]): List[SeriesTask] = {
-    val fresh = words.filter(_.isNew)
+    val (inKanji, bothWays) = words.partition(_.asked == WordAsked.InKanji)
+    val fresh = bothWays.filter(_.isNew)
     fresh.map(SeriesTask.Intro(_)) ++
-      Random.shuffle(words.map(SeriesTask.Ask(_, Direction.Production))) ++
-      Random.shuffle(words.map(SeriesTask.Ask(_, Direction.Meaning))) ++
+      Random.shuffle(bothWays.map(SeriesTask.Ask(_, Direction.Production))) ++
+      Random.shuffle(bothWays.map(SeriesTask.Ask(_, Direction.Meaning))) ++
+      Random.shuffle(inKanji.map(SeriesTask.Ask(_, Direction.InKanji))) ++
       Random.shuffle(
         fresh.map(SeriesTask.Ask(_, Direction.Production, again = true))
       )

@@ -49,6 +49,12 @@ final class Units(
       }
       .map(_.getOrElse(point.id, Nil))
 
+  /** The kanji every unit teaches, all of them (none known until the kanji and
+    * the dictionary are ready).
+    */
+  def allKanji: Set[String] =
+    points.flatMap(kanjiOf(_).getOrElse(Nil)).toSet
+
   /** A unit's symbols: the kana of its script for the first two, else its kanji
     * (none known until the kanji are ready).
     */

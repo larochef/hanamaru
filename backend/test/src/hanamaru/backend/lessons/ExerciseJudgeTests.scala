@@ -1,8 +1,10 @@
 package hanamaru.backend.lessons
 
+import hanamaru.backend.kanji.{KanjiHand, KanjiHandTests}
+
 import hanamaru.backend.models.*
 import hanamaru.shared.lessons.*
-import hanamaru.shared.text.SentencePart
+import hanamaru.shared.text.{PartWord, SentencePart}
 
 import java.net.http.HttpClient
 import java.nio.file.{Files, Path}
@@ -22,7 +24,11 @@ object ExerciseJudgeTests extends TestSuite {
       directory,
       http
     )
-    ExerciseJudge(LlamaClient(tutor, http), () => None)
+    ExerciseJudge(
+      LlamaClient(tutor, http),
+      () => None,
+      KanjiHand(KanjiHandTests.forms, () => Set("会"))
+    )
   }
 
   private def exercise(kind: ExerciseKind, expected: String) = LessonExercise(
@@ -69,6 +75,26 @@ object ExerciseJudgeTests extends TestSuite {
         )
       )
     }
+    test("particles typed in romaji or kana, each in its blank") {
+      val two = particle.copy(
+        parts = List(
+          SentencePart("わたし", false, false),
+          SentencePart("の", true, false),
+          SentencePart("ちち", false, false),
+          SentencePart("は", true, false),
+          SentencePart("いしゃです。", false, true)
+        ),
+        expected = "の は"
+      )
+      assert(
+        judge.judged(ExerciseAnswer(two, "no ha")).right,
+        judge.judged(ExerciseAnswer(two, "の は")).right,
+        !judge.judged(ExerciseAnswer(two, "no ")).right
+      )
+      // said as heard: wrong, its spelling explained
+      val heard = judge.judged(ExerciseAnswer(two, "no wa"))
+      assert(!heard.right, heard.explanation.exists(_.contains("ha, he, wo")))
+    }
     test("another particle, with no tutor to judge it, is not right") {
       val verdict = judge.judged(ExerciseAnswer(particle, "も"))
       assert(!verdict.right, !verdict.byTutor)
@@ -77,6 +103,51 @@ object ExerciseJudgeTests extends TestSuite {
       assert(
         judge.judged(ExerciseAnswer(translation, "わたしは がくせいです")) ==
           ExerciseVerdict(right = true, byTutor = false, None, None)
+      )
+    }
+    test("a slip in a word: right for the lesson, the slip said") {
+      def word(text: String) =
+        SentencePart(text, false, false, Some(PartWord(text, text, "", "")))
+      val listed = translation.copy(
+        parts = List(
+          word("わたし"),
+          SentencePart("は", true, false),
+          word("がくせい"),
+          SentencePart("です", false, false),
+          SentencePart("。", false, false)
+        )
+      )
+      val slipped = judge.judged(ExerciseAnswer(listed, "わたしは がくせです"))
+      assert(slipped.right, slipped.explanation.exists(_.contains("は")))
+      assert(
+        // the point itself missed
+        !judge.judged(ExerciseAnswer(listed, "わたしが がくせいです")).right,
+        // a slip in grammar beside it: です
+        !judge.judged(ExerciseAnswer(listed, "わたしは がくせいだす")).right,
+        // too many slips
+        !judge.judged(ExerciseAnswer(listed, "わたは がくです")).right,
+        // a word not as the dictionary has it: no slip allowed in it
+        !judge.judged(ExerciseAnswer(translation, "わたしは がくせです")).right
+      )
+    }
+    test("a slip within the nouns only, the analyser saying which") {
+      def part(text: String, marked: Boolean = false) =
+        SentencePart(text, marked, false)
+      // 田中さんの車ですか: たなか, さん and くるま nouns
+      val parts = List(
+        part("たなか") -> true,
+        part("さん") -> true,
+        part("の", marked = true) -> false,
+        part("くるま") -> true,
+        part("です") -> false,
+        part("か") -> false
+      )
+      assert(
+        ExerciseJudge.pointRight("たなかさのくるまですか", parts),
+        !ExerciseJudge.pointRight("たなかさんのくるまでしか", parts),
+        !ExerciseJudge.pointRight("たなかさんはくるまですか", parts),
+        ExerciseJudge.isNoun(List("接尾辞", "名詞的", "一般")),
+        !ExerciseJudge.isNoun(List("助動詞"))
       )
     }
     test("in the other script, right, and the script said") {
@@ -103,6 +174,24 @@ object ExerciseJudgeTests extends TestSuite {
       val negation = translation.copy(expected = "がくせいではありません。")
       val verdict = judge.judged(ExerciseAnswer(negation, "がくせいじゃありません"))
       assert(verdict.right, verdict.explanation.exists(_.contains("ではありません")))
+    }
+    test(
+      "written with kanji, all or some: right; in kana, the kanji recalled"
+    ) {
+      val company = translation.copy(
+        parts = List(
+          SentencePart("かいしゃ", false, false, written = Some("会社")),
+          SentencePart("です", false, false)
+        ),
+        expected = "かいしゃです"
+      )
+      val inKana = judge.judged(ExerciseAnswer(company, "かいしゃです"))
+      assert(
+        judge.judged(ExerciseAnswer(company, "会社です")).right,
+        judge.judged(ExerciseAnswer(company, "会しゃです")).right,
+        inKana.right,
+        inKana.explanation.exists(_.contains("会しゃ"))
+      )
     }
     test("nothing typed is not right, and the tutor is not asked") {
       assert(

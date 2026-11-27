@@ -504,7 +504,8 @@ button:disabled {
   margin-top: 0;
 }
 
-.session-context {
+.session-context,
+.stylus-choice {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -689,7 +690,8 @@ button:disabled {
   gap: 1rem;
 }
 
-.series-task form {
+.series-task form,
+.answer-form {
   display: flex;
   gap: 0.5rem;
 }
@@ -813,6 +815,14 @@ button:disabled {
   border-color: var(--ink);
 }
 
+/* a kanji to write: a box a size up, its border doubled */
+.character-place.is-kanji {
+  width: 3rem;
+  height: 3rem;
+  border-style: double;
+  border-width: 3px;
+}
+
 .character-place.is-done {
   border-color: var(--ink);
 }
@@ -835,6 +845,15 @@ button:disabled {
   flex-direction: column;
   gap: 0.75rem;
   align-self: stretch;
+}
+
+.kanji-reminder {
+  color: var(--muted);
+}
+
+.kanji-reminder [lang="ja"] {
+  color: var(--ink);
+  font-size: 1.3rem;
 }
 
 .pad-candidates {
@@ -942,6 +961,23 @@ button:disabled {
 
 .word-sentence .is-asked {
   color: var(--accent);
+}
+
+/* a particle typed in its blank, in the sentence's line; the blank the stylus
+   writes in marked */
+.word-sentence .kana-blank.is-current .particle-input {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+}
+
+.word-sentence .particle-input {
+  width: 3.2em;
+  margin: 0 0.15em;
+  padding: 0 0.2em;
+  font: inherit;
+  font-size: 1.4rem;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .series-sentence {
@@ -1569,13 +1605,152 @@ button:disabled {
   min-width: 9rem;
 }
 
+/* where the kanji stands above it, the kanji centred, its button at the
+   card's bottom, whatever its meanings' length */
+.unit-kanji-card .standing {
+  align-self: center;
+}
+
 .unit-kanji-literal {
+  align-self: center;
   font-size: 3rem;
   line-height: 1;
   text-decoration: none;
   color: var(--ink);
 }
 
+.unit-kanji-card > button {
+  align-self: center;
+  margin-top: auto;
+}
+
+.unit-kanji-meaning {
+  align-self: center;
+  text-align: center;
+}
+
 .unit-kanji-readings {
   color: var(--muted);
+}
+
+/* a session's step left aside, below the step and apart from it */
+.step-skip {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--faint);
+}
+
+/* a question to the tutor, and its answers, under what it is about */
+.ask-tutor {
+  margin-top: 1.5rem;
+}
+
+.ask-tutor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--faint);
+  border-radius: 8px;
+}
+
+.tutor-field {
+  width: 100%;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.tutor-question {
+  margin: 0;
+  font-weight: 600;
+}
+
+.tutor-answer {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.questions-page .asked-question {
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--faint);
+}
+
+.asked-sentence {
+  margin: 0.2rem 0;
+  font-size: 1.3rem;
+}
+
+/* the tutor, a button away at the bottom right of every page, above pop-ins */
+.tutor-chat {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.tutor-chat-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+}
+
+.tutor-chat-button .button-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.tutor-chat-panel {
+  width: min(26rem, calc(100vw - 32px));
+  max-height: min(36rem, calc(100vh - 6rem));
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--faint);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+  overflow: hidden;
+}
+
+.tutor-chat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem 0.4rem 1rem;
+  border-bottom: 1px solid var(--faint);
+}
+
+.tutor-chat-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.tutor-chat-panel .ask-tutor-panel {
+  border: none;
+  overflow-y: auto;
+}
+
+.tutor-about {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.tutor-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }

@@ -4,6 +4,7 @@ import hanamaru.shared.characters.*
 import hanamaru.shared.kanji.KanjiReadingAnswer
 import hanamaru.shared.lessons.*
 import hanamaru.shared.placement.*
+import hanamaru.shared.questions.TutorQuestion
 import hanamaru.shared.session.{SessionAnswer, SessionStart}
 import hanamaru.shared.vocabulary.*
 import hanamaru.shared.writing.{PadCharacter, WritingAttempt}
@@ -75,8 +76,8 @@ object AppCommand {
   /** Asks the tutor for a new reading text for a lesson. */
   final case class WriteLessonText(point: String) extends AppCommand
 
-  /** Asks for exercises on a lesson's point. */
-  final case class LoadExercises(point: String) extends AppCommand
+  /** Asks for exercises: on a lesson's point, or free. */
+  final case class LoadExercises(of: ExercisesOf) extends AppCommand
 
   /** Has an exercise's answer judged. */
   final case class AnswerExercise(answer: ExerciseAnswer) extends AppCommand
@@ -138,4 +139,10 @@ object AppCommand {
   /** A kanji written, to keep (a review when written from memory). */
   final case class RecordKanjiWriting(attempt: WritingAttempt)
       extends AppCommand
+
+  /** A question to the tutor, to keep and answer. */
+  final case class AskTutor(question: TutorQuestion) extends AppCommand
+
+  /** Asks for every question asked. */
+  case object LoadQuestions extends AppCommand
 }

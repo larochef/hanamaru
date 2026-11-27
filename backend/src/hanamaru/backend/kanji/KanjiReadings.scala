@@ -31,17 +31,15 @@ object KanjiReadings {
     (plain ++ voiced ++ short).distinct.sortBy(-_.length)
   }
 
-  /** Where the reading of `literal` lies in `reading`, the word's written
-    * `writing` (from, until); none when the writing's kana and its kanji's
-    * forms ([[formsOf]], by `forms`, none for a kana) cannot be laid along the
-    * reading.
+  /** Each character of `writing` with where its reading lies in `reading`
+    * (from, until): its kana and its kanji's forms ([[formsOf]], by `forms`,
+    * none for a kana) laid along the reading; none when they cannot be.
     */
-  def spanOf(
+  def laidOut(
       writing: String,
       reading: String,
-      literal: String,
       forms: String => List[String]
-  ): Option[(Int, Int)] = {
+  ): Option[List[(String, (Int, Int))]] = {
     val said = Romaji.asHiragana(reading)
     val characters = writing.map(_.toString).toList
     def laid(at: Int, rest: List[String]): Option[List[(Int, Int)]] =
@@ -59,12 +57,21 @@ object KanjiReadings {
             )
             .nextOption()
       }
-    laid(0, characters).flatMap(spans =>
-      characters.zip(spans).collectFirst {
-        case (character, span) if character == literal => span
-      }
-    )
+    laid(0, characters).map(characters.zip(_))
   }
+
+  /** Where the reading of `literal` lies in `reading`, the word's written
+    * `writing` ([[laidOut]]).
+    */
+  def spanOf(
+      writing: String,
+      reading: String,
+      literal: String,
+      forms: String => List[String]
+  ): Option[(Int, Int)] =
+    laidOut(writing, reading, forms).flatMap(_.collectFirst {
+      case (character, span) if character == literal => span
+    })
 
   /** Whether `typed` has the part `span` of `expected` right: no letter of it
     * missed, changed, or added inside it, the mistakes elsewhere aside.

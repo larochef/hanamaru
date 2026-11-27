@@ -17,6 +17,9 @@ enum WritingIssue {
 
   /** Strokes left out: `count` of the character's `total`. */
   case Missing(count: Int, total: Int)
+
+  /** Not the character, but one of `characters`, closest first. */
+  case OtherCharacter(characters: List[String])
 }
 
 /** How a character written from memory went: right, right but for the order or
@@ -80,7 +83,11 @@ object WritingCorrection {
         }
     }
     val missing = expected - attempt.strokes.size
-    perStroke ++ Option.when(missing > 0)(
+    Option
+      .when(attempt.looksLike.nonEmpty)(
+        WritingIssue.OtherCharacter(attempt.looksLike)
+      )
+      .toList ++ perStroke ++ Option.when(missing > 0)(
       WritingIssue.Missing(missing, expected)
     )
   }

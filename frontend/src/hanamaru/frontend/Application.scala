@@ -61,6 +61,10 @@ object Application {
       div(hidden <-- page.map(_ != Page.Session), SessionPage(bus)),
       div(hidden <-- page.map(_ != Page.Vocabulary), VocabularyPage(bus)),
       div(hidden <-- page.map(_ != Page.Series), SeriesPage(bus)),
+      div(
+        hidden <-- page.map(_ != Page.FreePractice),
+        FreePracticePage(bus)
+      ),
       div(hidden <-- page.map(_ != Page.Grammar), GrammarPage(bus)),
       div(
         hidden <-- page.map(!_.isInstanceOf[Page.Lesson]),
@@ -80,8 +84,10 @@ object Application {
         KanjiPage(bus)
       ),
       div(hidden <-- page.map(_ != Page.Credits), Credits()),
-      div(hidden <-- page.map(!_.isInstanceOf[Page.Unit]), UnitPage(bus))
+      div(hidden <-- page.map(!_.isInstanceOf[Page.Unit]), UnitPage(bus)),
+      div(hidden <-- page.map(_ != Page.Questions), QuestionsPage(bus))
     ),
+    TutorChat(bus),
     footerTag(
       cls := "page-foot",
       PageLink(bus, Page.Credits, Tr("Credits", "Crédits"))
@@ -104,6 +110,7 @@ object Application {
     LessonService(bus, apiClient)
     KanjiService(bus, apiClient)
     CharacterService(bus, apiClient)
+    QuestionService(bus, apiClient)
     TodayService(bus, apiClient)
     val navigation = NavigationService(bus)
     render(appContainer, shell)

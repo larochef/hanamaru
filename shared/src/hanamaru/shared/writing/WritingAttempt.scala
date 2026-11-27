@@ -35,7 +35,9 @@ final case class JudgedStroke(
   * as many strokes as it has; `expectedStrokes`, how many it has (0 in attempts
   * kept before it was recorded); `forgotten` when the learner said they did not
   * remember it, the strokes drawn till then kept, none of them a try at its
-  * shape.
+  * shape; `looksLike`, the characters it was recognised as, closest first, when
+  * it looks like other characters rather than itself (ん drawn as て, in a word
+  * written box by box), else none.
   */
 final case class WritingAttempt(
     character: String,
@@ -43,7 +45,8 @@ final case class WritingAttempt(
     strokes: List[JudgedStroke],
     completed: Boolean,
     expectedStrokes: Int = 0,
-    forgotten: Boolean = false
+    forgotten: Boolean = false,
+    looksLike: List[String] = Nil
 )
 
 object WritingAttempt {

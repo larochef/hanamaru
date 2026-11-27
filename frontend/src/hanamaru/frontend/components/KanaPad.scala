@@ -8,13 +8,15 @@ import scala.scalajs.js.timers.*
 
 import com.raquo.laminar.api.L.*
 
-/** Kana written one after the other with the stylus, in one box. Once the pen
-  * rests a moment, what is drawn is recognised among the kana of `script` (as
-  * it stands then) and taken as a character, out of `written`, and the box is
-  * cleared for the next one; a drawing far from any kana is left in the box, to
-  * be finished, erased or taken all the same. `strokes` are the kana's.
+/** Characters written one after the other with the stylus, in one box, each
+  * recognised among what `asked` says (as it stands then): a kana, once the pen
+  * rests a moment, among those of a script, taken as a character, out of
+  * `written`, and the box cleared for the next one, a drawing far from any kana
+  * left in the box, to be finished, erased or taken all the same; a kanji,
+  * among a few, only once the learner says it is written, as the pen rests
+  * between its many strokes. `strokes` are the characters'.
   */
-class KanaPad(strokes: List[CharacterStrokes], script: () => Script)
+class KanaPad(strokes: List[CharacterStrokes], asked: () => KanaPad.Asked)
     extends ReactiveElement {
   import KanaPad.*
 
@@ -22,6 +24,24 @@ class KanaPad(strokes: List[CharacterStrokes], script: () => Script)
   private val recognisers = Script.values.toList
     .map(each => each -> CharacterRecognizer.ofKana(strokes, each))
     .toMap
+
+  private val strokeCounts =
+    strokes
+      .map(character => character.character -> character.strokes.size)
+      .toMap
+
+  private def recogniser: CharacterRecognizer = asked() match {
+    case Asked.KanaOf(script) => recognisers(script)
+    case Asked.Kanji(among)   =>
+      CharacterRecognizer(
+        strokes
+          .filter(character => among.contains(character.character))
+          .map(character =>
+            character.character -> character.strokes
+              .map(stroke => SvgPath.points(stroke.path))
+          )
+      )
+  }
 
   private val drawn = Var(List.empty[List[DrawnPoint]])
   private val drawing = Var(Option.empty[List[DrawnPoint]])
@@ -56,16 +76,24 @@ class KanaPad(strokes: List[CharacterStrokes], script: () => Script)
   private def take(anyway: Boolean): Unit = {
     stopWaiting()
     val strokesDrawn = drawn.now()
-    val ranked = recognisers(script()).ranked(strokesDrawn.map(_.map(_.point)))
+    val ranked = recogniser.ranked(strokesDrawn.map(_.map(_.point)))
+    // a kanji is taken once it has all its strokes, not while it is begun
+    def whole(best: Recognised) = asked() match {
+      case Asked.KanaOf(_) => true
+      case Asked.Kanji(_)  =>
+        strokeCounts.get(best.character).forall(_ <= strokesDrawn.size)
+    }
     ranked.headOption match {
       case Some(best)
-          if anyway || best.distance <= CharacterRecognizer.recognisedWithin =>
+          if anyway || (best.distance <= CharacterRecognizer.recognisedWithin &&
+            whole(best)) =>
         drawn.set(Nil)
         unrecognised.set(false)
         taken.writer.onNext(
           Written(strokesDrawn, ranked.take(candidates).map(_.character))
         )
-      case _ => unrecognised.set(strokesDrawn.nonEmpty)
+      case Some(best) if !whole(best) => ()
+      case _                          => unrecognised.set(strokesDrawn.nonEmpty)
     }
   }
 
@@ -125,6 +153,12 @@ class KanaPad(strokes: List[CharacterStrokes], script: () => Script)
 }
 
 object KanaPad {
+
+  /** What a character written is recognised among. */
+  enum Asked {
+    case KanaOf(script: Script)
+    case Kanji(among: List[String])
+  }
 
   /** A character written: its strokes, and the kana it may be, closest first.
     */

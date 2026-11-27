@@ -196,7 +196,11 @@ class LessonView(
       h2(Tr("Examples", "Exemples")),
       lesson.examples.map(example(_, selected)),
       Option.when(lesson.hasText)(readingText(lesson.point.id, selected)),
-      LessonExercises(bus, lesson.point.id, onExercisesDone),
+      LessonExercises(
+        bus,
+        ExercisesOf.Lesson(lesson.point.id),
+        onExercisesDone
+      ),
       wordShown(selected),
       navTag(
         cls := "lesson-nav",

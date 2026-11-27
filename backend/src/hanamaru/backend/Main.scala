@@ -1,11 +1,12 @@
 package hanamaru.backend
 
 import hanamaru.backend.characters.{CharacterApi, CharacterPractice}
-import hanamaru.backend.kanji.{KanjiPractice, KanjiPracticeApi}
+import hanamaru.backend.kanji.*
 import hanamaru.backend.learner.{LearnerApi, LearnerStore}
 import hanamaru.backend.lessons.*
 import hanamaru.backend.models.*
 import hanamaru.backend.placement.*
+import hanamaru.backend.questions.{QuestionApi, TutorQuestions}
 import hanamaru.backend.reference.*
 import hanamaru.backend.session.*
 import hanamaru.backend.status.StatusApi
@@ -67,7 +68,8 @@ object Main extends OxApp {
       attempts,
       writingReview,
       SentenceWriter(tutor, () => reference.analyser),
-      units
+      units,
+      KanjiHand.of(() => reference.kanji, learner)
     )
     val kanji = KanjiPractice(
       () => reference.kanji,
@@ -136,9 +138,26 @@ object Main extends OxApp {
         LessonApi(
           lessons,
           exercises,
-          ExerciseJudge(tutor, () => reference.analyser),
+          ExerciseJudge(
+            tutor,
+            () => reference.analyser,
+            KanjiHand.of(() => reference.kanji, learner)
+          ),
           myLesson,
           UnitRecaps(units, () => reference.kanji)
+        ).endpoints
+      )
+      .addEndpoints(
+        QuestionApi(
+          TutorQuestions(
+            database,
+            tutor,
+            () => reference.analyser,
+            () => reference.dictionary,
+            () => reference.kanji,
+            units,
+            model.modelFile
+          )
         ).endpoints
       )
       .addEndpoints(
