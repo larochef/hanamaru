@@ -79,9 +79,14 @@ object AppEvent {
       extends AppEvent
 
   final case class ExercisesLoaded(
-      of: ExercisesOf,
+      point: String,
       exercises: List[LessonExercise]
   ) extends AppEvent
+
+  /** A free practice started, with its first exercise. */
+  final case class FreePracticeStarted(first: FreeExercise) extends AppEvent
+
+  final case class FreeExerciseLoaded(exercise: FreeExercise) extends AppEvent
 
   final case class ExerciseJudged(
       answer: ExerciseAnswer,

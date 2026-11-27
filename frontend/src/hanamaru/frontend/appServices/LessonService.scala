@@ -28,10 +28,23 @@ class LessonService(bus: AppBus, apiClient: ApiClient) {
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }
-    case command @ AppCommand.LoadExercises(of) =>
-      AppStreams.runOnce(apiClient.exercises(of)) {
+    case command @ AppCommand.LoadExercises(point) =>
+      AppStreams.runOnce(apiClient.exercises(point)) {
         case Right(exercises) =>
-          bus.publish(AppEvent.ExercisesLoaded(of, exercises))
+          bus.publish(AppEvent.ExercisesLoaded(point, exercises))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
+    case command @ AppCommand.StartFreePractice =>
+      AppStreams.runOnce(apiClient.startFreePractice()) {
+        case Right(first) => bus.publish(AppEvent.FreePracticeStarted(first))
+        case Left(reason) =>
+          bus.publish(AppEvent.RequestFailed(command, reason))
+      }
+    case command @ AppCommand.LoadFreeExercise(practice, index) =>
+      AppStreams.runOnce(apiClient.freeExercise(practice, index)) {
+        case Right(exercise) =>
+          bus.publish(AppEvent.FreeExerciseLoaded(exercise))
         case Left(reason) =>
           bus.publish(AppEvent.RequestFailed(command, reason))
       }

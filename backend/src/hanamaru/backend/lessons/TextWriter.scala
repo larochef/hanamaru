@@ -1,6 +1,6 @@
 package hanamaru.backend.lessons
 
-import hanamaru.backend.models.LlamaClient
+import hanamaru.backend.models.*
 import hanamaru.backend.reference.{Analyser, Token}
 import hanamaru.shared.kana.Romaji
 
@@ -11,9 +11,9 @@ import com.typesafe.scalalogging.Logger
 /** A short reading text for a lesson, written by the tutor on the lesson's
   * point with the points before it and the words the learner knows, checked by
   * the code (`SentenceGrammar`) sentence by sentence, and asked again with the
-  * problems named, a few times at most.
+  * problems named, a few times at most; what is refused is kept.
   */
-final class TextWriter(client: LlamaClient) {
+final class TextWriter(client: LlamaClient, refusals: Refusals) {
   import TextWriter.*
 
   private val logger = Logger("hanamaru.backend.lessons")
@@ -83,6 +83,12 @@ final class TextWriter(client: LlamaClient) {
               logger.debug(
                 s"Text for ${point.id} refused: ${problems.mkString("; ")}"
               )
+              refusals.kept(
+                WrittenFor.LessonText,
+                point.id,
+                text.sentences.map(each => each.japanese -> each.french),
+                problems
+              )
               attempt(left - 1, problems)
             }
           }
@@ -94,7 +100,8 @@ final class TextWriter(client: LlamaClient) {
     * one of its words, and ask nothing the learner has not learned
     * (`SentenceGrammar`); those refused asked again with their problems named,
     * a few times at most, the others kept. Each kept with its target and
-    * tokens, in the targets' order.
+    * tokens, in the targets' order. The sentences written before (`before`) are
+    * shown to the tutor, so that it does not write them again.
     */
   def onTargets(
       targets: List[Target],
@@ -102,6 +109,7 @@ final class TextWriter(client: LlamaClient) {
       analyser: Analyser,
       known: List[String],
       knownForms: Set[String],
+      before: List[String],
       points: List[CurriculumPoint] = Curriculum.points
   ): List[(Target, Written, List[Token])] = {
     val grammar = grammarUpTo(upTo, points)
@@ -127,16 +135,23 @@ final class TextWriter(client: LlamaClient) {
           .structured[Text](
             system =
               "You write single, independent sentences for a beginner learning Japanese to translate, in polite Japanese, with their French translation. The learner knows only the grammar and the words they are given: use nothing else, not even common words or particles they are not given. Each sentence short, simple, natural and complete, about its own situation; vary the people, places and situations from one sentence to the next.",
-            user =
-              s"""Write ${asked.size} sentences, in this order, each using its grammar point and its word(s):
-              |$lines
-              |Grammar the learner knows (use no other particle, ending or conjugation):
+            // what is the same from one request to the next comes first: the
+            // tutor reads it once, kept from the request before
+            user = s"""Grammar the learner knows (use no other particle, ending or conjugation):
               |$grammar
               |Particles and forms the learner does not know yet, never to be used: ${notYet
-                  .mkString(", ")}.
+                       .mkString(", ")}.
               |Other words the learner knows, to use as needed (and names of people, numbers): ${known
-                  .take(wordsGiven)
-                  .mkString(", ")}.""".stripMargin,
+                       .take(wordsGiven)
+                       .mkString(", ")}.""".stripMargin + Option
+              .when(before.nonEmpty)(
+                s"\nSentences already written, not to be written again (take other people, places and situations): ${before
+                    .mkString(" ")}"
+              )
+              .getOrElse("") +
+              s"""
+              |Write ${asked.size} sentence(s), in this order, each using its grammar point and its word(s):
+              |$lines""".stripMargin,
             schema = exactly(asked.size),
             maxTokens = 2048,
             temperature = 0.8
@@ -158,9 +173,15 @@ final class TextWriter(client: LlamaClient) {
             (target, sentence, tokens)
         }
         val again = judged.collect {
-          case (target, _, _, problems) if problems.nonEmpty =>
+          case (target, sentence, _, problems) if problems.nonEmpty =>
             logger.debug(
               s"Sentence on ${target.point.id} refused: ${problems.mkString("; ")}"
+            )
+            refusals.kept(
+              WrittenFor.FreeSentence,
+              s"${target.point.id}: ${target.words.map(_.head).mkString(", ")}",
+              sentence.toList.map(each => each.japanese -> each.french),
+              problems
             )
             target -> problems
         }

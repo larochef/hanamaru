@@ -111,11 +111,17 @@ class ApiClient(baseUri: Uri) {
   def lessonText(point: String): EventStream[AppResult[Option[LessonText]]] =
     call(LessonRoutes.text, point)
 
-  def exercises(of: ExercisesOf): EventStream[AppResult[List[LessonExercise]]] =
-    of match {
-      case ExercisesOf.Lesson(point) => call(LessonRoutes.exercises, point)
-      case ExercisesOf.Free          => call(LessonRoutes.free, ())
-    }
+  def exercises(point: String): EventStream[AppResult[List[LessonExercise]]] =
+    call(LessonRoutes.exercises, point)
+
+  def startFreePractice(): EventStream[AppResult[FreeExercise]] =
+    call(LessonRoutes.free, ())
+
+  def freeExercise(
+      practice: Long,
+      index: Int
+  ): EventStream[AppResult[FreeExercise]] =
+    call(LessonRoutes.freeExercise, (practice, index))
 
   def answerExercise(
       answer: ExerciseAnswer

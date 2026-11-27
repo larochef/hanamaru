@@ -47,6 +47,10 @@ object FreePracticeTests extends TestSuite {
         words.count(verbs.contains) == 2
       )
     }
+    test("the points that say verbs and adjectives are in the curriculum") {
+      val ids = Curriculum.points.map(_.id).toSet
+      assert(FreePractice.doingFrom.values.forall(ids))
+    }
     test("nothing learned, nothing drawn") {
       assert(FreePractice.targets(Nil, Nil, Nil, 6, Random(1)).isEmpty)
     }

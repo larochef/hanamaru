@@ -46,7 +46,20 @@ learned, without anyone writing them by hand.
   the tutor keeps to the same few). Each sentence is checked against its own
   target: its point shown, one of its words used, nothing not learned yet
   (`SentenceGrammar`); those refused are asked again, the problems named,
-  the others kept. Not measured against the tutor yet.
+  the others kept. Asked one at a time, with the sentences already written
+  (not to be written again), what is the same from one request to the next
+  first, so that the tutor reads it once: a sentence in about 1.5 s, the
+  first ready in 2 s (9 s once, with retries). Early in the curriculum
+  (です, は, の, か), they are short and sometimes odd (いみの ひとは
+  だれですか).
+- **What the code refuses is kept** (`refused_sentence`, `Refusals`): a
+  word's sentence, a lesson's text, a free sentence, with what it was written
+  for and on, the problems named and the model, to be gone over for
+  instructions that would avoid them. A first look found the free practice
+  asking for verbs before ます was learned: verbs and adjectives are drawn
+  only once the point that says them is (ます, the い adjectives). On 30 free
+  sentences then, 5 were refused, rightly: a point left out, これ or いちばん
+  not learned yet (a word a later point names is still drawn as a word met).
 - **Kanji as they are learned** (built): each word laid out keeps how it is
   written beside its kana (`SentencePart.written`), and as a sentence is
   served (`KanjiSight`, not as it is laid out and cached: the learner's kanji

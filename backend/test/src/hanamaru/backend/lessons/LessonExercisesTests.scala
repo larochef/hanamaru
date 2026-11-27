@@ -40,13 +40,14 @@ object LessonExercisesTests extends TestSuite {
     )
     val analyser = Analyser(analyserData)
     val dictionary = Dictionary(Database.connect(dictionaryFile))
-    val learner = LearnerStore(Database.open(directory.resolve("learner.db")))
+    val database = Database.open(directory.resolve("learner.db"))
+    val learner = LearnerStore(database)
     Exercises(
       Lessons(
         () => Some(analyser),
         () => Some(dictionary),
         learner,
-        TextWriter(LlamaClient(tutor, http)),
+        TextWriter(LlamaClient(tutor, http), Refusals(database, "none")),
         Units(Curriculum.points, () => Some(dictionary), learner, () => None)
       ),
       () => Some(analyser),

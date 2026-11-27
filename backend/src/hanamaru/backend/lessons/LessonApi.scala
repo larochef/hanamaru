@@ -11,6 +11,7 @@ import sttp.tapir.server.ServerEndpoint
 class LessonApi(
     lessons: Lessons,
     exercises: Exercises,
+    free: FreePractices,
     judge: ExerciseJudge,
     myLesson: MyLesson,
     recaps: UnitRecaps
@@ -25,7 +26,10 @@ class LessonApi(
     LessonRoutes.moveOn.handleSuccess(_ => lessons.movedOn(Instant.now())),
     LessonRoutes.text.handle(lessons.text),
     LessonRoutes.exercises.handle(exercises.exercises),
-    LessonRoutes.free.handle(_ => exercises.free()),
+    LessonRoutes.free.handle(_ => free.started()),
+    LessonRoutes.freeExercise.handle((practice, index) =>
+      free.exercise(practice, index)
+    ),
     LessonRoutes.answer.handleSuccess(judge.judged),
     LessonRoutes.done.handle(result => exercises.done(result, Instant.now()))
   )

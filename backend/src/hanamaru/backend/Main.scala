@@ -52,6 +52,7 @@ object Main extends OxApp {
     releaseAfterScope(model.stop())
     forkUnsupervised(model.run()).discard
     val tutor = LlamaClient(model, http)
+    val refusals = Refusals(database, model.modelFile)
     val units = Units(
       Curriculum.points,
       () => reference.dictionary,
@@ -67,7 +68,7 @@ object Main extends OxApp {
       MeaningJudge(tutor),
       attempts,
       writingReview,
-      SentenceWriter(tutor, () => reference.analyser),
+      SentenceWriter(tutor, () => reference.analyser, refusals),
       units,
       KanjiHand.of(() => reference.kanji, learner)
     )
@@ -84,7 +85,7 @@ object Main extends OxApp {
       () => reference.analyser,
       () => reference.dictionary,
       learner,
-      TextWriter(tutor),
+      TextWriter(tutor, refusals),
       units
     )
     val exercises = Exercises(
@@ -138,6 +139,7 @@ object Main extends OxApp {
         LessonApi(
           lessons,
           exercises,
+          FreePractices(exercises),
           ExerciseJudge(
             tutor,
             () => reference.analyser,

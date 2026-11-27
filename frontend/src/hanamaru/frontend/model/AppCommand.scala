@@ -76,8 +76,15 @@ object AppCommand {
   /** Asks the tutor for a new reading text for a lesson. */
   final case class WriteLessonText(point: String) extends AppCommand
 
-  /** Asks for exercises: on a lesson's point, or free. */
-  final case class LoadExercises(of: ExercisesOf) extends AppCommand
+  /** Asks for exercises on a lesson's point. */
+  final case class LoadExercises(point: String) extends AppCommand
+
+  /** Starts a free practice: its first exercise, the others being written. */
+  case object StartFreePractice extends AppCommand
+
+  /** Asks for a free practice's exercise, once written. */
+  final case class LoadFreeExercise(practice: Long, index: Int)
+      extends AppCommand
 
   /** Has an exercise's answer judged. */
   final case class AnswerExercise(answer: ExerciseAnswer) extends AppCommand

@@ -40,8 +40,13 @@ and a free afternoon are both useful.
   the code draws what each sentence is on ([`07`](07-text-generation.md)):
   a point among those up to the last one met, each as often as the others,
   and two words met, one that says what is done or how (a verb, an
-  adjective) and one other, none twice. Every learned point in a sentence is
-  marked, so a slip is forgiven only in its nouns. Recorded as nothing: it
+  adjective, once the point that says it is learned) and one other, none
+  twice. Every learned point in a sentence is
+  marked, so a slip is forgiven only in its nouns. The sentences are written
+  one after the other (`FreePractices`): the first as the practice starts,
+  the next while the learner answers, each told those before so as not to
+  repeat them; a target the tutor writes nothing for is replaced by the next
+  drawn. Only the latest practice is written. Recorded as nothing: it
   changes no review. Even only in expectation, one practice after another:
   nothing remembers what earlier ones were on.
 

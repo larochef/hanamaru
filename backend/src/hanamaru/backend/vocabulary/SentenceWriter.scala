@@ -1,6 +1,6 @@
 package hanamaru.backend.vocabulary
 
-import hanamaru.backend.models.LlamaClient
+import hanamaru.backend.models.*
 import hanamaru.backend.reference.Analyser
 import hanamaru.shared.dictionary.DictionaryWord
 import hanamaru.shared.vocabulary.WordSentence
@@ -10,11 +10,12 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 
 /** The tutor asked for a short sentence using a word and only the words the
   * learner knows; the code checks it (`SentenceCheck`), and asks again, naming
-  * the words it did not accept, a few times at most.
+  * the words it did not accept, a few times at most; what is refused is kept.
   */
 final class SentenceWriter(
     client: LlamaClient,
-    analyser: () => Option[Analyser]
+    analyser: () => Option[Analyser],
+    refusals: Refusals
 ) {
   import SentenceWriter.*
 
@@ -74,7 +75,14 @@ final class SentenceWriter(
                       written.french
                     )
                   )
-                case Left(problems) => attempt(left - 1, problems)
+                case Left(problems) =>
+                  refusals.kept(
+                    WrittenFor.WordSentence,
+                    s"$form ($reading)",
+                    List(written.japanese -> written.french),
+                    problems.map(word => s"unknown word: $word")
+                  )
+                  attempt(left - 1, problems)
               }
             }
         }

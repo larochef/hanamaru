@@ -181,16 +181,25 @@ final class Lessons(
   }
 
   /** Free sentences on targets ([[TextWriter.onTargets]]), the points learned
-    * being those up to `index`.
+    * being those up to `index`, other than those written `before`.
     */
   def freeSentences(
       targets: List[TextWriter.Target],
       index: Int,
       analysis: Analyser,
-      words: Dictionary
+      words: Dictionary,
+      before: List[String]
   ): List[(TextWriter.Target, TextWriter.Written, List[Token])] = {
     val (known, knownForms) = knownUpTo(index, analysis, words)
-    writer.onTargets(targets, index, analysis, known, knownForms, points)
+    writer.onTargets(
+      targets,
+      index,
+      analysis,
+      known,
+      knownForms,
+      before,
+      points
+    )
   }
 
   /** The words a text for the lesson at `index` may use: those the learner has

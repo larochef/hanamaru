@@ -11,9 +11,12 @@ object FreePractice {
   val sentences = 6
 
   /** What the analyser calls the words that say what is done or how things are,
-    * drawn apart from the others.
+    * drawn apart from the others, each with the point that a sentence needs to
+    * say them (a verb without ます learned can only be said with what is not
+    * learned yet): before it, not drawn.
     */
-  val doingWords: Set[String] = Set("動詞", "形容詞")
+  val doingFrom: Map[String, String] =
+    Map("動詞" -> "masu", "形容詞" -> "i-adjectives")
 
   /** What each of `count` sentences is to be on: a point among those learned,
     * each as often as the others (in a random order, once each before any comes

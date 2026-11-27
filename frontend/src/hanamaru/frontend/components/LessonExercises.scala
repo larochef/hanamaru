@@ -14,7 +14,8 @@ import com.raquo.laminar.api.L.*
   * tutor (a meaning, the tutor away, by the learner), then the series recorded
   * as one review of the point (the kanji written are the kanji's reviews);
   * `onDone` offers to go on, in a session. Free ([[ExercisesOf.Free]]), they
-  * are recorded as nothing: only counted.
+  * are recorded as nothing, only counted, and come one by one, each written by
+  * the tutor while the learner answers those before.
   */
 class LessonExercises(
     bus: AppBus,
@@ -25,6 +26,7 @@ class LessonExercises(
   private enum Step {
     case Idle
     case Loading
+    case Writing(index: Int)
     case Asking(index: Int)
     case Judging(index: Int)
     case Judged(index: Int, answer: String, verdict: ExerciseVerdict)
@@ -32,8 +34,18 @@ class LessonExercises(
     case Failed(reason: String)
   }
 
+  // exercises as they come, how many there are, and the free practice
+  final private case class Loaded(
+      exercises: List[LessonExercise],
+      total: Int,
+      practice: Option[Long]
+  )
+
   private val step = Var[Step](Step.Idle)
   private val exercises = Var(List.empty[LessonExercise])
+  private val total = Var(0)
+  private val practice = Var(Option.empty[Long])
+  private val toWrite = EventBus[(Long, Int)]()
   // how each exercise went, sent once all are done: the server counts them
   private val outcomes = Var(List.empty[ExerciseOutcome])
   private val finished = EventBus[ExercisesDone]()
@@ -50,10 +62,14 @@ class LessonExercises(
   private def kept(kind: ExerciseKind, right: Boolean): Unit =
     outcomes.update(_ :+ ExerciseOutcome(kind, right))
 
-  // the next exercise, or the series recorded (free, only counted)
+  // the next exercise (free, once written), or the series recorded (free,
+  // only counted)
   private def next(index: Int): Unit =
     if (index + 1 < exercises.now().size) {
       step.set(Step.Asking(index + 1))
+    } else if (index + 1 < total.now()) {
+      step.set(Step.Writing(index + 1))
+      practice.now().foreach(id => toWrite.writer.onNext(id -> (index + 1)))
     } else
       of match {
         case ExercisesOf.Lesson(point) =>
@@ -396,16 +412,27 @@ class LessonExercises(
             "Le tuteur prépare les exercices…"
           )
         )
+      case Step.Writing(index) =>
+        div(
+          progress(index),
+          p(
+            cls := "in-english",
+            Tr(
+              "The tutor writes the next sentence…",
+              "Le tuteur écrit la phrase suivante…"
+            )
+          )
+        )
       case Step.Asking(index) =>
-        div(progress(index, all.size), asked(index, all(index)))
+        div(progress(index), asked(index, all(index)))
       case Step.Judging(index) =>
         div(
-          progress(index, all.size),
+          progress(index),
           p(cls := "in-english", Tr("Checking…", "Correction…"))
         )
       case Step.Judged(index, answer, verdict) =>
         div(
-          progress(index, all.size),
+          progress(index),
           judged(index, all(index), answer, verdict)
         )
       case Step.Done(rightOnes, total) =>
@@ -438,12 +465,14 @@ class LessonExercises(
         )
     }
 
-  private def progress(index: Int, total: Int) =
+  private def progress(index: Int) =
     p(
       cls := "in-english",
-      Tr(
-        s"Exercise ${index + 1} of $total",
-        s"Exercice ${index + 1} sur $total"
+      child.text <-- total.signal.map(count =>
+        Tr(
+          s"Exercise ${index + 1} of $count",
+          s"Exercice ${index + 1} sur $count"
+        )
       )
     )
 
@@ -452,14 +481,39 @@ class LessonExercises(
     h2(Tr("Exercises", "Exercices")),
     loads.events --> (_ => step.set(Step.Loading)),
     loads.events.flatMapSwitch(_ =>
-      bus.request(AppCommand.LoadExercises(of)) {
-        case AppEvent.ExercisesLoaded(`of`, loaded) => loaded
+      of match {
+        case ExercisesOf.Lesson(point) =>
+          bus.request(AppCommand.LoadExercises(point)) {
+            case AppEvent.ExercisesLoaded(`point`, loaded) =>
+              Loaded(loaded, loaded.size, None)
+          }
+        case ExercisesOf.Free =>
+          bus.request(AppCommand.StartFreePractice) {
+            case AppEvent.FreePracticeStarted(first) =>
+              Loaded(List(first.exercise), first.total, Some(first.practice))
+          }
       }
     ) --> {
       case Right(loaded) =>
-        exercises.set(loaded)
+        exercises.set(loaded.exercises)
+        total.set(loaded.total)
+        practice.set(loaded.practice)
         outcomes.set(Nil)
-        step.set(if (loaded.isEmpty) Step.Done(0, 0) else Step.Asking(0))
+        step.set(
+          if (loaded.exercises.isEmpty) Step.Done(0, 0) else Step.Asking(0)
+        )
+      case Left(reason) => step.set(Step.Failed(reason))
+    },
+    toWrite.events.flatMapSwitch((id, index) =>
+      bus.request(AppCommand.LoadFreeExercise(id, index)) {
+        case AppEvent.FreeExerciseLoaded(written)
+            if written.practice == id && written.index == index =>
+          written.exercise
+      }
+    ) --> {
+      case Right(written) =>
+        exercises.update(_ :+ written)
+        step.set(Step.Asking(exercises.now().size - 1))
       case Left(reason) => step.set(Step.Failed(reason))
     },
     answers.events.flatMapSwitch(answer =>

@@ -164,14 +164,14 @@ final class Exercises(
       choices ++ translated ++ meanings ++ kanjiToWrite
     }
 
-  /** Free practice, apart from the lessons: sentences written by the tutor on
-    * everything learned so far, drawn evenly ([[FreePractice.targets]]), each
-    * asked one way, translated from French or its meaning given, in turn; every
-    * learned point in them marked, so that a slip is forgiven only in their
-    * nouns. Nothing learned yet, none.
+  /** What a free practice is on, apart from the lessons: the index of the last
+    * point learned, and `count` targets drawn evenly on everything learned so
+    * far ([[FreePractice.targets]]). Nothing learned yet, none.
     */
-  def free(): Either[String, List[LessonExercise]] =
-    (for {
+  def freeTargets(
+      count: Int
+  ): Either[String, (Int, List[TextWriter.Target])] =
+    for {
       analysis <- analyser().toRight("The Japanese analyser is not ready")
       words <- dictionary().toRight("The dictionary is not ready")
       upTo <- learner
@@ -181,10 +181,6 @@ final class Exercises(
         .filter(_ >= 0)
         .toRight("No lesson learned yet")
     } yield {
-      val learned = points.take(upTo + 1)
-      val glosses = Glosses(words)
-      val sight = KanjiSight.of(learner)
-      val kanjiWritten = KanjiHand.of(kanjiBook, learner).writes().toList.sorted
       val met = words
         .words(learner.metKeys(ItemKind.Word).flatMap(_.toLongOption).toList)
         // as usually written first: そう, not 然う
@@ -193,56 +189,77 @@ final class Exercises(
           else word.writings ++ word.readings
         )
         .filter(_.nonEmpty)
-      // verbs and adjectives drawn apart: the nouns would drown them
-      val (doing, others) = met.partition(forms =>
-        analysis
+      val learned = points.take(upTo + 1)
+      val sayable = learned.map(_.id).toSet
+      // verbs and adjectives drawn apart, the nouns would drown them; none
+      // before the point that says them
+      val needs = met.map(forms =>
+        forms -> analysis
           .tokens(forms.head)
           .headOption
-          .exists(token =>
-            token.partOfSpeech.headOption.exists(FreePractice.doingWords)
-          )
+          .flatMap(_.partOfSpeech.headOption)
+          .flatMap(FreePractice.doingFrom.get)
       )
-      val targets = FreePractice.targets(
+      val doing = needs.collect {
+        case (forms, Some(point)) if sayable(point) => forms
+      }
+      val others = needs.collect { case (forms, None) => forms }
+      upTo -> FreePractice.targets(
         learned,
         doing,
         others,
-        FreePractice.sentences,
+        count,
         Random
       )
-      lessons
-        .freeSentences(targets, upTo, analysis, words)
-        .zipWithIndex
-        .map { case ((target, sentence, tokens), index) =>
-          val parts = sight.shown(
-            lessons
-              .marking(
-                learned.flatMap(_.shownIn(tokens)).toSet,
-                tokens,
-                sentence.french,
-                glosses
-              )
-              .parts
-          )
-          if (index % 2 == 0)
-            Exercises.translation(
-              target.point.id,
-              parts,
-              sentence.japanese,
+    }
+
+  /** A free practice's exercise, the one at `index`, on a sentence the tutor
+    * writes on its target, other than those written `before`: translated from
+    * French or its meaning given, in turn; every point learned up to `upTo`
+    * marked in it, so that a slip is forgiven only in its nouns. None when the
+    * tutor wrote none that fits.
+    */
+  def freeExercise(
+      target: TextWriter.Target,
+      upTo: Int,
+      index: Int,
+      before: List[String]
+  ): Option[LessonExercise] =
+    for {
+      analysis <- analyser()
+      words <- dictionary()
+      (_, sentence, tokens) <- lessons
+        .freeSentences(List(target), upTo, analysis, words, before)
+        .headOption
+    } yield {
+      val parts = KanjiSight
+        .of(learner)
+        .shown(
+          lessons
+            .marking(
+              points.take(upTo + 1).flatMap(_.shownIn(tokens)).toSet,
+              tokens,
               sentence.french,
-              kanjiWritten
+              Glosses(words)
             )
-          else
-            Exercises.meaning(
-              target.point.id,
-              parts,
-              sentence.japanese,
-              sentence.french
-            )
-        }
-    }).filterOrElse(
-      _.nonEmpty,
-      "The tutor wrote no sentence that fits what you have learned: is it running?"
-    )
+            .parts
+        )
+      if (index % 2 == 0)
+        Exercises.translation(
+          target.point.id,
+          parts,
+          sentence.japanese,
+          sentence.french,
+          KanjiHand.of(kanjiBook, learner).writes().toList.sorted
+        )
+      else
+        Exercises.meaning(
+          target.point.id,
+          parts,
+          sentence.japanese,
+          sentence.french
+        )
+    }
 
   private val translationsAtMost = 3
   private val particlesBefore = 2

@@ -39,14 +39,22 @@ object LessonRoutes {
       .errorOut(Routes.refused)
       .out(jsonBody[List[LessonExercise]])
 
-  /** Free practice: sentences written by the tutor on everything learned so
-    * far, drawn evenly, each translated one way or the other.
+  /** A free practice started: sentences written by the tutor on everything
+    * learned so far, drawn evenly, each translated one way or the other; its
+    * first exercise, the others being written.
     */
-  val free: PublicEndpoint[Unit, String, List[LessonExercise], Any] =
-    Routes.baseRoute.get
+  val free: PublicEndpoint[Unit, String, FreeExercise, Any] =
+    Routes.baseRoute.post
       .in("practice" / "free")
       .errorOut(Routes.refused)
-      .out(jsonBody[List[LessonExercise]])
+      .out(jsonBody[FreeExercise])
+
+  /** A free practice's next exercise, once written. */
+  val freeExercise: PublicEndpoint[(Long, Int), String, FreeExercise, Any] =
+    Routes.baseRoute.get
+      .in("practice" / "free" / path[Long]("practice") / path[Int]("index"))
+      .errorOut(Routes.refused)
+      .out(jsonBody[FreeExercise])
 
   /** An exercise's answer judged: by the code, else by the tutor. */
   val answer: PublicEndpoint[ExerciseAnswer, String, ExerciseVerdict, Any] =

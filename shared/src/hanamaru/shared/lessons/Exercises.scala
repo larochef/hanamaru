@@ -77,6 +77,16 @@ enum ExercisesOf {
   case Free
 }
 
+/** An exercise of a free practice: the one at `index` of `total`, written by
+  * the tutor while the learner answered those before.
+  */
+final case class FreeExercise(
+    practice: Long,
+    index: Int,
+    total: Int,
+    exercise: LessonExercise
+)
+
 /** A lesson's exercises done: each one's kind, and whether it was right. */
 final case class ExercisesDone(point: String, outcomes: List[ExerciseOutcome])
 
@@ -99,6 +109,11 @@ object ExerciseKind {
 object LessonExercise {
   given JsonValueCodec[List[LessonExercise]] = JsonCodecMaker.make
   given Schema[LessonExercise] = Schema.derived
+}
+
+object FreeExercise {
+  given JsonValueCodec[FreeExercise] = JsonCodecMaker.make
+  given Schema[FreeExercise] = Schema.derived
 }
 
 object ExerciseAnswer {
